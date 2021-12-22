@@ -1,4 +1,0 @@
-nacos:
-  config:
-    server-addr: 162.14.101.164:8848
-    namespace: 479d1a61-9764-4543-9511-c4f601dcfb36

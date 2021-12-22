@@ -1,0 +1,4 @@
+#nacos:
+#  config:
+#    server-addr: 10.157.107.55:80
+#    namespace: 8c8b412b-c240-44e7-96b2-a9c8855b474b

@@ -21,9 +21,7 @@ public interface UserBaseMapper extends BaseMapper<User> {
     String C_INTRO = "intro";
     String C_BIRTH = "birth";
     String C_GMT_CREATE = "gmt_create";
-    String C_CREATE_USER_NAME = "create_user_name";
     String C_GMT_MODIFIED = "gmt_modified";
-    String C_MODIFY_USER_NAME = "modify_user_name";
     String C_IS_DELETED = "is_deleted";
 
     default IPage<User> findPage(UserDto condition, int currentPage, int pageSize) {
@@ -82,9 +80,7 @@ public interface UserBaseMapper extends BaseMapper<User> {
         query.eq(StringUtils.hasText(condition.getIntro()), C_INTRO, condition.getIntro());
         query.eq(condition.getBirth()!=null, C_BIRTH, condition.getBirth());
         query.eq(condition.getGmtCreate()!=null, C_GMT_CREATE, condition.getGmtCreate());
-        query.eq(StringUtils.hasText(condition.getMobile()), C_CREATE_USER_NAME, condition.getMobile());
-        query.eq(condition.getGmtModified()!=null, C_GMT_MODIFIED, condition.getMobile());
-        query.eq(StringUtils.hasText(condition.getModifyUserName()), C_MODIFY_USER_NAME, condition.getModifyUserName());
+        query.eq(condition.getGmtModified()!=null, C_GMT_MODIFIED, condition.getGmtModified());
         query.eq(condition.getIsDeleted()!=null, C_IS_DELETED, condition.getIsDeleted());
     }
 

@@ -2,24 +2,23 @@ server:
   port: 8080
   servlet:
     context-path: /meet
-    
+    # 中文字符集
+    encoding:
+      charset: utf-8
+      force: true
+      enabled: true
 spring:
   profiles:
     active:
     - dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: zxcv123321AZ
-    url: jdbc:mysql://162.14.101.164:3306/meet_dev?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
 
 mybatis-plus:
   global-config:
     db-config:
-      logic-delete-field: deleted
+      logic-delete-field: isDeleted
       logic-delete-value: 1
       logic-not-delete-value: 0
-  mapper-locations: classpath*:com/pwc/sdc/**/dao/**/mapper/**/*.xml
+  mapper-locations: classpath*:com/nsu/stu/**/dao/**/mapper/**/*.xml
     
 nacos:
   config:

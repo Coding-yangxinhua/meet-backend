@@ -60,26 +60,15 @@ public class User extends BaseModel {
     private Long gmtCreate;
 
     /**
-     * 创建人
-     */
-    @TableField(value = "`create_user_name`",fill = FieldFill.INSERT)
-    private String createUserName;
-
-    /**
      * 修改时间
      */
     @TableField(value = "`gmt_modified`", fill = FieldFill.INSERT_UPDATE)
     private Long gmtModified;
 
     /**
-     * 修改人
-     */
-    @TableField(value = "`modify_user_name`", fill = FieldFill.INSERT_UPDATE)
-    private String modifyUserName;
-
-    /**
      * 逻辑删除 0-未删除 1-删除
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
+
 }

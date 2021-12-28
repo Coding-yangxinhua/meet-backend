@@ -2,13 +2,16 @@ package com.nsu.stu.meet.configuration;
 
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.alibaba.nacos.spring.context.annotation.config.EnableNacosConfig;
+import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.nsu.stu.meet.common.enums.DeletedEnums;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -29,10 +32,10 @@ import java.util.Map;
 @Configuration
 @EnableNacosConfig
 @EnableConfigurationProperties
+@EnableCaching
 @MapperScan("com.**.dao")
 @ComponentScan(basePackages = { "com.nsu.stu.meet" })
 public class MeetApplicationConfiguration {
-
 	/**
 	 * mybatis-plus 自动完成insert和update时的值设置
 	 */
@@ -45,9 +48,10 @@ public class MeetApplicationConfiguration {
 			@Override
 			public void insertFill(MetaObject metaObject) {
 				Long currentTimeMillis = System.currentTimeMillis();
-				this.strictInsertFill(metaObject, "gmtModified", Long.class, currentTimeMillis);
 				this.strictInsertFill(metaObject, "gmtCreate", Long.class, currentTimeMillis);
-				this.strictInsertFill(metaObject, "isDeleted", Integer.class, DeletedEnums.DELETED_NO.code);
+				this.strictInsertFill(metaObject, "gmtModified", Long.class, currentTimeMillis);
+				this.strictInsertFill(metaObject, "isDeleted", Integer.class, 0);
+
 			}
 
 			/**
@@ -100,16 +104,21 @@ public class MeetApplicationConfiguration {
 //		return bean;
 //	}
 
+    /**
+     * mybatis-plus分页
+     * @return
+     */
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
+        return interceptor;
+    }
 	@Bean
 	@ConditionalOnMissingBean
 	public FilterRegistrationBean webStatFilter() {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(new WebStatFilter());
-
-
-
-
-		
 		Map<String, String> initParams = new HashMap<>();
 		initParams.put("exclusions", "*.js,*.css,/druid/*");
 		bean.setInitParameters(initParams);

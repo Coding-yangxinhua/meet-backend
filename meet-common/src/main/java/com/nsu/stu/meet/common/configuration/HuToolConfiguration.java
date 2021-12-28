@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class HuToolConfiguration {
 
+public class HuToolConfiguration {
     @Bean
     public Snowflake snowflake() {
         return IdUtil.createSnowflake(1,1);

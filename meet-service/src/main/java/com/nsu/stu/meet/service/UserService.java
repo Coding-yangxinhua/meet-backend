@@ -17,6 +17,12 @@ public interface UserService {
     User getById(Long userId);
 
     /**
+     * 通过id删除
+     * @return
+     */
+    int deleteById(Long userId);
+
+    /**
      * 批量查询
      * @param ids
      * @return
@@ -48,7 +54,7 @@ public interface UserService {
      * @param condition 传入的参数
      * @param currentPage 当前页
      * @param pageSize 每页条数
-     * @return IPage<ApplicationDto>
+     * @return IPage<UserDto>
      */
 
     IPage<UserDto> findPageDto(UserDto condition, int currentPage, int pageSize);
@@ -56,8 +62,14 @@ public interface UserService {
     /**
      * 分页查询
      * @param condition 传入的参数
-     * @return  List<ApplicationDto>
+     * @return  List<UserDto>
      */
     List<UserDto> findByConditionDto(UserDto condition);
+
+    /**
+     * 查询最新注册用户
+     * @return  ApplicationDto
+     */
+    User findNewestUser();
 
 }

@@ -6,10 +6,14 @@ import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.UserDto;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper extends UserBaseMapper {
 
     default void customizeQuery(UserDto condition, QueryWrapper<User> query) {
 
     }
+
+    User getNewestUser();
 }

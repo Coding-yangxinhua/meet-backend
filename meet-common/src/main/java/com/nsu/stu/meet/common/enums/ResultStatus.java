@@ -11,10 +11,11 @@ public enum ResultStatus {
     private final int value;
     private final String message;
 
-    private ResultStatus(int value, String message) {
+    ResultStatus(int value, String message) {
         this.value = value;
         this.message = message;
     }
+
 
     public int value() {
         return this.value;

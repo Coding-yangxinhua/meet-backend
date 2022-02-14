@@ -269,6 +269,12 @@
 <!--                <artifactId>sa-token-spring-boot-starter</artifactId>-->
 <!--                <version>1.21.0</version>-->
 <!--            </dependency>-->
+            <!--===============qcloud cos============================== -->
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>cos_api</artifactId>
+                <version>5.6.66</version>
+            </dependency>
             <!--================xxl-job============================== -->
             <dependency>
                 <groupId>com.xuxueli</groupId>

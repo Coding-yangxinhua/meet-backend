@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
+
+import javax.validation.constraints.*;
 
 @Getter
 @Setter
@@ -20,12 +24,14 @@ public class User extends BaseModel {
     /**
      * 用户昵称
      */
+    @Length(max = 15)
     @TableField(value = "`nickname`")
     private String nickname;
 
     /**
      * 用户手机号
      */
+    @Pattern(regexp = "/^1(3[0-9]|4[01456879]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[0-35-9])\\d{8}$/")
     @TableField(value = "`mobile`")
     private String mobile;
 
@@ -38,12 +44,14 @@ public class User extends BaseModel {
     /**
      * 用户性别 0-男 1-女
      */
+    @Range(min = 0, max = 1)
     @TableField(value = "`gender`")
     private Integer gender;
 
     /**
      * 用户简介
      */
+    @Length(max = 511)
     @TableField(value = "`intro`")
     private String intro;
 

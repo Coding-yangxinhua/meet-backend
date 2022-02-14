@@ -1,45 +1,37 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * mt_article_comment
+ * mt_article_like
  * @author 
  */
-@Data
-public class ArticleComment extends BaseModel {
+@Getter
+@Setter
+@TableName("mt_article_history")
+public class ArticleHistory extends BaseModel {
     /**
-     * 评论id
+     * 文章浏览记录id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long commentId;
+    private Long articleHistoryId;
 
     /**
-     * 评论父id
+     * 浏览人id
      */
-    @TableField(value = "`parent_id`")
-    private Long parentId;
+    @TableField(value = "`user_id`")
+    private Long userId;
 
     /**
-     * 评论的文章id
+     * 浏览文章id
      */
     @TableField(value = "`article_id`")
     private Long articleId;
-
-    /**
-     * 评论内容
-     */
-    @TableField(value = "`content`")
-    private String content;
 
     /**
      * 创建时间
@@ -58,6 +50,5 @@ public class ArticleComment extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
-
     private static final long serialVersionUID = 1L;
 }

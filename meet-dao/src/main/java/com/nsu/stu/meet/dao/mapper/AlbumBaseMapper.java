@@ -15,9 +15,10 @@ import java.util.List;
 
 
 public interface AlbumBaseMapper extends BaseMapper<Album> {
-    String C_ALBUM_ID = "albumId";
-    String C_USER_ID = "userId";
-    String C_PERMISSION_ID = "permissionId";
+    String C_ALBUM_ID = "album_id";
+    String C_USER_ID = "user_id";
+    String C_VIEW_LIMIT_ID = "view_limit_id";
+    String C_VIEW_LIMIT_DESC = "view_limit_desc";
     String C_TITLE = "title";
     String C_COVER = "cover";
     String C_GMT_CREATE = "gmt_create";
@@ -74,7 +75,8 @@ public interface AlbumBaseMapper extends BaseMapper<Album> {
     default void defaultQuery(AlbumDto condition, QueryWrapper<Album> query) {
         query.eq(condition.getUserId()!=null, C_USER_ID, condition.getUserId());
         query.eq(condition.getAlbumId()!=null, C_ALBUM_ID, condition.getAlbumId());
-        query.eq(condition.getPermissionId()!=null, C_PERMISSION_ID, condition.getPermissionId());
+        query.eq(condition.getViewLimitId()!=null, C_VIEW_LIMIT_ID, condition.getViewLimitId());
+        query.eq(StringUtils.hasText(condition.getViewLimitDesc()), C_VIEW_LIMIT_DESC, condition.getViewLimitDesc());
         query.eq(StringUtils.hasText(condition.getTitle()), C_TITLE, condition.getTitle());
         query.eq(StringUtils.hasText(condition.getCover()), C_COVER, condition.getCover());
         query.eq(condition.getGmtCreate()!=null, C_GMT_CREATE, condition.getGmtCreate());

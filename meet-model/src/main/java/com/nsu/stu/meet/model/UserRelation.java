@@ -1,40 +1,43 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
-/**
- * mt_article_like
- * @author 
- */
+import javax.validation.constraints.Pattern;
+
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_user_relation")
+public class UserRelation extends BaseModel {
     /**
-     * 文章点赞id
+     * 关系id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long relationId;
 
     /**
-     * 点赞人id
+     * 用户id
      */
-    @TableField(value = "`user_id`")
-    private Long userId;
+    @TableField(value = "`src_id`")
+    private Long srcId;
 
     /**
-     * 点赞文章id
+     * 目标用户id
      */
-    @TableField(value = "`article_id`")
-    private Long articleId;
+    @TableField(value = "`dest_id`")
+    private Long destId;
+
+    /**
+     * 用户关系 0 拉黑 1关注 2特别关心
+     */
+    @TableField(value = "`status`")
+    private Integer status;
 
     /**
      * 创建时间
@@ -53,5 +56,5 @@ public class ArticleLike extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
-    private static final long serialVersionUID = 1L;
+
 }

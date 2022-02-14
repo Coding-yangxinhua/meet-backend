@@ -10,31 +10,25 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * mt_article_like
+ * mt_permission
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_permission")
+public class ViewLimit extends BaseModel {
     /**
-     * 文章点赞id
+     * 权限唯一标识
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long viewLimitId;
 
     /**
-     * 点赞人id
+     * 权限名称
      */
-    @TableField(value = "`user_id`")
-    private Long userId;
-
-    /**
-     * 点赞文章id
-     */
-    @TableField(value = "`article_id`")
-    private Long articleId;
+    @TableField(value = "`description`")
+    private String description;
 
     /**
      * 创建时间
@@ -53,5 +47,6 @@ public class ArticleLike extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
+
     private static final long serialVersionUID = 1L;
 }

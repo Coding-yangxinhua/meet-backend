@@ -10,31 +10,31 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * mt_article_like
+ * mt_article_comment_dislike
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_comment_dislike")
+public class CommentDislike extends BaseModel {
     /**
-     * 文章点赞id
+     * 评论点踩id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long commentDislikeId;
 
     /**
-     * 点赞人id
+     * 点踩id
      */
     @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞文章id
+     * 评论id
      */
-    @TableField(value = "`article_id`")
-    private Long articleId;
+    @TableField(value = "`comment_id`")
+    private Long commentId;
 
     /**
      * 创建时间
@@ -53,5 +53,6 @@ public class ArticleLike extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
+
     private static final long serialVersionUID = 1L;
 }

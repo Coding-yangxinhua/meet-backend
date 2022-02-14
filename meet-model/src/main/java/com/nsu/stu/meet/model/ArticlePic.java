@@ -2,19 +2,21 @@ package com.nsu.stu.meet.model;
 
 import java.io.Serializable;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * mt_article_pic
  * @author 
  */
-@Data
+@Getter
+@Setter
+@TableName("mt_article_pic")
 public class ArticlePic extends BaseModel {
     /**
      * 文章配图id
@@ -28,6 +30,18 @@ public class ArticlePic extends BaseModel {
      */
     @TableField(value = "`article_id`")
     private Long articleId;
+
+    /**
+     * 浏览人id
+     */
+    @TableField(value = "`user_id`")
+    private Long userId;
+
+    /**
+     * 图片组
+     */
+    @TableField(value = "`url_group`")
+    private String urlGroup;
 
     /**
      * 创建时间

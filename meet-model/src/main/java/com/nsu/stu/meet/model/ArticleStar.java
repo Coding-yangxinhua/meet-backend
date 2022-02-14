@@ -10,28 +10,28 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * mt_article_like
- * @author 
+ * mt_article_star
+ * @author
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_article_star")
+public class ArticleStar extends BaseModel {
     /**
-     * 文章点赞id
+     * 文章收藏 id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long articleStarId;
 
     /**
-     * 点赞人id
+     * 收藏人id
      */
     @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞文章id
+     * 收藏文章id
      */
     @TableField(value = "`article_id`")
     private Long articleId;

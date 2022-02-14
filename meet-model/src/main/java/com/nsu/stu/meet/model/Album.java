@@ -8,6 +8,8 @@ import com.nsu.stu.meet.common.base.BaseModel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.URL;
 
 /**
  * mt_album
@@ -33,18 +35,26 @@ public class Album extends BaseModel {
     /**
      * 访问权限
      */
-    @TableField(value = "`permission_id`")
-    private Long permissionId;
+    @TableField(value = "`view_limit_id`")
+    private Long viewLimitId;
+
+    /**
+     * 访问权限描述
+     */
+    @TableField(value = "`view_limit_desc`")
+    private String viewLimitDesc;
 
     /**
      * 相册名称
      */
+    @Length(max = 15)
     @TableField(value = "`title`")
     private String title;
 
     /**
      * 相册封面
      */
+    @URL
     @TableField(value = "`cover`")
     private String cover;
 

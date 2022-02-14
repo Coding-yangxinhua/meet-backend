@@ -1,41 +1,54 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 /**
- * mt_article_repost
+ * mt_article_comment
  * @author 
  */
-@Data
-public class ArticleRepost extends BaseModel {
+@Getter
+@Setter
+@TableName("mt_message")
+public class Message extends BaseModel {
     /**
-     * 文章转发id
+     * 聊天id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleRepostId;
+    private Long messageId;
 
     /**
-     * 转发人id
+     * 目标id
      */
-    @TableField(value = "`user_id`")
-    private Long userId;
+    @TableField(value = "`dest_id`")
+    private Long destId;
 
     /**
-     * 转发文章id
+     * 用户id
      */
-    @TableField(value = "`article_id`")
-    private Long articleId;
+    @TableField(value = "`src_id`")
+    private Long srcId;
 
     /**
+     * 消息内容
+     */
+    @Length(max = 2047)
+    @TableField(value = "`content`")
+    private String content;
+
+    /**
+     * 状态 0-正常 1-删除 2-撤回
+     */
+    @TableField(value = "`status`")
+    private Integer status;
+
+    /**
+     *
      * 创建时间
      */
     @TableField(value = "`gmt_create`",fill = FieldFill.INSERT)

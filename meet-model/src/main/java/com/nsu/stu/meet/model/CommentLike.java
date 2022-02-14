@@ -1,33 +1,37 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * mt_permission
+ * mt_article_comment_Like
  * @author 
  */
-@Data
-public class Permission extends BaseModel {
+@Getter
+@Setter
+@TableName("mt_comment_like")
+public class CommentLike extends BaseModel {
     /**
-     * 权限唯一标识
+     * 评论点赞id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long permissionId;
+    private Long commentLikeId;
 
     /**
-     * 权限名称
+     * 点赞人id
      */
-    @TableField(value = "`description`")
-    private String description;
+    @TableField(value = "`user_id`")
+    private Long userId;
+
+    /**
+     * 点赞评论id
+     */
+    @TableField(value = "`comment_id`")
+    private Long commentId;
 
     /**
      * 创建时间

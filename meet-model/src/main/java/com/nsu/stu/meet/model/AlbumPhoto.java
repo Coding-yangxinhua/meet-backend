@@ -1,40 +1,46 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.URL;
 
 /**
- * mt_article_like
+ * mt_album
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_album_photo")
+public class AlbumPhoto extends BaseModel {
     /**
-     * 文章点赞id
+     * 相册图片id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long albumPhotoId;
 
     /**
-     * 点赞人id
+     * 图片拥有者id
      */
     @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞文章id
+     * 所属相册id
      */
-    @TableField(value = "`article_id`")
-    private Long articleId;
+    @TableField(value = "`album_id`")
+    private Long albumId;
+
+    /**
+     * 相册封面
+     */
+    @URL
+    @TableField(value = "`url`")
+    private String url;
 
     /**
      * 创建时间
@@ -53,5 +59,6 @@ public class ArticleLike extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
+
     private static final long serialVersionUID = 1L;
 }

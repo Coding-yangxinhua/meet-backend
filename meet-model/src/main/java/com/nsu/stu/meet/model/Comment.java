@@ -8,33 +8,47 @@ import com.nsu.stu.meet.common.base.BaseModel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 /**
- * mt_article_like
+ * mt_article_comment
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_comment")
+public class Comment extends BaseModel {
     /**
-     * 文章点赞id
+     * 评论id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long commentId;
 
     /**
-     * 点赞人id
+     * 评论父id
+     */
+    @TableField(value = "`parent_id`")
+    private Long parentId;
+
+    /**
+     * 评论的文章id
+     */
+    @TableField(value = "`article_id`")
+    private Long articleId;
+
+    /**
+     * 评论人id
      */
     @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞文章id
+     * 评论内容
      */
-    @TableField(value = "`article_id`")
-    private Long articleId;
+    @Length(max = 511)
+    @TableField(value = "`content`")
+    private String content;
 
     /**
      * 创建时间
@@ -53,5 +67,6 @@ public class ArticleLike extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
+
     private static final long serialVersionUID = 1L;
 }

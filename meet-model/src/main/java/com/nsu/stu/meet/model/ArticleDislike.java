@@ -1,11 +1,8 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,23 +12,23 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_article_dislike")
+public class ArticleDislike extends BaseModel {
     /**
-     * 文章点赞id
+     * 文章点踩id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long articleDislikeId;
 
     /**
-     * 点赞人id
+     * 点踩人id
      */
     @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞文章id
+     * 点踩文章id
      */
     @TableField(value = "`article_id`")
     private Long articleId;

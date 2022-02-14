@@ -1,62 +1,81 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
 /**
- * mt_article
+ * mt_article_comment
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_article")
-public class Article extends BaseModel {
+@TableName("mt_chat")
+public class Chat extends BaseModel {
     /**
-     * 文章唯一标识
+     * 聊天id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleId;
+    private Long chatId;
 
     /**
-     * 文章父id
-     */
-    @TableField(value = "`parent_id`")
-    private Long parentId;
-
-    /**
-     * 文章发布用户
+     * 用户id
      */
     @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 访问权限
+     * 目标id
      */
-    @TableField(value = "`view_limit_id`")
-    private Long viewLimitId;
+    @TableField(value = "`dest_id`")
+    private Long destId;
 
     /**
-     * 访问权限描述
+     * 房间类型 0-用户 1-群聊
      */
-    @TableField(value = "`view_limit_desc`")
-    private String viewLimitDesc;
+    @TableField(value = "`type`")
+    private Integer type;
 
     /**
-     * 文章内容
+     * 状态 0-正常接收 1-接收不提醒 2-屏蔽
      */
-    @Length(max = 4095)
+    @TableField(value = "`status`")
+    private Integer status;
+
+    /**
+     * 是否置顶 0-不指定 1-置顶
+     */
+    @TableField(value = "`is_top`")
+    private Integer isTop;
+    /**
+     * 评论内容
+     */
+    @TableField(value = "`is_hide`")
+    private Integer isHide;
+
+    /**
+     * 是否隐藏 0-不隐藏 1-隐藏
+     */
+    @TableField(value = "`content_time`")
+    private Long contentTime;
+
+    /**
+     * 聊天最新内容
+     */
     @TableField(value = "`content`")
     private String content;
 
     /**
+     * 置顶时间
+     */
+    @TableField(value = "`top_time`")
+    private Long topTime;
+
+    /**
+     *
      * 创建时间
      */
     @TableField(value = "`gmt_create`",fill = FieldFill.INSERT)

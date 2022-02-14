@@ -2,6 +2,10 @@ package com.nsu.stu.meet.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.enums.ResultStatus;
+import com.nsu.stu.meet.common.util.JwtUtil;
+import com.nsu.stu.meet.common.util.MD5Util;
 import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.UserDto;
 
@@ -66,10 +70,7 @@ public interface UserService {
      */
     List<UserDto> findByConditionDto(UserDto condition);
 
-    /**
-     * 查询最新注册用户
-     * @return  ApplicationDto
-     */
-    User findNewestUser();
+    ResponseEntity<String> registerUser (UserDto userDto);
+
 
 }

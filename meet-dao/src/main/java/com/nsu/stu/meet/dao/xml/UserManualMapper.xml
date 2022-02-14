@@ -10,5 +10,6 @@
     <select id="getNewestUser" resultType="com.nsu.stu.meet.model.User">
         <include refid="base" /> where gmt_create = (select max(gmt_create) from mt_user)
     </select>
+
 </mapper>
 

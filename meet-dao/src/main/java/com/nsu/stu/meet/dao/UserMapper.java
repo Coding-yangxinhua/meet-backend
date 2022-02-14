@@ -16,4 +16,5 @@ public interface UserMapper extends UserBaseMapper {
     }
 
     User getNewestUser();
+
 }

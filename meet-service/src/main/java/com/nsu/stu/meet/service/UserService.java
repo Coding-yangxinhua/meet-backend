@@ -1,76 +1,62 @@
 package com.nsu.stu.meet.service;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.ResultStatus;
-import com.nsu.stu.meet.common.util.JwtUtil;
-import com.nsu.stu.meet.common.util.MD5Util;
-import com.nsu.stu.meet.model.User;
-import com.nsu.stu.meet.model.UserDto;
+import com.nsu.stu.meet.model.dto.UserDto;
 
-import java.util.Collection;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 
 public interface UserService {
+
     /**
-     * 通过id获取
-     * @param userId
+     * 通过短信注册
+     * @param userDto
+     * @param code
+     * @param type
      * @return
      */
-    User getById(Long userId);
+    ResponseEntity<String> registerByCode (UserDto userDto, String code, int type, HttpServletResponse response);
 
     /**
-     * 通过id删除
+     * 通过密码注册
+     * @param userDto
      * @return
      */
-    int deleteById(Long userId);
+    ResponseEntity<String> registerByPassword (UserDto userDto, HttpServletResponse response);
 
     /**
-     * 批量查询
-     * @param ids
+     * 通过短信登录
+     * @param userDto
+     * @param code
+     * @param type
      * @return
      */
-    List<User> getByIds(Collection<Long> ids);
+    ResponseEntity<String> loginByCode (UserDto userDto, String code, int type, HttpServletResponse response);
+
     /**
-     * 主键字段为空则插入,否则更新
-     * @param user
+     * 通过密码登录
+     * @param userDto
      * @return
      */
-    boolean saveUpdate(User user);
+    ResponseEntity<String> loginByPassword (UserDto userDto, HttpServletResponse response);
 
     /**
-     * 批量更新,主键字段为空则插入,否则更新
-     * @param users
+     * 通过短信修改密码
+     * @param token
+     * @param password
+     * @param code
      * @return
      */
-    boolean saveUpdateBatch(List<User> users);
+    ResponseEntity<String> updatePasswordByCode(String token, String password, String code);
 
     /**
-     * 批量删除,可通过配置logic-delete-field等来实现逻辑删除,见application.yml配置.
-     * @param ids
+     * 修改用户简介
+     * @param userDto
+     * @param token
      * @return
      */
-    boolean removeBatch(Collection<Long> ids);
-
-    /**
-     * 分页查询
-     * @param condition 传入的参数
-     * @param currentPage 当前页
-     * @param pageSize 每页条数
-     * @return IPage<UserDto>
-     */
-
-    IPage<UserDto> findPageDto(UserDto condition, int currentPage, int pageSize);
-
-    /**
-     * 分页查询
-     * @param condition 传入的参数
-     * @return  List<UserDto>
-     */
-    List<UserDto> findByConditionDto(UserDto condition);
-
-    ResponseEntity<String> registerUser (UserDto userDto);
+    ResponseEntity<String> updateUserProfile(String token, UserDto userDto);
 
 
 }

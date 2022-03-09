@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(value = {IllegalParamException.class})
     @ResponseBody
-    public ResponseEntity<ResultStatus> businessException(IllegalParamException e){
+    public ResponseEntity<ResultStatus> handleIllegalParamException(IllegalParamException e){
         return ResponseEntity.builder().status(ResultStatus.CHECK_ERROR).message(e.getMessage()).build();
     }
     @ExceptionHandler(value = { IllegalArgumentException.class})

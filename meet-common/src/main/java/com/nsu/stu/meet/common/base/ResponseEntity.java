@@ -79,11 +79,21 @@ public class ResponseEntity<R> implements Serializable {
     }
 
     public static <R> ResponseEntity<R> ok() {
-        return (new ResponseEntity.Builder()).build();
+        return (new ResponseEntity.Builder(ResultStatus.OK, null, null)).build();
     }
 
     public static <R> ResponseEntity<R> ok(R result) {
-        return (new ResponseEntity.Builder(result)).build();
+        return (new ResponseEntity.Builder(ResultStatus.OK, null, result)).build();
+    }
+    public static <R> ResponseEntity<R> ok(String msg, R result) {
+        return (new ResponseEntity.Builder(ResultStatus.OK, msg, result)).build();
+    }
+    public static <R> ResponseEntity<R> ok(String msg) {
+        return (new ResponseEntity.Builder(ResultStatus.OK, msg, null)).build();
+    }
+
+    public static <R> ResponseEntity<R> checkError(String msg) {
+        return (new ResponseEntity.Builder(ResultStatus.CHECK_ERROR, msg, null)).build();
     }
 
     public static <R> ResponseEntity.Builder<R> builder() {
@@ -96,15 +106,15 @@ public class ResponseEntity<R> implements Serializable {
         private String message;
         private int code;
 
-        public Builder(R result) {
-            this.resultStatus = ResultStatus.OK;
-            this.code = resultStatus.OK.value();
-            this.result = result;
-        }
-
         public Builder() {
             this.resultStatus = ResultStatus.OK;
-            this.code = resultStatus.OK.value();
+            this.code = ResultStatus.OK.value();
+        }
+        public Builder(ResultStatus status, String msg, R result) {
+            this.resultStatus = status;
+            this.code = status.value();
+            this.message = msg;
+            this.result = result;
         }
 
         public <R> ResponseEntity<R> build() {

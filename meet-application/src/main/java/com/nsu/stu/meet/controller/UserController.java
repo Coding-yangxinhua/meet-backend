@@ -1,52 +1,80 @@
 package com.nsu.stu.meet.controller;
 
 import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.enums.SmsEnums;
-import com.nsu.stu.meet.common.util.AssertUtil;
 import com.nsu.stu.meet.common.util.JwtUtil;
-import com.nsu.stu.meet.common.util.MD5Util;
-import com.nsu.stu.meet.model.User;
-import com.nsu.stu.meet.model.UserDto;
+import com.nsu.stu.meet.model.dto.UserDto;
+import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserService;
+import com.tencentcloudapi.sms.v20190711.models.SendSmsResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "user")
+@RequestMapping(value = "/user")
 public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private SmsService smsService;
 
-    @RequestMapping(value = "get", method = RequestMethod.GET, params = {"userId"})
-    public ResponseEntity<User> getUserById(Long userId) {
-        User user = userService.getById(userId);
-        return ResponseEntity.ok(user);
+
+
+    @RequestMapping(value = "/send_sms", method = RequestMethod.GET, params = {"mobile", "type"})
+    public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type, HttpServletRequest request) {
+        String token = request.getParameter("token");
+        return smsService.sendSms(null, mobile, type);
     }
 
-    @RequestMapping(value = "sendSms", method = RequestMethod.GET, params = {"mobile"})
-    public ResponseEntity<ResultStatus> sendSms(String mobile) {
-        return ResponseEntity.ok();
+    @RequestMapping(value = "/register", method = RequestMethod.POST, params = {"code"})
+    public ResponseEntity<String> register(@RequestBody UserDto userDto, @Nullable String code, HttpServletResponse response) {
+        ResponseEntity<String> responseEntity = null;
+        if (code != null) {
+            responseEntity = userService.registerByCode(userDto, code, SmsEnums.REGISTER.type(), response);
+        }else {
+            responseEntity = userService.registerByPassword(userDto, response);
+        }
+        return responseEntity;
     }
 
-    @RequestMapping(value = "register", method = RequestMethod.POST, params = {"code"})
-    public ResponseEntity<String> register(@RequestBody UserDto userDto, Integer code) {
-        String mobile = userDto.getMobile();
-        redisTemplate.opsForValue().get(mobile);
-        AssertUtil.hasText(mobile, "手机号不能为空");
-        return userService.registerUser(userDto);
+    @RequestMapping(value = "/login", method = RequestMethod.POST, params = {"code"})
+    public ResponseEntity<String> login(@RequestBody UserDto userDto, @Nullable String code, HttpServletResponse response) {
+        ResponseEntity<String> responseEntity = null;
+        if (code != null) {
+            responseEntity = userService.loginByCode(userDto, code, SmsEnums.LOGIN.type(), response);
+        }else {
+            responseEntity = userService.loginByPassword(userDto, response);
+        }
+        return responseEntity;
     }
+
+    @RequestMapping(value = "/update_password", method = RequestMethod.POST, params = {"password", "code"})
+    public ResponseEntity<String> updatePassword(String password, String code, HttpServletRequest request) {
+        String token = JwtUtil.getTokenFromCookies(request.getCookies());
+        return userService.updatePasswordByCode(token, password, code);
+    }
+
+    @RequestMapping(value = "/update_profile", method = RequestMethod.POST)
+    public ResponseEntity<String> updateProfile(@RequestBody UserDto userDto, HttpServletRequest request) {
+        String token = JwtUtil.getTokenFromCookies(request.getCookies());
+        return userService.updateUserProfile(token, userDto);
+    }
+
 
 
 

@@ -1,24 +1,40 @@
 package com.nsu.stu.meet.common.enums;
 
 public enum SmsEnums {
-    REGISTER(0,"register_code"),
-    LOGIN(1,"login_code"),
-    UPDATE(2, "update_code");
+    REGISTER(0,"REGISTER_CODE", "1326868"),
+    LOGIN(1,"LOGIN_CODE", "1325316"),
+    UPDATE(2, "UPDATE_CODE", "1325318");
 
-    private final Integer key;
-    private final String value;
+    private final int type;
+    private final String desc;
+    private final String templateId;
 
-    SmsEnums(Integer key, String value) {
-        this.key = key;
-        this.value = value;
+    SmsEnums(int type, String desc, String templateId) {
+        this.type = type;
+        this.desc = desc;
+        this.templateId = templateId;
+    }
+
+    public static SmsEnums lookUp (int type) {
+        for (SmsEnums s:
+             SmsEnums.values()) {
+            if (s.type == type) {
+                return s;
+            }
+        }
+        return null;
     }
 
 
-    public Integer key() {
-        return this.key;
+    public Integer type() {
+        return this.type;
     }
 
-    public String value() {
-        return this.value;
+    public String desc() {
+        return this.desc;
+    }
+
+    public String templateId() {
+        return this.templateId;
     }
 }

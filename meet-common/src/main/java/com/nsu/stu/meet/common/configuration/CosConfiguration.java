@@ -9,25 +9,32 @@ import com.qcloud.cos.region.Region;
 import com.qcloud.cos.transfer.TransferManager;
 import com.qcloud.cos.transfer.TransferManagerConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
+@Component
 public class CosConfiguration {
+
+    @Value(value = "${cloud.secretId}")
+    private String secretId;
+    @Value(value = "${cloud.secretKey}")
+    private String secretKey;
 
     @Autowired
     private COSClient cosClient;
 
     @Bean
     public COSClient cosClient() {
-        // 1 初始化用户身份信息（secretId, secretKey）。
-        String secretId = "AKIDYv2sSlnPq31jDTVHo59xVoreBUZOxHL9";
-        String secretKey = "au0rSntkMioeFafV5PTIrADzWoqc8PRD";
-        COSCredentials cred = new BasicCOSCredentials(secretId, secretKey);
+
+
+        COSCredentials cred = new BasicCOSCredentials(this.secretId, this.secretKey);
         // 2 设置 bucket 的地域
         String regionName = "ap-chengdu";
         Region region = new Region(regionName);

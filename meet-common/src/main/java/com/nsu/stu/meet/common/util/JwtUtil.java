@@ -4,9 +4,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
+import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.constant.SystemConstants;
+import com.nsu.stu.meet.common.enums.ResultStatus;
 import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 @UtilityClass
@@ -18,7 +23,7 @@ public class JwtUtil {
         return JWT.create()
                 .setPayload("userId", userId)
                 .setKey(key)
-                .setExpiresAt(DateUtil.offsetDay(date, 15))
+                .setExpiresAt(DateUtil.offsetDay(date, 7))
                 .sign();
     }
     private Object getTokenPayload(String token, String name) {
@@ -36,6 +41,21 @@ public class JwtUtil {
         if (StringUtils.hasText(token)) {
             return JWTUtil.verify(token, key);
         }
+        return false;
+    }
+    public String getTokenFromCookies(Cookie[] cookies) {
+        String token = null;
+        for (Cookie cookie:
+                cookies) {
+            if (SystemConstants.TOKEN_NAME.equals(cookie.getName())) {
+                token = cookie.getValue();
+            }
+        }
+        return token;
+    }
+
+    public Boolean renewToken(String token) {
+        Object expireTime = getTokenPayload(token, "expire_time");
         return false;
     }
 }

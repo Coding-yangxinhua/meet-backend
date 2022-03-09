@@ -1,86 +1,58 @@
 package com.nsu.stu.meet.service.impl;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
+import com.nsu.stu.meet.common.enums.SmsEnums;
+import com.nsu.stu.meet.common.util.AssertUtil;
 import com.nsu.stu.meet.common.util.JwtUtil;
 import com.nsu.stu.meet.common.util.MD5Util;
+import com.nsu.stu.meet.common.util.ValidateUtil;
 import com.nsu.stu.meet.dao.UserMapper;
 import com.nsu.stu.meet.model.User;
-import com.nsu.stu.meet.model.UserDto;
+import com.nsu.stu.meet.model.dto.UserDto;
+import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserService;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.List;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-    @Resource
-    private UserMapper userMapper;
+    @Autowired
+    private SmsService smsService;
+
+    @Value("${system.cookie.host}")
+    private String host;
+    @Value("${system.cookie.path}")
+    private String path;
 
     @Override
-    @Cacheable(value = "user", key = "#userId")
-    public User getById(Long userId) {
-        return userMapper.selectById(userId);
-    }
-
-    @Override
-    @CacheEvict(value = "user", key = "#userId")
-    public int deleteById(Long userId) {
-        return userMapper.deleteById(userId);
-    }
-
-
-    @Override
-    public List<User> getByIds(Collection<Long> ids) {
-        return userMapper.selectBatchIds(ids);
-    }
-
-    @Override
-    public boolean saveUpdate(User user) {
-        return super.saveOrUpdate(user);
-    }
-
-    @Override
-    public boolean saveUpdateBatch(List<User> users) {
-        return super.saveOrUpdateBatch(users);
-    }
-
-    @Override
-    public boolean removeBatch(Collection<Long> ids) {
-        return super.removeByIds(ids);
-    }
-
-    @Override
-    public IPage<UserDto> findPageDto(UserDto condition, int currentPage, int pageSize) {
-        return userMapper.findPageDto(condition, currentPage, pageSize);
-    }
-
-    @Override
-    public List<UserDto> findByConditionDto(UserDto condition) {
-        return userMapper.findByConditionDto(condition);
-    }
-
-    @Override
-    public ResponseEntity<String> registerUser(UserDto userDto) {
+    public ResponseEntity<String> registerByPassword(UserDto userDto, HttpServletResponse response) {
         // 提取出密码
         String password = userDto.getPassword();
+        String mobile = userDto.getMobile();
+        // 检测手机号格式
+        if (ValidateUtil.isMobile(mobile)) {
+            return ResponseEntity.checkError(SystemConstants.MOBILE_ERROR);
+        }
+        // 密码校验
+        if (ValidateUtil.isPassword(password)) {
+            return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
+        }
         // 根据手机号查询账号是否存在
-        List<UserDto> userDtoList = this.findByConditionDto(userDto);
-        // 构造响应体
-        ResponseEntity<String> build = ResponseEntity.builder().build();
+        User user = baseMapper.getUserByMobile(userDto.getMobile());
         // 账号已存在
-        if (userDtoList.size() != 0) {
-            build.setStatus(ResultStatus.CHECK_ERROR);
-            build.setMessage("账号已存在");
-            return build;
+        if (user != null) {
+            return ResponseEntity.checkError(SystemConstants.USER_EXIST);
         }
         // 根据md5加密密码
         if (StringUtils.hasText(password)) {
@@ -88,20 +60,145 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userDto.setPassword(md5Password);
         }
         // 存入数据库
-        boolean b = this.saveUpdate(userDto);
-        // 失败提示
-        if (!b) {
-            build.setStatus(ResultStatus.SYS_ERROR);
-            return build;
-        }
+        // 设置默认用户名
+        userDto.setNickname("用户" + RandomUtil.randomNumbers(11));
+        baseMapper.insert(userDto);
+        setTokenToCookies(userDto.getUserId(), response);
         // 注册成功
         // 生成token
-        String token = JwtUtil.createToken(userDto.getUserId());
-        build.setMessage("注册成功");
-        build.setStatus(ResultStatus.OK);
-        build.setResult(token);
-        return build;
+        return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
     }
 
+    @Override
+    public ResponseEntity<String> registerByCode(UserDto userDto, String code, int type, HttpServletResponse response) {
+        // 获取手机号
+        String mobile = userDto.getMobile();
+        // 检测手机号格式
+        if (!ValidateUtil.isMobile(mobile)) {
+            return ResponseEntity.checkError(SystemConstants.MOBILE_ERROR);
+        }
+        // 根据手机号查询账号是否存在
+        User user = baseMapper.getUserByMobile(userDto.getMobile());
+        // 账号已存在
+        if (user != null) {
+            return ResponseEntity.checkError(SystemConstants.USER_EXIST);
+        }
+        // 存入数据库
+        Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
+        if (isCodeRight) {
+            // 设置默认用户名
+            userDto.setNickname("用户" + RandomUtil.randomNumbers(11));
+            // 屏蔽基础信息
+            this.setBaseNull(userDto);
+            baseMapper.insert(userDto);
+            setTokenToCookies(userDto.getUserId(), response);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+        }
+        return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
+    }
 
+    @Override
+    public ResponseEntity<String> loginByCode(UserDto userDto, String code, int type, HttpServletResponse response) {
+        // 获取手机号
+        String mobile = userDto.getMobile();
+        // 检测手机号格式
+        if (!ValidateUtil.isMobile(mobile)) {
+            return ResponseEntity.checkError(SystemConstants.MOBILE_ERROR);
+        }
+        // 检测用户是否存在
+        User user = baseMapper.getUserByMobile(userDto.getMobile());
+        if (user == null) {
+            return ResponseEntity.checkError(SystemConstants.USER_NOT_EXIST);
+        }
+        // 对比验证码是否正确
+        Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
+        if (isCodeRight) {
+            setTokenToCookies(user.getUserId(), response);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+        }
+        return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> loginByPassword(UserDto userDto, HttpServletResponse response) {
+        // 获取手机号
+        String mobile = userDto.getMobile();
+        // 提取出密码
+        String password = userDto.getPassword();
+        // 检测手机号格式
+        if (!ValidateUtil.isMobile(mobile)) {
+            return ResponseEntity.checkError(SystemConstants.MOBILE_ERROR);
+        }
+        // 密码校验
+        if (ValidateUtil.isPassword(password)) {
+            return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
+        }
+        // 根据md5加密密码
+        String md5Password = MD5Util.md5Password(password);
+        // 根据手机号查询账号是否存在
+        User user = baseMapper.getUserByMobile(userDto.getMobile());
+        if (user == null) {
+            return ResponseEntity.checkError(SystemConstants.USER_NOT_EXIST);
+        }
+        // 密码正确
+        if (md5Password.equals(userDto.getPassword())) {
+            setTokenToCookies(user.getUserId(), response);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+        }
+        return ResponseEntity.checkError(SystemConstants.PASSWORD_ERROR);
+
+
+    }
+
+    @Override
+    public ResponseEntity<String> updatePasswordByCode(String token, String password, String code) {
+        // 通过token获取用户id
+        Long tokenUserId = JwtUtil.getTokenUserId(token);
+        AssertUtil.objectNotNull(tokenUserId, SystemConstants.TOKEN_ERROR);
+        // 密码校验
+        if (ValidateUtil.isPassword(password)) {
+            return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
+        }
+        // 与原密码比对
+        User user = baseMapper.selectById(tokenUserId);
+        if (user == null || password.equals(user.getPassword())) {
+            return ResponseEntity.checkError(SystemConstants.PASSWORD_SAME_ERROR);
+        }
+        // 查询验证码是否正确
+        Boolean isCodeRight  = smsService.checkCode(String.valueOf(tokenUserId), code, SmsEnums.UPDATE.type());
+        if (isCodeRight) {
+            baseMapper.updateUserPassword(tokenUserId, password);
+            return ResponseEntity.ok(SystemConstants.UPDATE_PASSWORD_SUCCESS);
+        }
+        return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateUserProfile(String token, UserDto userDto) {
+        // 通过token获取用户id
+        Long tokenUserId = JwtUtil.getTokenUserId(token);
+        AssertUtil.objectNotNull(tokenUserId, SystemConstants.TOKEN_ERROR);
+        // 将重要信息屏蔽
+        userDto.setUserId(tokenUserId);
+        userDto.setPassword(null);
+        userDto.setMobile(null);
+        this.setBaseNull(userDto);
+        baseMapper.updateById(userDto);
+        return ResponseEntity.ok(SystemConstants.UPDATE_PROFILE_SUCCESS);
+    }
+
+    private void setBaseNull(UserDto userDto) {
+        // 屏蔽基础信息
+        userDto.setGmtCreate(null);
+        userDto.setGmtModified(null);
+        userDto.setIsDeleted(null);
+    }
+    private void setTokenToCookies(@NotNull Long userId, @NotNull HttpServletResponse response) {
+        String token = JwtUtil.createToken(userId);
+        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
+        cookie.setDomain(host);
+        cookie.setPath(path);
+        cookie.setValue(token);
+        response.addCookie(cookie);
+    }
 }

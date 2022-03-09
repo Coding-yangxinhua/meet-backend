@@ -1,0 +1,34 @@
+package com.nsu.stu.meet.common.constant;
+
+import lombok.experimental.UtilityClass;
+
+public class SystemConstants {
+    /**
+     * 错误提示
+     */
+    public static final String PASSWORD_ERROR = "账号或密码错误！";
+    public static final String CODE_ERROR = "验证码错误！";
+    public static final String PASSWORD_LENGTH_ERROR = "密码长度不足！";
+    public static final String MOBILE_ERROR = "手机号格式错误！";
+    public static final String PASSWORD_SAME_ERROR = "新密码不能和旧密码相同！";
+    public static final String TOKEN_ERROR = "token过期，请重新登录！";
+    public static final String UNKNOWN_ERROR = "未知错误";
+    public static final String SMS_ERROR = "短信发送失败";
+    /**
+     * 成功提示
+     */
+    public static final String REGISTER_SUCCESS = "注册成功~";
+    public static final String UPDATE_PROFILE_SUCCESS = "保存成功~";
+    public static final String UPDATE_PASSWORD_SUCCESS = "更新密码成功！";
+
+    /**
+     * 友情提示
+     */
+    public static final String USER_EXIST = "账号已存在";
+    public static final String USER_NOT_EXIST = "账号不存在";
+
+    /**
+     * 普通常量
+     */
+    public static final String TOKEN_NAME = "meet-token";
+}

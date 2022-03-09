@@ -27,7 +27,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.test.skip>true</maven.test.skip>
         <spring.version>5.3.7</spring.version>
-        <spring-boot.version>2.5.3</spring-boot.version>
+        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
     </properties>
 
     <dependencyManagement>
@@ -176,7 +176,7 @@
             <dependency>
                 <groupId>com.alibaba.boot</groupId>
                 <artifactId>nacos-config-spring-boot-autoconfigure</artifactId>
-                <version>0.2.8-fix</version>
+                <version>0.2.8-bugfix</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
@@ -263,12 +263,12 @@
                 <artifactId>druid</artifactId>
                 <version>1.2.4</version>
             </dependency>
-<!--            &lt;!&ndash;================sa-token============================== &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>cn.dev33</groupId>-->
-<!--                <artifactId>sa-token-spring-boot-starter</artifactId>-->
-<!--                <version>1.21.0</version>-->
-<!--            </dependency>-->
+            <!--            &lt;!&ndash;================sa-token============================== &ndash;&gt;-->
+            <!--            <dependency>-->
+            <!--                <groupId>cn.dev33</groupId>-->
+            <!--                <artifactId>sa-token-spring-boot-starter</artifactId>-->
+            <!--                <version>1.21.0</version>-->
+            <!--            </dependency>-->
             <!--===============qcloud cos============================== -->
             <dependency>
                 <groupId>com.qcloud</groupId>
@@ -295,7 +295,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>30.1.1-jre</version>
+                <version>30.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>

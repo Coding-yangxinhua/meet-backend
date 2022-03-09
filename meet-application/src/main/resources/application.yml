@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9420
   servlet:
     context-path: /meet
     # 中文字符集
@@ -18,8 +18,8 @@ mybatis-plus:
       logic-delete-field: isDeleted
       logic-delete-value: 1
       logic-not-delete-value: 0
-  mapper-locations: classpath*:com/nsu/stu/**/dao/**/xml/**/*.xml
-    
+  mapper-locations: classpath*:/mapper/*Mapper.xml
+
 nacos:
   config:
     bootstrap:

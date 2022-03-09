@@ -3,11 +3,9 @@ package com.nsu.stu.meet.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
-import com.nsu.stu.meet.common.util.SnowflakeUtil;
-import com.nsu.stu.meet.util.SpringContextUtil;
 import com.qcloud.cos.exception.CosClientException;
-import com.qcloud.cos.exception.CosServiceException;
 import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.UploadResult;
@@ -15,21 +13,34 @@ import com.qcloud.cos.transfer.TransferManager;
 import com.qcloud.cos.transfer.Upload;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("test")
 public class TestController {
+
     @Autowired
     private TransferManager transferManager;
     private final String bucketName = "meet-1302770283";
+
+    @Value("${system.cookie.host}")
+    private String host;
+    @Value("${system.cookie.path}")
+    private String path;
 
     @RequestMapping(value = "testUpload", method = RequestMethod.POST)
     public ResponseEntity<ResultStatus> testUpload(@RequestPart(value = "files") MultipartFile[] files) {
@@ -61,4 +72,23 @@ public class TestController {
         return ResponseEntity.ok();
     }
 
+    @RequestMapping(value = "/set_cookie", method = RequestMethod.POST)
+    public String testSetCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
+        cookie.setDomain(host);
+        cookie.setPath(path);
+        cookie.setValue("token:11111111111111111111");
+        response.addCookie(cookie);
+        return cookie.getValue();
+    }
+    @RequestMapping(value = "/get_cookie", method = RequestMethod.GET)
+    public String testGetCookie(HttpServletRequest request) {
+        List<Cookie> collect = Arrays.stream(request.getCookies()).filter(Cookie -> Cookie.getName().equals(SystemConstants.TOKEN_NAME)).collect(Collectors.toList());
+        String value = null;
+        if (!collect.isEmpty()) {
+            Cookie cookie = collect.get(0);
+            value = cookie.getValue();
+        }
+        return value;
+    }
 }

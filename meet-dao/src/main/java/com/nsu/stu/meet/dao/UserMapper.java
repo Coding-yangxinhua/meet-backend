@@ -1,20 +1,27 @@
 package com.nsu.stu.meet.dao;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.nsu.stu.meet.dao.mapper.UserBaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.nsu.stu.meet.model.User;
-import com.nsu.stu.meet.model.UserDto;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
 
-@Mapper
-public interface UserMapper extends UserBaseMapper {
 
-    default void customizeQuery(UserDto condition, QueryWrapper<User> query) {
+public interface UserMapper extends BaseMapper<User> {
 
-    }
+    /**
+     * 通过手机号获取用户信息
+     * @param mobile
+     * @return
+     */
+    User getUserByMobile (@Param("mobile") String mobile);
 
-    User getNewestUser();
+    /**
+     * 通过手机号修改账号密码
+      * @param userId
+     * @param password
+     * @return
+     */
+    User updateUserPassword (@Param("userId") Long userId, @Param("password") String password);
 
 }

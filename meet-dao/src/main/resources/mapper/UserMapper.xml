@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 写入 自己 dao 里的接口名称-->
+<mapper namespace="com.nsu.stu.meet.dao.UserMapper">
+    <update id="updateUserPassword">
+        UPDATE mt_user SET password = ${password} where userId = ${userId};
+    </update>
+    <select id="getUserByMobile" resultType="com.nsu.stu.meet.model.User">
+        SELECT * FROM mt_user WHERE mobile = ${mobile};
+    </select>
+</mapper>

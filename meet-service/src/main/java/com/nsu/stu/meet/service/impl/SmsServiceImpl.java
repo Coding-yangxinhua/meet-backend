@@ -50,9 +50,9 @@ public class SmsServiceImpl implements SmsService {
         // 随机数验证码
         String code = RandomUtil.randomNumbers(4);
         // 查询间隔时间
-        Boolean isInterval = redisTemplate.opsForValue().setIfAbsent(keyPhone + "_interval", DateUtil.now(), 1, TimeUnit.MINUTES);
+        Boolean isNew = redisTemplate.opsForValue().setIfAbsent(keyPhone + "_interval", DateUtil.now(), 1, TimeUnit.MINUTES);
         // 存在与间隔时间内，则不处理
-        if (isInterval != null && isInterval) {
+        if (Boolean.FALSE.equals(isNew)) {
             return null;
         }
         // 存入数据库

@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
@@ -26,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/user")
 public class UserController {
     @Autowired
@@ -35,7 +33,7 @@ public class UserController {
 
 
 
-    @RequestMapping(value = "/send_sms", method = RequestMethod.GET, params = {"mobile", "type"})
+    @RequestMapping(value = "/sendSms", method = RequestMethod.GET, params = {"mobile", "type"})
     public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type, HttpServletRequest request) {
         String token = request.getParameter("token");
         return smsService.sendSms(null, mobile, type);
@@ -63,13 +61,13 @@ public class UserController {
         return responseEntity;
     }
 
-    @RequestMapping(value = "/update_password", method = RequestMethod.POST, params = {"password", "code"})
+    @RequestMapping(value = "/updatePassword", method = RequestMethod.POST, params = {"password", "code"})
     public ResponseEntity<String> updatePassword(String password, String code, HttpServletRequest request) {
         String token = JwtUtil.getTokenFromCookies(request.getCookies());
         return userService.updatePasswordByCode(token, password, code);
     }
 
-    @RequestMapping(value = "/update_profile", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
     public ResponseEntity<String> updateProfile(@RequestBody UserDto userDto, HttpServletRequest request) {
         String token = JwtUtil.getTokenFromCookies(request.getCookies());
         return userService.updateUserProfile(token, userDto);

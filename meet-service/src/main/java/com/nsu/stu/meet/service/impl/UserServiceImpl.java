@@ -114,7 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
         if (isCodeRight) {
             setTokenToCookies(user.getUserId(), response);
-            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+            return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS);
         }
         return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
     }

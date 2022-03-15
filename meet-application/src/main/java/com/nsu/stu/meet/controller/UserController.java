@@ -76,7 +76,8 @@ public class UserController {
 
     @RequestMapping(value = "/updateAvatar", method = RequestMethod.POST)
     public ResponseEntity<String> updateAvatar(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
-        return userService.updateUserAvatar("test", file);
+        String token = JwtUtil.getTokenFromCookies(request.getCookies());
+        return userService.updateUserAvatar(token, file);
     }
 
 

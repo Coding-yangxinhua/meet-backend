@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,12 +60,13 @@ public class CosUtil {
         return "";
     }
 
-    public void upload (MultipartFile[] files) {
+    public List<String> upload (MultipartFile[] files) {
+        List<String> urls = new ArrayList<>(files.length);
         for (MultipartFile file:
         files) {
-            this.upload(file);
+            urls.add(this.upload(file));
         }
-
+        return urls;
     }
 
     public void delete(List<String> urls) {

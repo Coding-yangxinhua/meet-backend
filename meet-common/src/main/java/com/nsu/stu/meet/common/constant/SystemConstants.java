@@ -20,6 +20,7 @@ public class SystemConstants {
      * 成功提示
      */
     public static final String REGISTER_SUCCESS = "注册成功~";
+    public static final String LOGIN_SUCCESS = "登录成功~";
     public static final String UPDATE_PROFILE_SUCCESS = "保存成功~";
     public static final String UPDATE_PASSWORD_SUCCESS = "更新密码成功！";
 

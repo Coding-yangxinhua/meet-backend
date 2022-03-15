@@ -21,7 +21,7 @@ public class AlbumController {
     }
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public ResponseEntity<String> uploadBatch(@RequestPart("files") List<MultipartFile> multipartFiles) {
+    public ResponseEntity<String> uploadBatch(@RequestPart("files") MultipartFile[] multipartFiles) {
         return ResponseEntity.ok();
     }
 }

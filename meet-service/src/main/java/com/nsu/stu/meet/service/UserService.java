@@ -4,6 +4,7 @@ package com.nsu.stu.meet.service;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.model.dto.UserDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -58,5 +59,6 @@ public interface UserService {
      */
     ResponseEntity<String> updateUserProfile(String token, UserDto userDto);
 
+    ResponseEntity<String> updateUserAvatar(String token, MultipartFile file);
 
 }

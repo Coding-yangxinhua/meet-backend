@@ -3,8 +3,8 @@ package com.nsu.stu.meet.common.configuration;
 ;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.profile.ClientProfile;
-import com.tencentcloudapi.sms.v20190711.SmsClient;
 
+import com.tencentcloudapi.sms.v20190711.SmsClient;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.context.annotation.Bean;

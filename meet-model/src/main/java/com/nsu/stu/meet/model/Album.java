@@ -29,33 +29,25 @@ public class Album extends BaseModel {
     /**
      * 用户id
      */
-    @TableField(value = "`user_id`")
     private Long userId;
 
     /**
      * 访问权限
      */
-    @TableField(value = "`view_limit_id`")
-    private Long viewLimitId;
+    private Long limitId;
 
-    /**
-     * 访问权限描述
-     */
-    @TableField(value = "`view_limit_desc`")
-    private String viewLimitDesc;
+
 
     /**
      * 相册名称
      */
     @Length(max = 15)
-    @TableField(value = "`title`")
     private String title;
 
     /**
      * 相册封面
      */
     @URL
-    @TableField(value = "`cover`")
     private String cover;
 
     /**

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
@@ -73,6 +74,10 @@ public class UserController {
         return userService.updateUserProfile(token, userDto);
     }
 
+    @RequestMapping(value = "/updateAvatar", method = RequestMethod.POST)
+    public ResponseEntity<String> updateAvatar(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
+        return userService.updateUserAvatar("test", file);
+    }
 
 
 

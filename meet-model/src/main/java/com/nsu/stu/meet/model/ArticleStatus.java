@@ -5,33 +5,48 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 /**
- * mt_article_comment_Like
+ * mt_article
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_comment_like")
-public class CommentLike extends BaseModel {
+@TableName("mt_article_status")
+public class ArticleStatus extends BaseModel {
     /**
-     * 评论点赞id
+     * 文章唯一标识
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long commentLikeId;
+    private Long articleStatusId;
 
     /**
-     * 点赞人id
+     * 文章父id
      */
-    @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞评论id
+     * 文章发布用户
      */
-    @TableField(value = "`comment_id`")
-    private Long commentId;
+    private Long articleId;
+
+    /**
+     * 是否点赞
+     */
+    private Long likeStatus;
+
+
+    /**
+     * 是否收藏
+     */
+    private Long starStatus;
+
+    /**
+     * 是否点踩
+     */
+    private Long dislikeStatus;
 
     /**
      * 创建时间

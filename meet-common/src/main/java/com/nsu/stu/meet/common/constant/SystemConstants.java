@@ -14,6 +14,8 @@ public class SystemConstants {
     public static final String TOKEN_ERROR = "token过期，请重新登录！";
     public static final String UNKNOWN_ERROR = "未知错误";
     public static final String SMS_ERROR = "短信发送失败";
+    public static final String FILE_TYPE_ERROR = "文件类型不合法";
+    public static final String FILE_SIZE_ERROR = "文件大小不合法";
     /**
      * 成功提示
      */

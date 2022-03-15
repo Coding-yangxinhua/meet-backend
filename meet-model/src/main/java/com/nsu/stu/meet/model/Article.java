@@ -28,32 +28,23 @@ public class Article extends BaseModel {
     /**
      * 文章父id
      */
-    @TableField(value = "`parent_id`")
     private Long parentId;
 
     /**
      * 文章发布用户
      */
-    @TableField(value = "`user_id`")
     private Long userId;
 
     /**
      * 访问权限
      */
-    @TableField(value = "`view_limit_id`")
-    private Long viewLimitId;
+    private Long limitId;
 
-    /**
-     * 访问权限描述
-     */
-    @TableField(value = "`view_limit_desc`")
-    private String viewLimitDesc;
 
     /**
      * 文章内容
      */
     @Length(max = 4095)
-    @TableField(value = "`content`")
     private String content;
 
     /**

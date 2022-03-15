@@ -1,40 +1,51 @@
 package com.nsu.stu.meet.model;
 
-import java.io.Serializable;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nsu.stu.meet.common.base.BaseModel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * mt_article_like
+ * mt_article
  * @author 
  */
 @Getter
 @Setter
-@TableName("mt_article_like")
-public class ArticleLike extends BaseModel {
+@TableName("mt_comment_status")
+public class CommentStatus extends BaseModel {
     /**
-     * 文章点赞id
+     * 文章唯一标识
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleLikeId;
+    private Long articleStatusId;
 
     /**
-     * 点赞人id
+     * 文章父id
      */
-    @TableField(value = "`user_id`")
     private Long userId;
 
     /**
-     * 点赞文章id
+     * 文章发布用户
      */
-    @TableField(value = "`article_id`")
     private Long articleId;
+
+    /**
+     * 是否点赞
+     */
+    private Long likeStatus;
+
+
+    /**
+     * 是否收藏
+     */
+    private Long starStatus;
+
+    /**
+     * 是否点踩
+     */
+    private Long dislikeStatus;
 
     /**
      * 创建时间
@@ -53,5 +64,6 @@ public class ArticleLike extends BaseModel {
      */
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
+
     private static final long serialVersionUID = 1L;
 }

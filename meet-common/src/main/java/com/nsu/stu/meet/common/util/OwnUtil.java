@@ -3,22 +3,22 @@ package com.nsu.stu.meet.common.util;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.experimental.UtilityClass;
 import org.springframework.beans.BeanUtils;
 
 import java.util.*;
 
+@UtilityClass
 public class OwnUtil {
-    public static <S, T> IPage<T> transIPageRecords2T(IPage<S> src, Class<T> tType) {
-        if (src == null) {
-            return null;
-        } else {
-            Page<T> newPage = (Page) BeanUtils.instantiateClass(Page.class);
-            BeanUtils.copyProperties(src, newPage);
-            newPage.setRecords(OwnUtil.copy2Ts(src.getRecords(), tType));
-            return newPage;
+    private Set<String> imageSet = new HashSet<String>() {
+        {
+            add(".jpeg");
+            add(".jpg");
+            add(".png");
         }
-    }
-    public static <T, S> List<T> copy2Ts(Collection<S> src, Class<T> tType) {
+    };
+
+    public <T, S> List<T> copy2Ts(Collection<S> src, Class<T> tType) {
         if (CollectionUtils.isEmpty(src)) {
             return Collections.emptyList();
         } else {
@@ -36,6 +36,19 @@ public class OwnUtil {
 
             return result;
         }
+    }
+
+    public String getFileSuffix(String fileName) {
+        if (fileName == null) {
+            return "";
+        }
+        return fileName.substring(fileName.lastIndexOf("."));
+
+    }
+
+    public boolean checkFileIsImage(String fileName) {
+        String suffix = getFileSuffix(fileName);
+        return imageSet.contains(suffix.toLowerCase(Locale.ROOT));
     }
 
 }

@@ -24,14 +24,17 @@ public class ArticleHistory extends BaseModel {
     /**
      * 浏览人id
      */
-    @TableField(value = "`user_id`")
     private Long userId;
 
     /**
      * 浏览文章id
      */
-    @TableField(value = "`article_id`")
     private Long articleId;
+
+    /**
+     * 文章图片地址
+     */
+    private String picUrls;
 
     /**
      * 创建时间

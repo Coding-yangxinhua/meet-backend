@@ -24,6 +24,7 @@
             <groupId>com.nsu.stu.meet</groupId>
             <artifactId>meet-common</artifactId>
         </dependency>
+
         <!-- ================================================== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

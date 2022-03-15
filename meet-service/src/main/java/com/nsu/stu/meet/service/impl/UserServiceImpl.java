@@ -7,10 +7,7 @@ import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.enums.SmsEnums;
-import com.nsu.stu.meet.common.util.AssertUtil;
-import com.nsu.stu.meet.common.util.JwtUtil;
-import com.nsu.stu.meet.common.util.MD5Util;
-import com.nsu.stu.meet.common.util.ValidateUtil;
+import com.nsu.stu.meet.common.util.*;
 import com.nsu.stu.meet.dao.UserMapper;
 import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.dto.UserDto;
@@ -20,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +27,8 @@ import javax.validation.constraints.NotNull;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Autowired
     private SmsService smsService;
+    @Autowired
+    private CosUtil cosUtil;
 
     @Value("${system.cookie.host}")
     private String host;
@@ -187,11 +187,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return ResponseEntity.ok(SystemConstants.UPDATE_PROFILE_SUCCESS);
     }
 
+    @Override
+    public ResponseEntity<String> updateUserAvatar(String token, MultipartFile file) {
+        Long tokenUserId = JwtUtil.getTokenUserId(token);
+        User user = new User();
+        user.setUserId(tokenUserId);
+        boolean isImage = OwnUtil.checkFileIsImage(file.getResource().getFilename());
+        long size = file.getSize();
+        if (!isImage) {
+            return ResponseEntity.checkError(SystemConstants.FILE_TYPE_ERROR);
+        }
+        if (size > 5 * 1024 * 1000) {
+            return ResponseEntity.checkError(SystemConstants.FILE_SIZE_ERROR);
+        }
+        String url = cosUtil.upload(file);
+        user.setAvatar(url);
+        baseMapper.updateById(user);
+        return ResponseEntity.ok();
+    }
+
     private void setBaseNull(UserDto userDto) {
         // 屏蔽基础信息
         userDto.setGmtCreate(null);
         userDto.setGmtModified(null);
         userDto.setIsDeleted(null);
+        userDto.setAvatar(null);
     }
     private void setTokenToCookies(@NotNull Long userId, @NotNull HttpServletResponse response) {
         String token = JwtUtil.createToken(userId);

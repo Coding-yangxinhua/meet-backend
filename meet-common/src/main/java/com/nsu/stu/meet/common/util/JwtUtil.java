@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
+import com.nsu.stu.meet.common.base.IllegalParamException;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
@@ -11,6 +12,7 @@ import lombok.experimental.UtilityClass;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
@@ -38,10 +40,11 @@ public class JwtUtil {
         return (Long) getTokenPayload(token, "userId");
     }
     public boolean isValidToken(String token) {
+        boolean verify = false;
         if (StringUtils.hasText(token)) {
-            return JWTUtil.verify(token, key);
+            verify = JWTUtil.verify(token, key);
         }
-        return false;
+        return verify;
     }
     public String getTokenFromCookies(Cookie[] cookies) {
         String token = null;
@@ -52,6 +55,12 @@ public class JwtUtil {
             }
         }
         return token;
+    }
+
+    public Long getTokenUserId(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String token = JwtUtil.getTokenFromCookies(cookies);
+        return JwtUtil.getTokenUserId(token);
     }
 
     public Boolean renewToken(String token) {

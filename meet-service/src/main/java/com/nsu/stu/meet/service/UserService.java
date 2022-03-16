@@ -44,21 +44,21 @@ public interface UserService {
 
     /**
      * 通过短信修改密码
-     * @param token
+     * @param userId
      * @param password
      * @param code
      * @return
      */
-    ResponseEntity<String> updatePasswordByCode(String token, String password, String code);
+    ResponseEntity<String> updatePasswordByCode(Long userId, String password, String code);
 
     /**
      * 修改用户简介
      * @param userDto
-     * @param token
+     * @param userId
      * @return
      */
-    ResponseEntity<String> updateUserProfile(String token, UserDto userDto);
+    ResponseEntity<String> updateUserProfile(Long userId, UserDto userDto);
 
-    ResponseEntity<String> updateUserAvatar(String token, MultipartFile file);
+    ResponseEntity<String> updateUserAvatar(Long userId, MultipartFile file);
 
 }

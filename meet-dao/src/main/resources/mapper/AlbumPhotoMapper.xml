@@ -3,5 +3,6 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace 写入 自己 dao 里的接口名称-->
-<mapper namespace="com.nsu.stu.meet.dao.UserMapper">
+<mapper namespace="com.nsu.stu.meet.dao.AlbumPhotoMapper">
+
 </mapper>

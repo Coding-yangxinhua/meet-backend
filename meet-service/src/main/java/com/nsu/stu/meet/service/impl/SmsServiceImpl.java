@@ -32,9 +32,7 @@ public class SmsServiceImpl implements SmsService {
     private StringRedisTemplate redisTemplate;
     @Autowired
     private CloudConfig cloudConfig;
-    public ResponseEntity<SendSmsResponse> sendSms(String token, String mobile, int type) {
-        // 通过token获取信息
-        Long userId = JwtUtil.getTokenUserId(token);
+    public ResponseEntity<SendSmsResponse> sendSms(Long userId, String mobile, int type) {
         // 获得短信类型的枚举
         SmsEnums smsEnums = SmsEnums.lookUp(type);
         // 模板类型

@@ -16,6 +16,7 @@ public class SystemConstants {
     public static final String SMS_ERROR = "短信发送失败";
     public static final String FILE_TYPE_ERROR = "文件类型不合法";
     public static final String FILE_SIZE_ERROR = "文件大小不合法";
+    public static final String ALBUM_NOT_EXISTS_ERROR = "相册不存在";
     /**
      * 成功提示
      */

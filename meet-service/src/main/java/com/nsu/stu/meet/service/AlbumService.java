@@ -4,8 +4,16 @@ import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.dto.AlbumDto;
 
-public interface AlbumService {
-    ResponseEntity<String> createAlbum (String token, AlbumDto albumDto);
+import java.util.List;
 
-    Album getAlbumById (Long albumId);
+public interface AlbumService {
+    ResponseEntity<String> createAlbum (Long userId, AlbumDto albumDto);
+
+    ResponseEntity<String> modifyAlbum (Long userId, AlbumDto albumDto);
+
+    ResponseEntity<String> deleteAlbumBatch (Long userId, List<Long> albumIdList);
+
+    Album selectAlbumByIdAndUserId (Long albumId, Long userId);
+
+    ResponseEntity<List<Album>> selectAlbumByUserId (Long userId);
 }

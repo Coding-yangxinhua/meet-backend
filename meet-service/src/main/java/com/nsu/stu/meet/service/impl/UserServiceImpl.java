@@ -2,6 +2,8 @@ package com.nsu.stu.meet.service.impl;
 
 
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -151,47 +154,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<String> updatePasswordByCode(String token, String password, String code) {
-        // 通过token获取用户id
-        Long tokenUserId = JwtUtil.getTokenUserId(token);
-        AssertUtil.objectNotNull(tokenUserId, SystemConstants.TOKEN_ERROR);
+    public ResponseEntity<String> updatePasswordByCode(Long userId, String password, String code) {
         // 密码校验
         if (ValidateUtil.isPassword(password)) {
             return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
         }
         // 与原密码比对
-        User user = baseMapper.selectById(tokenUserId);
+        User user = baseMapper.selectById(userId);
         if (user == null || password.equals(user.getPassword())) {
             return ResponseEntity.checkError(SystemConstants.PASSWORD_SAME_ERROR);
         }
         // 查询验证码是否正确
-        Boolean isCodeRight  = smsService.checkCode(String.valueOf(tokenUserId), code, SmsEnums.UPDATE.type());
+        Boolean isCodeRight  = smsService.checkCode(String.valueOf(userId), code, SmsEnums.UPDATE.type());
         if (isCodeRight) {
-            baseMapper.updateUserPassword(tokenUserId, password);
+            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("user_id", userId);
+            User newUser = new User();
+            newUser.setPassword(password);
+            baseMapper.update(newUser, updateWrapper);
             return ResponseEntity.ok(SystemConstants.UPDATE_PASSWORD_SUCCESS);
         }
         return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> updateUserProfile(String token, UserDto userDto) {
-        // 通过token获取用户id
-        Long tokenUserId = JwtUtil.getTokenUserId(token);
-        AssertUtil.objectNotNull(tokenUserId, SystemConstants.TOKEN_ERROR);
+    public ResponseEntity<String> updateUserProfile(Long userId, UserDto userDto) {
         // 将重要信息屏蔽
-        userDto.setUserId(tokenUserId);
-        userDto.setPassword(null);
-        userDto.setMobile(null);
-        this.setBaseNull(userDto);
+        this.setBaseNull(userId, userDto);
         baseMapper.updateById(userDto);
         return ResponseEntity.ok(SystemConstants.UPDATE_PROFILE_SUCCESS);
     }
 
     @Override
-    public ResponseEntity<String> updateUserAvatar(String token, MultipartFile file) {
-        Long tokenUserId = JwtUtil.getTokenUserId(token);
+    public ResponseEntity<String> updateUserAvatar(Long userId, MultipartFile file) {
         User user = new User();
-        user.setUserId(tokenUserId);
+        user.setUserId(userId);
         boolean isImage = OwnUtil.checkFileIsImage(file.getResource().getFilename());
         long size = file.getSize();
         if (!isImage) {
@@ -208,10 +205,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private void setBaseNull(UserDto userDto) {
         // 屏蔽基础信息
+        setBaseNull(null, userDto);
+    }
+    private void setBaseNull(Long userId, UserDto userDto) {
+        // 屏蔽基础信息
+        userDto.setUserId(userId);
         userDto.setGmtCreate(null);
         userDto.setGmtModified(null);
         userDto.setIsDeleted(null);
         userDto.setAvatar(null);
+        userDto.setPassword(null);
+        userDto.setMobile(null);
     }
     private void setTokenToCookies(@NotNull Long userId, @NotNull HttpServletResponse response) {
         String token = JwtUtil.createToken(userId);

@@ -5,6 +5,9 @@ import cn.hutool.core.util.RandomUtil;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
+import com.nsu.stu.meet.common.util.JwtUtil;
+import com.nsu.stu.meet.dao.AlbumMapper;
+import com.nsu.stu.meet.service.AlbumService;
 import com.qcloud.cos.exception.CosClientException;
 import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.model.PutObjectRequest;
@@ -24,6 +27,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +45,8 @@ public class TestController {
     private String host;
     @Value("${system.cookie.path}")
     private String path;
+    @Autowired
+    private AlbumMapper albumMapper;
 
     @RequestMapping(value = "testUpload", method = RequestMethod.POST)
     public ResponseEntity<ResultStatus> testUpload(@RequestPart(value = "files") MultipartFile[] files) {
@@ -90,5 +96,17 @@ public class TestController {
             value = cookie.getValue();
         }
         return value;
+    }
+
+    @RequestMapping(value = "/testException", method = RequestMethod.GET)
+    public String testException() {
+        return JwtUtil.getTokenUserId("ddddd").toString();
+    }
+
+    @RequestMapping(value = "/testDeleteBatch", method = RequestMethod.GET)
+    public String testDeleteBatch() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+        albumMapper.deleteBatchIds(ids);
+        return "success";
     }
 }

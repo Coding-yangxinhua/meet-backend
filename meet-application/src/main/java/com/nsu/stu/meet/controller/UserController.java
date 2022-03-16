@@ -36,8 +36,8 @@ public class UserController {
 
     @RequestMapping(value = "/sendSms", method = RequestMethod.GET, params = {"mobile", "type"})
     public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type, HttpServletRequest request) {
-        String token = request.getParameter("token");
-        return smsService.sendSms(null, mobile, type);
+        Long tokenUserId = JwtUtil.getTokenUserId(request);
+        return smsService.sendSms(tokenUserId, mobile, type);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST, params = {"code"})
@@ -64,20 +64,20 @@ public class UserController {
 
     @RequestMapping(value = "/updatePassword", method = RequestMethod.POST, params = {"password", "code"})
     public ResponseEntity<String> updatePassword(String password, String code, HttpServletRequest request) {
-        String token = JwtUtil.getTokenFromCookies(request.getCookies());
-        return userService.updatePasswordByCode(token, password, code);
+        Long tokenUserId = JwtUtil.getTokenUserId(request);
+        return userService.updatePasswordByCode(tokenUserId, password, code);
     }
 
     @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
     public ResponseEntity<String> updateProfile(@RequestBody UserDto userDto, HttpServletRequest request) {
-        String token = JwtUtil.getTokenFromCookies(request.getCookies());
-        return userService.updateUserProfile(token, userDto);
+        Long tokenUserId = JwtUtil.getTokenUserId(request);
+        return userService.updateUserProfile(tokenUserId, userDto);
     }
 
     @RequestMapping(value = "/updateAvatar", method = RequestMethod.POST)
     public ResponseEntity<String> updateAvatar(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
-        String token = JwtUtil.getTokenFromCookies(request.getCookies());
-        return userService.updateUserAvatar(token, file);
+        Long tokenUserId = JwtUtil.getTokenUserId(request);
+        return userService.updateUserAvatar(tokenUserId, file);
     }
 
 

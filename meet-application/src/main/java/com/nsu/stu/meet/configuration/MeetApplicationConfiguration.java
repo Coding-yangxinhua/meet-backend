@@ -48,10 +48,9 @@ public class MeetApplicationConfiguration {
 			@Override
 			public void insertFill(MetaObject metaObject) {
 				Long currentTimeMillis = System.currentTimeMillis();
-				this.strictInsertFill(metaObject, "gmtCreate", Long.class, currentTimeMillis);
-				this.strictInsertFill(metaObject, "gmtModified", Long.class, currentTimeMillis);
-				this.strictInsertFill(metaObject, "isDeleted", Integer.class, 0);
-
+				this.setFieldValByName("gmtCreate", currentTimeMillis, metaObject);
+				this.setFieldValByName("gmtModified", currentTimeMillis, metaObject);
+				this.setFieldValByName("isDeleted", 0, metaObject);
 			}
 
 			/**
@@ -59,7 +58,7 @@ public class MeetApplicationConfiguration {
 			 */
 			@Override
 			public void updateFill(MetaObject metaObject) {
-				this.strictInsertFill(metaObject, "gmtModified", Long.class, System.currentTimeMillis());
+				this.setFieldValByName("gmtModified", System.currentTimeMillis(), metaObject);
 			}
 
 		};
@@ -111,7 +110,7 @@ public class MeetApplicationConfiguration {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         return interceptor;
     }
 	@Bean

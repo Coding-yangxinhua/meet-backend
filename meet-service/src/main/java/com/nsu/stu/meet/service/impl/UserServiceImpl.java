@@ -210,12 +210,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private void setBaseNull(Long userId, UserDto userDto) {
         // 屏蔽基础信息
         userDto.setUserId(userId);
-        userDto.setGmtCreate(null);
-        userDto.setGmtModified(null);
-        userDto.setIsDeleted(null);
         userDto.setAvatar(null);
         userDto.setPassword(null);
         userDto.setMobile(null);
+        userDto.setIsDeleted(null);
     }
     private void setTokenToCookies(@NotNull Long userId, @NotNull HttpServletResponse response) {
         String token = JwtUtil.createToken(userId);

@@ -88,6 +88,26 @@ public class CosUtil {
         }
     }
 
+//    public void remove(List<String> urls) {
+//        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName);
+//        // 设置要删除的key列表, 最多一次删除1000个
+//        // 传入要删除的文件名
+//        List<DeleteObjectsRequest.KeyVersion> keyList = url2key(urls);
+//        deleteObjectsRequest.setKeys(keyList);
+//        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(bucketName, srcBucketName,
+//                srcKey, bucketName, destKey);
+//        try {
+//            DeleteObjectsResult deleteObjectsResult = cosClient.deleteObjects(deleteObjectsRequest);
+//            List<DeleteObjectsResult.DeletedObject> deleteObjectResultArray = deleteObjectsResult.getDeletedObjects();
+//        } catch (MultiObjectDeleteException mde) {
+//            // 如果部分删除成功部分失败, 返回 MultiObjectDeleteException
+//            List<DeleteObjectsResult.DeletedObject> deleteObjects = mde.getDeletedObjects();
+//            List<MultiObjectDeleteException.DeleteError> deleteErrors = mde.getErrors();
+//        } catch (CosClientException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     private List<DeleteObjectsRequest.KeyVersion> url2key(List<String> urls) {
         return urls.stream().map(url -> new DeleteObjectsRequest.KeyVersion(url.replaceFirst(this.urlPrefix, ""))).collect(Collectors.toList());
     }

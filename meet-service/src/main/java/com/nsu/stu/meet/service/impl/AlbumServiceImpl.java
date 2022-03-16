@@ -36,6 +36,7 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
     public ResponseEntity<String> modifyAlbum(Long userId, AlbumDto albumDto) {
         UpdateWrapper<Album> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_id", userId).eq("album_id", albumDto.getAlbumId());
+        setBaseNull(albumDto);
         baseMapper.update(albumDto, updateWrapper);
         return ResponseEntity.ok();
     }
@@ -62,5 +63,11 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
         return ResponseEntity.ok(baseMapper.selectList(albumQueryWrapper));
     }
 
+    private void setBaseNull(AlbumDto albumDto) {
+        albumDto.setUserId(null);
+        albumDto.setIsDeleted(null);
+        albumDto.setGmtCreate(null);
+        albumDto.setGmtModified(null);
+    }
 
 }

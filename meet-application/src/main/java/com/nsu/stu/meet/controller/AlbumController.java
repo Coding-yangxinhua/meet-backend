@@ -24,13 +24,13 @@ public class AlbumController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<String> create(AlbumDto albumDto, HttpServletRequest request) {
+    public ResponseEntity<String> create(@RequestBody AlbumDto albumDto, HttpServletRequest request) {
         Long tokenUserId = JwtUtil.getTokenUserId(request);
         return albumService.createAlbum(tokenUserId, albumDto);
     }
 
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
-    public ResponseEntity<String> modify(AlbumDto albumDto, HttpServletRequest request) {
+    public ResponseEntity<String> modify(@RequestBody AlbumDto albumDto, HttpServletRequest request) {
         Long tokenUserId = JwtUtil.getTokenUserId(request);
         return albumService.modifyAlbum(tokenUserId, albumDto);
     }

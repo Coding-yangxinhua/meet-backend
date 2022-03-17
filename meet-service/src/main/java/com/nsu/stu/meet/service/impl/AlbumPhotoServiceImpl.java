@@ -1,9 +1,11 @@
 package com.nsu.stu.meet.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.util.CosUtil;
@@ -12,6 +14,7 @@ import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.AlbumPhoto;
 import com.nsu.stu.meet.service.AlbumPhotoService;
 import com.nsu.stu.meet.service.AlbumService;
+import com.tencentcloudapi.cms.v20190321.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +30,8 @@ public class AlbumPhotoServiceImpl extends ServiceImpl<AlbumPhotoMapper, AlbumPh
     private AlbumService albumService;
 
     @Override
-    public ResponseEntity<String> uploadBatch(Long userId, Long albumId, MultipartFile[] files) {
+    public ResponseEntity<String> uploadBatch(Long albumId, MultipartFile[] files) {
+        Long userId = JwtStorage.info().getUserId();
         List<String> urls = cosUtil.upload(files);
         List<AlbumPhoto> albumPhotos = url2AlbumPhoto(userId, albumId, urls);
         Album album = albumService.selectAlbumByIdAndUserId(albumId, userId);
@@ -40,14 +44,17 @@ public class AlbumPhotoServiceImpl extends ServiceImpl<AlbumPhotoMapper, AlbumPh
 
     @Override
     public ResponseEntity<IPage<AlbumPhoto>> list(Long userId, Long albumId, Integer page, Integer size) {
+        Long tokenUserId = JwtStorage.info().getUserId();
         IPage<AlbumPhoto> photoIPage = new Page<>(page, size);
-        QueryWrapper<AlbumPhoto> queryWrapper = new QueryWrapper<AlbumPhoto>().eq("user_id", userId).eq("album_id", albumId);
+        LambdaQueryWrapper<AlbumPhoto> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AlbumPhoto::getUserId, userId).eq(AlbumPhoto::getAlbumId, albumId);
         IPage<AlbumPhoto> records = this.page(photoIPage, queryWrapper);
         return ResponseEntity.ok(records);
     }
 
     @Override
-    public ResponseEntity<String> deleteAlbumPhotoBatch(Long userId, List<Long> albumIdList) {
+    public ResponseEntity<String> deleteAlbumPhotoBatch(List<Long> albumIdList) {
+        Long userId = JwtStorage.info().getUserId();
         // 构造查询条件
         QueryWrapper<AlbumPhoto> albumPhotoQueryWrapper = new QueryWrapper<>();
         albumPhotoQueryWrapper.eq("user_id", userId).in("album_photo_id", albumIdList);

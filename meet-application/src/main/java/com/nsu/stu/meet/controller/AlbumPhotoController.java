@@ -24,19 +24,16 @@ public class AlbumPhotoController {
 
     @RequestMapping(value = "/deleteBatch", method = RequestMethod.POST)
     public ResponseEntity<String> deleteBatch(@RequestBody List<Long> albumPhotoIdList, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumPhotoService.deleteAlbumPhotoBatch(tokenUserId, albumPhotoIdList);
+        return albumPhotoService.deleteAlbumPhotoBatch(albumPhotoIdList);
     }
 
     @RequestMapping(value = "/uploadBatch", method = RequestMethod.POST, params = {"albumId"})
     public ResponseEntity<String> uploadBatch(@RequestPart("files") MultipartFile[] files, Long albumId, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumPhotoService.uploadBatch(tokenUserId, albumId, files);
+        return albumPhotoService.uploadBatch(albumId, files);
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"page", "size", "albumId"})
-    public ResponseEntity<IPage<AlbumPhoto>> list(Integer page, Integer size, Long albumId, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumPhotoService.list(tokenUserId, albumId, page, size);
+    @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"userId", "albumId", "page", "size"})
+    public ResponseEntity<IPage<AlbumPhoto>> list(Long userId, Long albumId, Integer page, Integer size) {
+        return albumPhotoService.list(userId, albumId, page, size);
     }
 }

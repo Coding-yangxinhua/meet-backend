@@ -8,9 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface AlbumPhotoService {
-    ResponseEntity<String> uploadBatch(Long userId, Long albumId, MultipartFile[] files);
+    ResponseEntity<String> uploadBatch(Long albumId, MultipartFile[] files);
 
-    ResponseEntity<String> deleteAlbumPhotoBatch (Long userId, List<Long> albumIdList);
+    ResponseEntity<String> deleteAlbumPhotoBatch (List<Long> albumIdList);
 
     ResponseEntity<IPage<AlbumPhoto>> list(Long userId, Long albumId, Integer page, Integer size);
 }

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.nsu.stu.meet.common.base.BaseModel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

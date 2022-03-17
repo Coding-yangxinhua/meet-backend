@@ -14,6 +14,10 @@
     <dependencies>
         <dependency>
             <groupId>com.nsu.stu.meet</groupId>
+            <artifactId>meet-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nsu.stu.meet</groupId>
             <artifactId>meet-dao</artifactId>
         </dependency>
         <dependency>

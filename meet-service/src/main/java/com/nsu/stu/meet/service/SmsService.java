@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 
 public interface SmsService {
-    ResponseEntity<SendSmsResponse> sendSms(Long userId, String mobile, int type);
+    ResponseEntity<SendSmsResponse> sendSms(String mobile, int type);
 
     Boolean checkCode(@NotNull String mobile, @NotNull String code, @NotNull int type);
 }

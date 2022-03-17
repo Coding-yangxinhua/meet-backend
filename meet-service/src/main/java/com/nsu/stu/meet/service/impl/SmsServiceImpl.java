@@ -3,6 +3,7 @@ package com.nsu.stu.meet.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.nsu.stu.meet.common.base.BusinessException;
+import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.config.CloudConfig;
 import com.nsu.stu.meet.common.constant.SystemConstants;
@@ -32,7 +33,8 @@ public class SmsServiceImpl implements SmsService {
     private StringRedisTemplate redisTemplate;
     @Autowired
     private CloudConfig cloudConfig;
-    public ResponseEntity<SendSmsResponse> sendSms(Long userId, String mobile, int type) {
+    public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type) {
+        Long userId = JwtStorage.info().getUserId();
         // 获得短信类型的枚举
         SmsEnums smsEnums = SmsEnums.lookUp(type);
         // 模板类型

@@ -36,7 +36,13 @@ public class AlbumController {
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.POST)
-    public ResponseEntity<List<Album>> list(HttpServletRequest request) {
+    public ResponseEntity<List<Album>> getAll(HttpServletRequest request) {
+        Long tokenUserId = JwtUtil.getTokenUserId(request);
+        return albumService.selectAlbumSelf(tokenUserId);
+    }
+
+    @RequestMapping(value = "/get", method = RequestMethod.POST)
+    public ResponseEntity<List<Album>> getUserPhoto(Long userId, HttpServletRequest request) {
         Long tokenUserId = JwtUtil.getTokenUserId(request);
         return albumService.selectAlbumByUserId(tokenUserId);
     }

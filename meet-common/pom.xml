@@ -13,10 +13,10 @@
 
     <dependencies>
         <!-- =============================================== -->
-<!--        <dependency>-->
-<!--            <groupId>com.nsu.stu.meet</groupId>-->
-<!--            <artifactId>meet-model</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.nsu.stu.meet</groupId>
+            <artifactId>meet-model</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.qcloud</groupId>
             <artifactId>cos_api</artifactId>
@@ -88,20 +88,13 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

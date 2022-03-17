@@ -2,7 +2,7 @@ package com.nsu.stu.meet.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.nsu.stu.meet.common.base.BaseModel;
+
 import lombok.Getter;
 import lombok.Setter;
 

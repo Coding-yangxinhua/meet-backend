@@ -36,34 +36,8 @@ import java.util.Map;
 @MapperScan("com.**.dao")
 @ComponentScan(basePackages = { "com.nsu.stu.meet" })
 public class MeetApplicationConfiguration {
-	/**
-	 * mybatis-plus 自动完成insert和update时的值设置
-	 */
-	@Bean
-	public MetaObjectHandler mybatisPlusColumnSetterInterceptor() {
-		MetaObjectHandler metaObjectHandler = new MetaObjectHandler() {
-			/**
-			 * 在insert前自动设置值
-			 */
-			@Override
-			public void insertFill(MetaObject metaObject) {
-				Long currentTimeMillis = System.currentTimeMillis();
-				this.setFieldValByName("gmtCreate", currentTimeMillis, metaObject);
-				this.setFieldValByName("gmtModified", currentTimeMillis, metaObject);
-				this.setFieldValByName("isDeleted", 0, metaObject);
-			}
 
-			/**
-			 * 在update前自动设置值
-			 */
-			@Override
-			public void updateFill(MetaObject metaObject) {
-				this.setFieldValByName("gmtModified", System.currentTimeMillis(), metaObject);
-			}
 
-		};
-		return metaObjectHandler;
-	}
 
 	/**
 	 *
@@ -103,16 +77,7 @@ public class MeetApplicationConfiguration {
 //		return bean;
 //	}
 
-    /**
-     * mybatis-plus分页
-     * @return
-     */
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor() {
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
-        return interceptor;
-    }
+
 	@Bean
 	@ConditionalOnMissingBean
 	public FilterRegistrationBean webStatFilter() {

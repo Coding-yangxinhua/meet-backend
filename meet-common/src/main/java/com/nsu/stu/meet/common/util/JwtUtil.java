@@ -20,15 +20,19 @@ import java.util.Date;
 public class JwtUtil {
     private final byte[] key ="zxcv123321AZ".getBytes();
 
-    public String createToken(Long userId) {
+    public String createToken(Long userId, String userName) {
         DateTime date = DateUtil.date();
         return JWT.create()
                 .setPayload("userId", userId)
+                .setPayload("userName", userName)
                 .setKey(key)
                 .setExpiresAt(DateUtil.offsetDay(date, 7))
                 .sign();
     }
-    private Object getTokenPayload(String token, String name) {
+    public String createToken(Long userId) {
+        return createToken(userId, null);
+    }
+    public Object getTokenPayload(String token, String name) {
         boolean validToken = isValidToken(token);
         if (validToken) {
             JWT jwt = JWTUtil.parseToken(token);
@@ -36,31 +40,18 @@ public class JwtUtil {
         }
         return null;
     }
-    public Long getTokenUserId(String token) {
-        return (Long) getTokenPayload(token, "userId");
-    }
+
     public boolean isValidToken(String token) {
         boolean verify = false;
         if (StringUtils.hasText(token)) {
-            verify = JWTUtil.verify(token, key);
-        }
-        return verify;
-    }
-    public String getTokenFromCookies(Cookie[] cookies) {
-        String token = null;
-        for (Cookie cookie:
-                cookies) {
-            if (SystemConstants.TOKEN_NAME.equals(cookie.getName())) {
-                token = cookie.getValue();
+
+            try {
+                verify = JWTUtil.verify(token, key);
+            } catch (RuntimeException e) {
+                throw new IllegalParamException(SystemConstants.TOKEN_ERROR);
             }
         }
-        return token;
-    }
-
-    public Long getTokenUserId(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        String token = JwtUtil.getTokenFromCookies(cookies);
-        return JwtUtil.getTokenUserId(token);
+        return verify;
     }
 
     public Boolean renewToken(String token) {

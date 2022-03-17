@@ -1,9 +1,10 @@
 package com.nsu.stu.meet.common.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.nsu.stu.meet.common.base.JwtInfo;
+import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.config.SsoConfig;
-import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.util.SsoUtil;
 import org.mybatis.logging.Logger;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -72,17 +72,11 @@ public class SsoFilter implements Filter {
          * 3.非免登录地址 判断是否登录
          */
         // 获得用户token
-        String token = null;
-        for (Cookie cookie:
-        request.getCookies()) {
-            if (SystemConstants.TOKEN_NAME.equals(cookie.getName())) {
-                token = cookie.getValue();
-
-            }
-        }
+        String token = SsoUtil.getToken(request.getCookies());
         // 判断是否登录
-        boolean login = SsoUtil.isLogin(token);
-        if (login) {
+        JwtInfo jwtInfo = SsoUtil.getJwtInfo(token);
+        if (jwtInfo.getUserId() != null) {
+            JwtStorage.set(jwtInfo);
             chain.doFilter(req, res);
             return;
         }

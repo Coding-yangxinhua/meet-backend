@@ -5,6 +5,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
@@ -33,13 +34,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private CosUtil cosUtil;
 
-    @Value("${system.cookie.host}")
-    private String host;
-    @Value("${system.cookie.path}")
-    private String path;
+
 
     @Override
-    public ResponseEntity<String> registerByPassword(UserDto userDto, HttpServletResponse response) {
+    public ResponseEntity<String> registerByPassword(UserDto userDto) {
         // 提取出密码
         String password = userDto.getPassword();
         String mobile = userDto.getMobile();
@@ -66,14 +64,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 设置默认用户名
         userDto.setNickname("用户" + RandomUtil.randomNumbers(11));
         baseMapper.insert(userDto);
-        setTokenToCookies(userDto.getUserId(), response);
         // 注册成功
         // 生成token
-        return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+        return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, SsoUtil.login(userDto.getUserId()));
     }
 
     @Override
-    public ResponseEntity<String> registerByCode(UserDto userDto, String code, int type, HttpServletResponse response) {
+    public ResponseEntity<String> registerByCode(UserDto userDto, String code, int type) {
         // 获取手机号
         String mobile = userDto.getMobile();
         // 检测手机号格式
@@ -94,14 +91,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 屏蔽基础信息
             this.setBaseNull(userDto);
             baseMapper.insert(userDto);
-            setTokenToCookies(userDto.getUserId(), response);
-            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, SsoUtil.login(userDto.getUserId()));
         }
         return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> loginByCode(UserDto userDto, String code, int type, HttpServletResponse response) {
+    public ResponseEntity<String> loginByCode(UserDto userDto, String code, int type) {
         // 获取手机号
         String mobile = userDto.getMobile();
         // 检测手机号格式
@@ -116,14 +112,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 对比验证码是否正确
         Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
         if (isCodeRight) {
-            setTokenToCookies(user.getUserId(), response);
-            return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS);
+            return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS, SsoUtil.login(user.getUserId()));
         }
         return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> loginByPassword(UserDto userDto, HttpServletResponse response) {
+    public ResponseEntity<String> loginByPassword(UserDto userDto) {
         // 获取手机号
         String mobile = userDto.getMobile();
         // 提取出密码
@@ -145,8 +140,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 密码正确
         if (md5Password.equals(userDto.getPassword())) {
-            setTokenToCookies(user.getUserId(), response);
-            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, SsoUtil.login(user.getUserId()));
         }
         return ResponseEntity.checkError(SystemConstants.PASSWORD_ERROR);
 
@@ -154,7 +148,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<String> updatePasswordByCode(Long userId, String password, String code) {
+    public ResponseEntity<String> updatePasswordByCode(String password, String code) {
+        Long userId = JwtStorage.info().getUserId();
         // 密码校验
         if (ValidateUtil.isPassword(password)) {
             return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
@@ -178,7 +173,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<String> updateUserProfile(Long userId, UserDto userDto) {
+    public ResponseEntity<String> updateUserProfile(UserDto userDto) {
+        Long userId = JwtStorage.info().getUserId();
         // 将重要信息屏蔽
         this.setBaseNull(userId, userDto);
         baseMapper.updateById(userDto);
@@ -186,7 +182,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<String> updateUserAvatar(Long userId, MultipartFile file) {
+    public ResponseEntity<String> updateUserAvatar(MultipartFile file) {
+        Long userId = JwtStorage.info().getUserId();
         User user = new User();
         user.setUserId(userId);
         boolean isImage = OwnUtil.checkFileIsImage(file.getResource().getFilename());
@@ -203,6 +200,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return ResponseEntity.ok();
     }
 
+    @Override
+    public ResponseEntity<String> getInfo(@NotNull Long queryUserId) {
+        Long userId = JwtStorage.info().getUserId();
+        User user = baseMapper.selectById(queryUserId);
+        return null;
+    }
+
     private void setBaseNull(UserDto userDto) {
         // 屏蔽基础信息
         setBaseNull(null, userDto);
@@ -215,12 +219,5 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userDto.setMobile(null);
         userDto.setIsDeleted(null);
     }
-    private void setTokenToCookies(@NotNull Long userId, @NotNull HttpServletResponse response) {
-        String token = JwtUtil.createToken(userId);
-        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
-        cookie.setDomain(host);
-        cookie.setPath(path);
-        cookie.setValue(token);
-        response.addCookie(cookie);
-    }
+
 }

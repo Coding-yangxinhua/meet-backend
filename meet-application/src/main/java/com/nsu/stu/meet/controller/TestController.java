@@ -37,76 +37,11 @@ import java.util.stream.Collectors;
 @RequestMapping("test")
 public class TestController {
 
-    @Autowired
-    private TransferManager transferManager;
-    private final String bucketName = "meet-1302770283";
-
-    @Value("${system.cookie.host}")
-    private String host;
-    @Value("${system.cookie.path}")
-    private String path;
-    @Autowired
-    private AlbumMapper albumMapper;
-
-    @RequestMapping(value = "testUpload", method = RequestMethod.POST)
-    public ResponseEntity<ResultStatus> testUpload(@RequestPart(value = "files") MultipartFile[] files) {
-        // 对象键(Key)是对象在存储桶中的唯一标识。
-        String today = DateUtil.today();
-        String randomName = RandomUtil.randomString(20);
-        String originalFilename = files[0].getOriginalFilename();
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
-        String key = today + "/" + randomName + suffix;
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        // 设置 content-length
-        objectMetadata.setContentLength(files[0].getSize());
-        PutObjectRequest putObjectRequest = null;
-        try {
-            putObjectRequest = new PutObjectRequest(bucketName, key, files[0].getInputStream(), objectMetadata);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            // 高级接口会返回一个异步结果Upload
-            // 可同步地调用 waitForUploadResult 方法等待上传完成，成功返回UploadResult, 失败抛出异常
-            Upload upload = transferManager.upload(putObjectRequest);
-            UploadResult uploadResult = upload.waitForUploadResult();
-        } catch (CosClientException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        // 关闭
-        transferManager.shutdownNow();
-        return ResponseEntity.ok();
-    }
-
-    @RequestMapping(value = "/set_cookie", method = RequestMethod.POST)
-    public String testSetCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
-        cookie.setDomain(host);
-        cookie.setPath(path);
-        cookie.setValue("token:11111111111111111111");
-        response.addCookie(cookie);
-        return cookie.getValue();
-    }
-    @RequestMapping(value = "/get_cookie", method = RequestMethod.GET)
-    public String testGetCookie(HttpServletRequest request) {
-        List<Cookie> collect = Arrays.stream(request.getCookies()).filter(Cookie -> Cookie.getName().equals(SystemConstants.TOKEN_NAME)).collect(Collectors.toList());
-        String value = null;
-        if (!collect.isEmpty()) {
-            Cookie cookie = collect.get(0);
-            value = cookie.getValue();
-        }
-        return value;
-    }
-
-    @RequestMapping(value = "/testException", method = RequestMethod.GET)
+    @RequestMapping(value = "/testThreadLocal", method = RequestMethod.GET)
     public String testException() {
         return JwtUtil.getTokenUserId("ddddd").toString();
     }
 
-    @RequestMapping(value = "/testDeleteBatch", method = RequestMethod.GET)
-    public String testDeleteBatch() {
-        List<Long> ids = Arrays.asList(1L, 2L, 3L);
-        albumMapper.deleteBatchIds(ids);
-        return "success";
-    }
+    
+
 }

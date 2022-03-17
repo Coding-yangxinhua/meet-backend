@@ -57,10 +57,16 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
     }
 
     @Override
-    public ResponseEntity<List<Album>> selectAlbumByUserId(Long userId) {
+    public ResponseEntity<List<Album>> selectAlbumSelf(Long userId) {
         QueryWrapper<Album> albumQueryWrapper = new QueryWrapper<>();
         albumQueryWrapper.eq("user_id", userId);
         return ResponseEntity.ok(baseMapper.selectList(albumQueryWrapper));
+    }
+
+    @Override
+    public ResponseEntity<List<Album>> selectAlbumByUserId(Long userId) {
+
+        return null;
     }
 
     private void setBaseNull(AlbumDto albumDto) {

@@ -2,7 +2,8 @@ package com.nsu.stu.meet.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.nsu.stu.meet.common.base.BaseModel;
+
+import com.nsu.stu.meet.model.enums.GenderEnums;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -41,8 +42,7 @@ public class User extends BaseModel {
     /**
      * 用户性别 0-男 1-女
      */
-    @Range(min = 0, max = 1)
-    private Integer gender;
+    private GenderEnums gender;
 
     /**
      * 用户头像

@@ -1,6 +1,7 @@
 package com.nsu.stu.meet.controller;
 
 import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.config.SsoConfig;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.enums.SmsEnums;
@@ -21,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 @Slf4j
 @RestController
@@ -32,21 +34,25 @@ public class UserController {
     @Autowired
     private SmsService smsService;
 
+    @Autowired
+    private SsoConfig ssoConfig;
 
 
     @RequestMapping(value = "/sendSms", method = RequestMethod.GET, params = {"mobile", "type"})
-    public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return smsService.sendSms(tokenUserId, mobile, type);
+    public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type) {
+        return smsService.sendSms(mobile, type);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST, params = {"code"})
     public ResponseEntity<String> register(@RequestBody UserDto userDto, @Nullable String code, HttpServletResponse response) {
         ResponseEntity<String> responseEntity = null;
         if (code != null) {
-            responseEntity = userService.registerByCode(userDto, code, SmsEnums.REGISTER.type(), response);
+            responseEntity = userService.registerByCode(userDto, code, SmsEnums.REGISTER.type());
         }else {
-            responseEntity = userService.registerByPassword(userDto, response);
+            responseEntity = userService.registerByPassword(userDto);
+        }
+        if (responseEntity.getStatus().equals(ResultStatus.OK)) {
+            setTokenToCookies (responseEntity.getResult(), response);
         }
         return responseEntity;
     }
@@ -55,30 +61,44 @@ public class UserController {
     public ResponseEntity<String> login(@RequestBody UserDto userDto, @Nullable String code, HttpServletResponse response) {
         ResponseEntity<String> responseEntity = null;
         if (code != null) {
-            responseEntity = userService.loginByCode(userDto, code, SmsEnums.LOGIN.type(), response);
+            responseEntity = userService.loginByCode(userDto, code, SmsEnums.LOGIN.type());
         }else {
-            responseEntity = userService.loginByPassword(userDto, response);
+            responseEntity = userService.loginByPassword(userDto);
+        }
+        if (responseEntity.getStatus().equals(ResultStatus.OK)) {
+            setTokenToCookies (responseEntity.getResult(), response);
         }
         return responseEntity;
     }
 
     @RequestMapping(value = "/updatePassword", method = RequestMethod.POST, params = {"password", "code"})
-    public ResponseEntity<String> updatePassword(String password, String code, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return userService.updatePasswordByCode(tokenUserId, password, code);
+    public ResponseEntity<String> updatePassword(String password, String code) {
+        return userService.updatePasswordByCode(password, code);
     }
 
     @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
-    public ResponseEntity<String> updateProfile(@RequestBody UserDto userDto, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return userService.updateUserProfile(tokenUserId, userDto);
+    public ResponseEntity<String> updateProfile(@RequestBody UserDto userDto) {
+        return userService.updateUserProfile(userDto);
     }
 
     @RequestMapping(value = "/updateAvatar", method = RequestMethod.POST)
-    public ResponseEntity<String> updateAvatar(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return userService.updateUserAvatar(tokenUserId, file);
+    public ResponseEntity<String> updateAvatar(@RequestPart("file") MultipartFile file) {
+        return userService.updateUserAvatar(file);
     }
+
+    @RequestMapping(value = "/getInfo", method = RequestMethod.GET, params = {"userId"})
+    public ResponseEntity<String> getInfo(@Nullable Long userId) {
+        return userService.getInfo(userId);
+    }
+
+    private void setTokenToCookies(@NotNull String token, @NotNull HttpServletResponse response) {
+        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
+        cookie.setDomain(ssoConfig.getCookie().getHost());
+        cookie.setPath(ssoConfig.getCookie().getPath());
+        cookie.setValue(token);
+        response.addCookie(cookie);
+    }
+
 
 
 

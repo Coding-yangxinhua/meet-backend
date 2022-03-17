@@ -19,6 +19,8 @@ public class SsoConfig {
 
     private Boolean enable;
 
+    private Cookie cookie;
+
 
     // 根据逗号分割
     public String[] getExcludePathArray() {
@@ -26,5 +28,12 @@ public class SsoConfig {
             return new String[]{};
         }
         return excludePath.split(",");
+    }
+
+    @Getter
+    @Setter
+    public static class Cookie {
+        private String host;
+        private String path;
     }
 }

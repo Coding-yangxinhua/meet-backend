@@ -51,4 +51,18 @@ public class OwnUtil {
         return imageSet.contains(suffix.toLowerCase(Locale.ROOT));
     }
 
+    public String getRedisKey(String key, String sep, Object ...names) {
+        StringBuilder redisKey = new StringBuilder(key);
+
+        for (Object name:
+             names) {
+            redisKey.append(sep).append(String.valueOf(name));
+        }
+        return redisKey.toString();
+    }
+
+    public String getRedisKey(String key, Object ...names) {
+        return getRedisKey(key, "_", names);
+    }
+
 }

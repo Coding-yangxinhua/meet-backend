@@ -6,6 +6,7 @@ import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.enums.SmsEnums;
 import com.nsu.stu.meet.common.util.JwtUtil;
+import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserService;
@@ -87,8 +88,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/getInfo", method = RequestMethod.GET, params = {"userId"})
-    public ResponseEntity<String> getInfo(@Nullable Long userId) {
-        return userService.getInfo(userId);
+    public ResponseEntity<User> getInfo(@Nullable Long userId) {
+        if (userId == null) {
+            return userService.getSelfInfo();
+        } else {
+            return userService.getInfo(userId);
+        }
     }
 
     private void setTokenToCookies(@NotNull String token, @NotNull HttpServletResponse response) {

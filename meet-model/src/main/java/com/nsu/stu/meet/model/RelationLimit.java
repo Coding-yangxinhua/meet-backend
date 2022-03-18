@@ -2,43 +2,38 @@ package com.nsu.stu.meet.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import com.nsu.stu.meet.model.enums.RelationEnums;
+import com.nsu.stu.meet.model.enums.LimitEnums;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.Pattern;
-
+/**
+ * mt_album
+ * @author 
+ */
 @Getter
 @Setter
-@TableName("mt_user_relation")
-public class UserRelation extends BaseModel {
+@TableName("mt_relation_limit")
+public class RelationLimit extends BaseModel {
     /**
-     * 关系id
+     * 相册id
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long relationId;
+    private Long relationLimitId;
 
     /**
-     * 用户id
+     * 关系id
      */
-    @TableField(value = "`src_id`")
-    private Long srcId;
+    private Long relationStatus;
 
     /**
-     * 目标用户id
+     * 访问权限
      */
-    @TableField(value = "`dest_id`")
-    private Long destId;
+    private LimitEnums limitId;
 
-    /**
-     * 用户关系 -1 拉黑 1关注 2特别关心
-     */
-    @TableField(value = "`status`")
-    private RelationEnums status;
+
 
     /**
      * 创建时间
@@ -58,4 +53,5 @@ public class UserRelation extends BaseModel {
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
 
+    private static final long serialVersionUID = 1L;
 }

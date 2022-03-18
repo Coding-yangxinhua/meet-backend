@@ -20,6 +20,9 @@ mybatis-plus:
       logic-not-delete-value: 0
   mapper-locations: classpath*:/mapper/*Mapper.xml
   type-enums-package: com.nsu.stu.meet.model.enums
+  configuration-properties:
+    NOT_DELETED: 0
+
 
 nacos:
   config:

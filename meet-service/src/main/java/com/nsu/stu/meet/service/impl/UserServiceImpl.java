@@ -3,6 +3,7 @@ package com.nsu.stu.meet.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
@@ -17,15 +18,9 @@ import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -162,8 +157,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 查询验证码是否正确
         Boolean isCodeRight  = smsService.checkCode(String.valueOf(userId), code, SmsEnums.UPDATE.type());
         if (isCodeRight) {
-            UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.eq("user_id", userId);
+            LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(User::getUserId, user);
             User newUser = new User();
             newUser.setPassword(password);
             baseMapper.update(newUser, updateWrapper);
@@ -201,10 +196,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<String> getInfo(@NotNull Long queryUserId) {
-        Long userId = JwtStorage.info().getUserId();
+    public ResponseEntity<User> getInfo(Long queryUserId) {
         User user = baseMapper.selectById(queryUserId);
-        return null;
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
+    }
+
+    @Override
+    public ResponseEntity<User> getSelfInfo() {
+        Long tokenUserId = JwtStorage.info().getUserId();
+        User user = baseMapper.selectById(tokenUserId);
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
     }
 
     private void setBaseNull(UserDto userDto) {

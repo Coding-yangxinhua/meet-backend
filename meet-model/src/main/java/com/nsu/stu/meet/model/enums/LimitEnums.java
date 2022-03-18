@@ -2,20 +2,20 @@ package com.nsu.stu.meet.model.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 
-public enum GenderEnums  {
+public enum LimitEnums {
 
-    MALE (0, "男"),
+    PRIVATE (0, "仅自己可见"),
 
-    FEMALE (1, "女"),
+    PUBLIC (1, "公开"),
 
-    SECRET (2, "保密");
+    FOLLOW (2, "关注可见");
 
 
     @EnumValue
     public int value;
     public String desc;
 
-    GenderEnums(int value, String desc) {
+    LimitEnums(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }

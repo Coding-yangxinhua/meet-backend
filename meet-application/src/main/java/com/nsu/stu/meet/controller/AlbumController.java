@@ -18,32 +18,25 @@ public class AlbumController {
     private AlbumService albumService;
 
     @RequestMapping(value = "/deleteBatch", method = RequestMethod.POST)
-    public ResponseEntity<String> deleteBatch(@RequestBody List<Long> albumIdList, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumService.deleteAlbumBatch(tokenUserId, albumIdList);
+    public ResponseEntity<String> deleteBatch(@RequestBody List<Long> albumIdList) {
+        return albumService.deleteAlbumBatch(albumIdList);
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<String> create(@RequestBody AlbumDto albumDto, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumService.createAlbum(tokenUserId, albumDto);
+    public ResponseEntity<String> create(@RequestBody AlbumDto albumDto) {
+        return albumService.createAlbum(albumDto);
     }
 
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
-    public ResponseEntity<String> modify(@RequestBody AlbumDto albumDto, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumService.modifyAlbum(tokenUserId, albumDto);
+    public ResponseEntity<String> modify(@RequestBody AlbumDto albumDto) {
+        return albumService.modifyAlbum(albumDto);
     }
 
-    @RequestMapping(value = "/getAll", method = RequestMethod.POST)
-    public ResponseEntity<List<Album>> getAll(HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumService.selectAlbumSelf(tokenUserId);
-    }
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET, params = {"userId"})
+    public ResponseEntity<List<Album>> getAlbumList(Long userId) {
+        if (userId == null) {
+            return albumService.selectAlbumSelf();
+        }
 
-    @RequestMapping(value = "/get", method = RequestMethod.POST)
-    public ResponseEntity<List<Album>> getUserPhoto(Long userId, HttpServletRequest request) {
-        Long tokenUserId = JwtUtil.getTokenUserId(request);
-        return albumService.selectAlbumByUserId(tokenUserId);
     }
 }

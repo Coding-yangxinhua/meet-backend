@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 写入 自己 dao 里的接口名称-->
+<mapper namespace="com.nsu.stu.meet.dao.RelationLimitMapper">
+
+
+    <select id="getLimitByUser" resultType="com.nsu.stu.meet.model.RelationLimit">
+        <bind name="block" value="@com.nsu.stu.meet.common.enums.DeletedEnums@BLOCK.value"/>
+        SELECT
+        *
+        FROM
+        mt_relation_limit
+        WHERE
+        `relation_status` IN (
+        SELECT
+        `status`
+        FROM
+        mt_user_relation
+        WHERE
+        ( SELECT `status` FROM `mt_user_relation` WHERE src_id = #{destId} AND dest_id = #{srcId} ) <![CDATA[ <> ]]> #{block}
+        AND src_id = #{srcId}
+        AND dest_id = #{destId}
+        )
+    </select>
+</mapper>

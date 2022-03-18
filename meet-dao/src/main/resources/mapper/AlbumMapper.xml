@@ -5,4 +5,19 @@
 <!-- namespace 写入 自己 dao 里的接口名称-->
 <mapper namespace="com.nsu.stu.meet.dao.AlbumMapper">
 
+    <select id="selectAlbumByUserId" resultType="com.nsu.stu.meet.model.Album">
+        SELECT
+            *
+        FROM
+            mt_album
+        WHERE
+            user_id = #{userId}
+
+          AND is_deleted = #{NOT_DELETED}
+
+          AND limit_id IN
+            <foreach collection="limits" item="limit" open="(" close=")" separator=",">
+                #{limit.limitId}
+            </foreach>
+    </select>
 </mapper>

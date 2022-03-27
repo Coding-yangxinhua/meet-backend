@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 写入 自己 dao 里的接口名称-->
+<mapper namespace="com.nsu.stu.meet.dao.ArticleMapper">
+
+    <resultMap id="articleMap" type="com.nsu.stu.meet.model.dto.ArticleDto">
+        <association property="userDto" javaType="com.nsu.stu.meet.model.dto.UserDto">
+            <result column="userId" property="userId"/>
+            <result column="avatar" property="avatar"/>
+            <result column="nickname" property="nickname"/>
+        </association>
+
+        <association property="articleStatusDto" javaType="com.nsu.stu.meet.model.dto.ArticleStatusDto">
+
+        </association>
+    </resultMap>
+    <select id="selectArticleByUserId" resultMap="articleMap">
+        SELECT
+        ma.* ,
+        mu.avatar avatar,
+        mu.user_id userId,
+        mu.nickname nickName,
+        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS likeSum,
+        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislikeSum,
+        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS starSum,
+        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repostSum,
+        mas2.*
+        FROM
+        mt_article ma
+        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+        AND mas2.user_id = #{userId}
+        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.userId = #{queryId}
+        <choose>
+            <when test="limits.size > 0">
+                AND ma.limit_id IN
+                <foreach collection="limits" item="limit" open="(" close=")" separator=",">
+                    #{limit.limitId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
+        ORDER BY
+        ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectArticleListWithNoLimit" resultMap="articleMap">
+        SELECT
+        ma.*,
+        mu.avatar,
+        mu.user_id,
+        mu.nickname,
+        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS likeSum,
+        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislikeSum,
+        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS starSum,
+        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repostSum,
+        mas2.*
+        FROM
+        mt_article ma
+        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+        AND mas2.user_id = #{userId}
+        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.userId = #{queryId}
+        ORDER BY
+        ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+
+    <select id="test" resultMap="articleMap">
+        SELECT
+            ma.*,
+            mu.avatar,
+            mu.user_id,
+            mu.nickname,
+            SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS likeSum,
+            SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislikeSum,
+            SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS starSum,
+            SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repostSum,
+            mas2.*
+        FROM
+            mt_article ma
+                LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+                LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+                AND mas2.user_id = #{userId}
+                LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        WHERE
+            ma.is_deleted = ${NOT_DELETED}
+            AND ma.userId = #{queryId}
+        ORDER BY
+            ma.gmt_create DESC
+            LIMIT #{start}, #{end}
+    </select>
+    <select id="selectArticleList" resultMap="articleMap">
+        <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
+        SELECT
+        ma.*,
+        mu.avatar,
+        mu.user_id,
+        mu.nickname,
+        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS likeSum,
+        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislikeSum,
+        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS starSum,
+        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repostSum,
+        mas2.*
+        FROM
+        mt_article ma
+        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+        AND mas2.user_id = #{userId}
+        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.limit_id IN (
+        SELECT
+        mrl.limit_id
+        FROM
+        mt_relation_limit mrl
+        WHERE
+        is_deleted = 0
+        AND `relation_status` IN (
+        SELECT
+        `status`
+        FROM
+        mt_user_relation
+        WHERE
+        ( SELECT `status` FROM `mt_user_relation` WHERE src_id = ma.user_id AND dest_id = #{userId} ) <![CDATA[ <> ]]> #{block}
+        AND src_id = #{userId}
+        AND dest_id = ma.user_id
+        )
+        OR ma.user_id = #{userId}
+        )
+        GROUP BY
+        ma.article_id
+        ORDER BY
+        ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectArticleListHot" resultMap="articleMap">
+        <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
+        SELECT
+        ma.*,
+        mu.avatar,
+        mu.user_id,
+        mu.nickname,
+        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS likeSum,
+        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislikeSum,
+        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS starSum,
+        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repostSum,
+        mas2.*
+        FROM
+        mt_article ma
+        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+        AND mas2.user_id = #{userId}
+        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.limit_id IN (
+        SELECT
+        mrl.limit_id
+        FROM
+        mt_relation_limit mrl
+        WHERE
+        is_deleted = 0
+        AND `relation_status` IN (
+        SELECT
+        `status`
+        FROM
+        mt_user_relation
+        WHERE
+        ( SELECT `status` FROM `mt_user_relation` WHERE src_id = ma.user_id AND dest_id = #{userId} ) <![CDATA[ <> ]]> #{block}
+        AND src_id = #{userId}
+        AND dest_id = ma.user_id
+        )
+        OR ma.user_id = #{userId}
+        )
+        GROUP BY
+        ma.article_id
+        ORDER BY
+        likeSum DESC
+        LIMIT #{start}, #{end}
+    </select>
+</mapper>

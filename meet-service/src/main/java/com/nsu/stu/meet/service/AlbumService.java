@@ -15,7 +15,7 @@ public interface AlbumService {
 
     Album selectAlbumByIdAndUserId (Long albumId, Long userId);
 
-    ResponseEntity<List<Album>> selectAlbumSelf ();
+    ResponseEntity<List<AlbumDto>> selectAlbumListSelf ();
 
-    ResponseEntity<List<Album>> selectAlbumByUserId (Long userId);
+    ResponseEntity<List<AlbumDto>> selectAlbumListOther (Long userId);
 }

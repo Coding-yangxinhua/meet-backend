@@ -144,7 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseEntity<String> updatePasswordByCode(String password, String code) {
-        Long userId = JwtStorage.info().getUserId();
+        Long userId = JwtStorage.userId();
         // 密码校验
         if (ValidateUtil.isPassword(password)) {
             return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
@@ -169,7 +169,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseEntity<String> updateUserProfile(UserDto userDto) {
-        Long userId = JwtStorage.info().getUserId();
+        Long userId = JwtStorage.userId();
         // 将重要信息屏蔽
         this.setBaseNull(userId, userDto);
         baseMapper.updateById(userDto);
@@ -178,7 +178,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseEntity<String> updateUserAvatar(MultipartFile file) {
-        Long userId = JwtStorage.info().getUserId();
+        Long userId = JwtStorage.userId();
         User user = new User();
         user.setUserId(userId);
         boolean isImage = OwnUtil.checkFileIsImage(file.getResource().getFilename());
@@ -204,7 +204,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseEntity<User> getSelfInfo() {
-        Long tokenUserId = JwtStorage.info().getUserId();
+        Long tokenUserId = JwtStorage.userId();
         User user = baseMapper.selectById(tokenUserId);
         user.setPassword(null);
         return ResponseEntity.ok(user);

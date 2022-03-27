@@ -34,7 +34,7 @@ public class SmsServiceImpl implements SmsService {
     @Autowired
     private CloudConfig cloudConfig;
     public ResponseEntity<SendSmsResponse> sendSms(String mobile, int type) {
-        Long userId = JwtStorage.info().getUserId();
+        Long userId = JwtStorage.userId();
         // 获得短信类型的枚举
         SmsEnums smsEnums = SmsEnums.lookUp(type);
         // 模板类型
@@ -78,7 +78,7 @@ public class SmsServiceImpl implements SmsService {
             res = smsClient.SendSms(req);
         } catch (TencentCloudSDKException e) {
             e.printStackTrace();
-            return ResponseEntity.checkError(SystemConstants.SMS_ERROR);
+            throw new BusinessException(SystemConstants.SMS_ERROR);
         }
         return ResponseEntity.ok(res);
     }

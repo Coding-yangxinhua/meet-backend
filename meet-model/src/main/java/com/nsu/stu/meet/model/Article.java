@@ -46,6 +46,9 @@ public class Article extends BaseModel {
     @Length(max = 4095)
     private String content;
 
+    @Length(max = 4095)
+    private String picUrls;
+
     /**
      * 创建时间
      */

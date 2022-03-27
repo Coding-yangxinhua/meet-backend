@@ -75,7 +75,7 @@ public class SsoFilter implements Filter {
         String token = SsoUtil.getToken(request.getCookies());
         // 判断是否登录
         JwtInfo jwtInfo = SsoUtil.getJwtInfo(token);
-        if (jwtInfo.getUserId() != null) {
+        if (jwtInfo != null && jwtInfo.getUserId() != null) {
             JwtStorage.set(jwtInfo);
             chain.doFilter(req, res);
             return;

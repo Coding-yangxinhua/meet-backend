@@ -41,6 +41,11 @@ public class JwtUtil {
         return null;
     }
 
+    public Long getUserId(String token) {
+        Object tokenPayload = getTokenPayload(token, "userId");
+        return Long.valueOf(String.valueOf(tokenPayload));
+    }
+
     public boolean isValidToken(String token) {
         boolean verify = false;
         if (StringUtils.hasText(token)) {

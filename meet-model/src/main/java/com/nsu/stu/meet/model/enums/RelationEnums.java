@@ -3,13 +3,15 @@ package com.nsu.stu.meet.model.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum LimitEnums {
+public enum RelationEnums {
 
-    PRIVATE (0, "仅自己可见"),
+    BLOCK (-1, "拉黑"),
 
-    PUBLIC (1, "公开"),
+    NORMAL (0, "无关系"),
 
-    FOLLOW (2, "关注可见");
+    FOLLOW (1, "关注"),
+
+    LIKE (2, "特别关心");
 
 
     @EnumValue
@@ -17,7 +19,7 @@ public enum LimitEnums {
     public int value;
     public String desc;
 
-    LimitEnums(int value, String desc) {
+    RelationEnums(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }

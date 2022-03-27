@@ -5,6 +5,7 @@ import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.util.CosUtil;
 import com.nsu.stu.meet.common.util.JwtUtil;
 import com.nsu.stu.meet.model.AlbumPhoto;
+import com.nsu.stu.meet.model.dto.AlbumPhotoDto;
 import com.nsu.stu.meet.service.AlbumPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +24,20 @@ public class AlbumPhotoController {
     private AlbumPhotoService albumPhotoService;
 
     @RequestMapping(value = "/deleteBatch", method = RequestMethod.POST)
-    public ResponseEntity<String> deleteBatch(@RequestBody List<Long> albumPhotoIdList, HttpServletRequest request) {
+    public ResponseEntity<String> deleteBatch(@RequestBody List<Long> albumPhotoIdList) {
         return albumPhotoService.deleteAlbumPhotoBatch(albumPhotoIdList);
     }
 
     @RequestMapping(value = "/uploadBatch", method = RequestMethod.POST, params = {"albumId"})
-    public ResponseEntity<String> uploadBatch(@RequestPart("files") MultipartFile[] files, Long albumId, HttpServletRequest request) {
+    public ResponseEntity<String> uploadBatch(@RequestPart("files") MultipartFile[] files, Long albumId) {
         return albumPhotoService.uploadBatch(albumId, files);
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"userId", "albumId", "page", "size"})
-    public ResponseEntity<IPage<AlbumPhoto>> list(Long userId, Long albumId, Integer page, Integer size) {
-        return albumPhotoService.list(userId, albumId, page, size);
+    @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"albumId", "page", "size"})
+    public ResponseEntity<IPage<AlbumPhotoDto>> list(@RequestParam(value = "userId", required = false) Long userId, Long albumId, Integer page, Integer size) {
+        if (userId == null) {
+            return albumPhotoService.listSelf(albumId, page, size);
+        }
+        return albumPhotoService.listOther(userId, albumId, page, size);
     }
 }

@@ -18,12 +18,11 @@ public class OwnUtil {
         }
     };
 
-    public <T, S> List<T> copy2Ts(Collection<S> src, Class<T> tType) {
+    public <T, S> List<T> covertL2L(Collection<S> src, Class<T> tType) {
         if (CollectionUtils.isEmpty(src)) {
             return Collections.emptyList();
         } else {
             ArrayList<T> result = new ArrayList<>(src.size());
-
             try {
                 for (Object next : src) {
                     T tar = tType.newInstance();
@@ -36,6 +35,25 @@ public class OwnUtil {
 
             return result;
         }
+    }
+
+    public <P,V> IPage<V> pageDtoCovert(IPage<P> pageInfoPo, Class<V> v) {
+        // 创建Page对象，实际上是一个ArrayList类型的集合
+        try {
+            if (pageInfoPo != null) {
+
+                IPage<V> page = new Page<>(pageInfoPo.getCurrent(), pageInfoPo.getSize());
+                page.setTotal(pageInfoPo.getTotal());
+                List<P> records = pageInfoPo.getRecords();
+                List<V> vs = covertL2L(records, v);
+                page.setRecords(vs);
+                page.setTotal(pageInfoPo.getTotal());
+                return page;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String getFileSuffix(String fileName) {

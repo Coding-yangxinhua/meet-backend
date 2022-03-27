@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 @RequestMapping("test")
 public class TestController {
 
-    @RequestMapping(value = "/testThreadLocal", method = RequestMethod.GET)
+    @RequestMapping(value = "/testThrow", method = RequestMethod.GET)
     public String testException() {
-        return JwtUtil.getTokenUserId("ddddd").toString();
+        return "" + JwtUtil.isValidToken("dddd");
     }
 
     

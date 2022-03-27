@@ -3,6 +3,7 @@ package com.nsu.stu.meet.common.util;
 import com.nsu.stu.meet.common.base.JwtInfo;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import lombok.experimental.UtilityClass;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 
@@ -20,13 +21,19 @@ public class SsoUtil {
     }
 
     public JwtInfo getJwtInfo(String token) {
-        Long userId = (Long) JwtUtil.getTokenPayload(token, "userId");
+        Long userId = JwtUtil.getUserId(token);
+        if (userId == null) {
+            return null;
+        }
         String userName = (String) JwtUtil.getTokenPayload(token, "userName");
         return new JwtInfo(userId, userName);
     }
 
 
     public Object getCookieValue(String key, Cookie[] cookies) {
+        if (cookies == null) {
+            return null;
+        }
         Object value = null;
         for (Cookie cookie:
                 cookies) {

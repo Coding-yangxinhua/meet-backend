@@ -19,6 +19,13 @@ public class JwtStorage {
         return JwtStorage.jwtInfo.get();
     }
 
+    public Long userId () {
+        if (JwtStorage.jwtInfo.get() != null) {
+            return JwtStorage.jwtInfo.get().getUserId();
+        }
+        return null;
+    }
+
     public void remove() {
         jwtInfo.remove();
     }

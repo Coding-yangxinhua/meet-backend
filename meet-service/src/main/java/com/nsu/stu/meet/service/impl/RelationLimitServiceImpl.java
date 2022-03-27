@@ -1,5 +1,6 @@
 package com.nsu.stu.meet.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,6 +11,7 @@ import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.util.CosUtil;
+import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.AlbumPhotoMapper;
 import com.nsu.stu.meet.dao.RelationLimitMapper;
 import com.nsu.stu.meet.model.Album;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -34,13 +37,20 @@ public class RelationLimitServiceImpl extends ServiceImpl<RelationLimitMapper, R
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    private final String key = "relation_limit_";
+    private final String key = "relation_limit";
 
     @Override
-    public List<RelationLimit> getUserRelationLimit(Long destId) {
-        Long userId = JwtStorage.info().getUserId();
-        List<RelationLimit> limitByUser = baseMapper.getLimitByUser(userId, destId);
-        String relationLimit = redisTemplate.opsForValue().get(this.key + userId + "_" + destId);
+    public List<RelationLimit> getUserRelationLimit(Long srcId, Long destId) {
+        List<RelationLimit> limitList;
+        String redisKey = OwnUtil.getRedisKey(this.key, srcId, destId);
+        String relationLimit = redisTemplate.opsForValue().get(redisKey);
+        if (relationLimit != null) {
+            limitList = JSON.parseArray(relationLimit, RelationLimit.class);
+        } else {
+            limitList = baseMapper.getLimitByUser(srcId, destId);
+            redisTemplate.opsForValue().set(redisKey, JSON.toJSONString(limitList), 1, TimeUnit.HOURS);
+        }
+        return limitList;
 
     }
 }

@@ -9,5 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface RelationLimitService {
-    List<RelationLimit> getUserRelationLimit(Long destId);
+    /**
+     * 获得对应人物关系对应的权限
+     * @param destId
+     * @return
+     */
+    List<RelationLimit> getUserRelationLimit(Long srcId, Long destId);
 }

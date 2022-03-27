@@ -12,6 +12,7 @@ spring:
     active:
     - dev
 
+
 mybatis-plus:
   global-config:
     db-config:

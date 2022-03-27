@@ -28,9 +28,10 @@ public class GlobalExceptionHandler {
 
     // 当异常为Exception或Error，返回状态为 系统错误 的响应类
     @ExceptionHandler(value = { Exception.class, Error.class })
+    @ResponseBody
     ResponseEntity<ResultStatus> handleOtherException(Throwable e) {
         return ResponseEntity.builder().status(ResultStatus.SYS_ERROR)
-                .message(ResultStatus.SYS_ERROR.message()).build();
+                .message(e.getMessage()).build();
     }
 
 }

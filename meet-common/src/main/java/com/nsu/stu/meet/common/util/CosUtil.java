@@ -60,13 +60,18 @@ public class CosUtil {
         return "";
     }
 
-    public List<String> upload (MultipartFile[] files) {
+    public List<String> upload (MultipartFile[] files, int maxLength) {
+        maxLength = Math.min(maxLength, files.length);
         List<String> urls = new ArrayList<>(files.length);
-        for (MultipartFile file:
-        files) {
+        for (int i = 0; i < maxLength; i ++) {
+            MultipartFile file = files[i];
             urls.add(this.upload(file));
         }
         return urls;
+    }
+
+    public List<String> upload (MultipartFile[] files) {
+        return upload(files, files.length);
     }
 
     public void delete(List<String> urls) {

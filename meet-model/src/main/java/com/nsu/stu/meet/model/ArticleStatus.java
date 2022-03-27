@@ -35,18 +35,23 @@ public class ArticleStatus extends BaseModel {
     /**
      * 是否点赞
      */
-    private Long likeStatus;
+    private Integer likeStatus;
 
 
     /**
      * 是否收藏
      */
-    private Long starStatus;
+    private Integer starStatus;
 
     /**
      * 是否点踩
      */
-    private Long dislikeStatus;
+    private Integer dislikeStatus;
+
+    /**
+     * 是否转发
+     */
+    private Integer repostStatus;
 
     /**
      * 创建时间

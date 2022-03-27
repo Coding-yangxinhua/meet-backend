@@ -1,6 +1,7 @@
 package com.nsu.stu.meet.model.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum GenderEnums  {
 
@@ -12,6 +13,7 @@ public enum GenderEnums  {
 
 
     @EnumValue
+    @JsonValue
     public int value;
     public String desc;
 

@@ -23,4 +23,5 @@ public class JwtInfo {
         this.userId = userId;
         this.userName = userName;
     }
+
 }

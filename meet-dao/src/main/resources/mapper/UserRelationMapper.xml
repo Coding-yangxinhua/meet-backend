@@ -5,4 +5,7 @@
 <!-- namespace 写入 自己 dao 里的接口名称-->
 <mapper namespace="com.nsu.stu.meet.dao.UserRelationMapper">
 
+    <select id="getBlockEachList" resultType="java.lang.Long">
+
+    </select>
 </mapper>

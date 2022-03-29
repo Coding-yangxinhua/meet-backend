@@ -15,4 +15,7 @@ public interface UserRelationService {
 
     List<Long> getFollowIdByUserId (Long userId);
 
+    List<Long> getBlockEachList (Long userId);
+
+
 }

@@ -1,6 +1,7 @@
 package com.nsu.stu.meet.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,11 +25,10 @@ import com.nsu.stu.meet.service.UserRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +36,7 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    private final String key = "user_relation_";
+    private final String key = "user_relation";
 
     @Override
     public UserRelation getUserRelation(Long srcId, Long destId) {
@@ -60,5 +60,29 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         List<Long> ids = baseMapper.selectList(queryWrapper).stream().map(UserRelation::getDestId).collect(Collectors.toList());
         return ids;
 
+    }
+
+    @Override
+    public List<Long> getBlockEachList(Long userId) {
+        String userRelationKey = OwnUtil.getRedisKey(key, "blockList", userId);
+        String s = redisTemplate.opsForValue().get(userRelationKey);
+        if (StringUtils.hasText(s)) {
+            return JSONArray.parseArray(s, Long.class);
+        }else {
+            LambdaQueryWrapper<UserRelation> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(UserRelation::getStatus, RelationEnums.BLOCK).and(wq ->
+                    wq.eq(UserRelation::getSrcId, userId).or().eq(UserRelation::getDestId, userId)).select(UserRelation::getSrcId, UserRelation::getDestId);
+            List<UserRelation> userRelations = baseMapper.selectList(queryWrapper);
+            Set<Long> blockSet = new HashSet<>(userRelations.size());
+            for (UserRelation relation :
+                    userRelations) {
+                blockSet.add(relation.getSrcId());
+                blockSet.add(relation.getDestId());
+            }
+            blockSet.remove(userId);
+            ArrayList<Long> blockList = new ArrayList<>(blockSet);
+            redisTemplate.opsForValue().set(userRelationKey, JSON.toJSONString(blockList));
+            return blockList;
+        }
     }
 }

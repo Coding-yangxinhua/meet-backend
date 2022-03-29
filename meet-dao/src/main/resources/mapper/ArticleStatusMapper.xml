@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 写入 自己 dao 里的接口名称-->
+<mapper namespace="com.nsu.stu.meet.dao.ArticleStatusMapper">
+
+
+    <select id="selectArticleStatus" resultType="com.nsu.stu.meet.model.dto.ArticleStatusDto">
+        SELECT like_status, dislike_status, star_status, repost_status
+        FROM mt_article_status
+        WHERE is_deleted = ${NOT_DELETED} AND user_id = #{userId} AND article_id = #{articleId}
+    </select>
+</mapper>

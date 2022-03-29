@@ -13,16 +13,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {BusinessException.class})
     @ResponseBody
     public ResponseEntity<ResultStatus> handleBusinessException(BusinessException e){
+        e.printStackTrace();
         return ResponseEntity.builder().status(ResultStatus.BIZ_ERROR).message(e.getMessage()).build();
     }
     @ExceptionHandler(value = {IllegalParamException.class})
     @ResponseBody
     public ResponseEntity<ResultStatus> handleIllegalParamException(IllegalParamException e){
+        e.printStackTrace();
         return ResponseEntity.builder().status(ResultStatus.CHECK_ERROR).message(e.getMessage()).build();
     }
     @ExceptionHandler(value = { IllegalArgumentException.class})
     @ResponseBody
     public ResponseEntity<ResultStatus> handleIllegalArgumentException(IllegalArgumentException e){
+        e.printStackTrace();
         return ResponseEntity.builder().status(ResultStatus.CHECK_ERROR).message(ResultStatus.CHECK_ERROR.message()).build();
     }
 
@@ -30,6 +33,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = { Exception.class, Error.class })
     @ResponseBody
     ResponseEntity<ResultStatus> handleOtherException(Throwable e) {
+        e.printStackTrace();
         return ResponseEntity.builder().status(ResultStatus.SYS_ERROR)
                 .message(e.getMessage()).build();
     }

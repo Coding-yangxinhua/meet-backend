@@ -11,4 +11,5 @@ import java.util.List;
 
 public interface RelationLimitMapper extends BaseMapper<RelationLimit> {
     List<RelationLimit> getLimitByUser(@Param("srcId") Long srcId, @Param("destId") Long destId);
+
 }

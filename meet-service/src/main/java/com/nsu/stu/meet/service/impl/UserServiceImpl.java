@@ -2,6 +2,7 @@ package com.nsu.stu.meet.service.impl;
 
 
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -223,4 +224,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userDto.setIsDeleted(null);
     }
 
+    @Override
+    public Long getUserId(Long queryId) {
+        return queryId;
+    }
 }

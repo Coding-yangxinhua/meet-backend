@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.nsu.stu.meet.model.User;
+import com.nsu.stu.meet.model.dto.UserDto;
 import org.apache.ibatis.annotations.Param;
 
 import javax.validation.constraints.NotNull;
@@ -16,6 +17,8 @@ public interface UserMapper extends BaseMapper<User> {
         queryWrapper.eq(User::getMobile, mobile);
         return selectOne(queryWrapper);
     }
+
+    UserDto selectBaseFromUser(Long userId);
 
 
 }

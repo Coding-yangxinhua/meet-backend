@@ -1,6 +1,7 @@
 package com.nsu.stu.meet.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.nsu.stu.meet.common.base.LimitBaseService;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.RelationLimit;
@@ -11,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface ArticleService {
+public interface ArticleService extends LimitBaseService {
     ResponseEntity<String> createArticle (Long userId, ArticleDto articleDto, MultipartFile[] files);
 
     ResponseEntity<String> modifyArticle (Long userId, ArticleDto articleDto);
@@ -19,11 +20,11 @@ public interface ArticleService {
     ResponseEntity<String> deleteArticleBatch (Long userId, List<Long> articleIdList);
 
 
-    ResponseEntity<List<ArticleDto>> selectArticleByUserId (Long userId, Long queryId, List<RelationLimit> limits, int start, int end);
+    ResponseEntity<IPage<ArticleDto>> selectArticleByFollow (int start, int end);
 
-    ResponseEntity<List<ArticleDto>> selectArticleList (Long userId, int start, int end);
+    ResponseEntity<IPage<ArticleDto>> selectArticleListLatest (Long userId, int start, int end);
 
-    ResponseEntity<List<ArticleDto>> selectArticleListWithNoLimit (Long userId, Long queryId, int start, int end);
+    ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int start, int end);
 
-    IPage<ArticleDto> test (IPage<ArticleDto> page, Long userId, Long queryId, int start, int end);
+    Long selectUserIdByArticle(Long articleId);
 }

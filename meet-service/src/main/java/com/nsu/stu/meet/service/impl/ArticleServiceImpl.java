@@ -1,32 +1,25 @@
 package com.nsu.stu.meet.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.nsu.stu.meet.common.base.JwtInfo;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.util.CosUtil;
-import com.nsu.stu.meet.common.util.JwtUtil;
-import com.nsu.stu.meet.dao.AlbumMapper;
+import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.ArticleMapper;
-import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.Article;
-import com.nsu.stu.meet.model.RelationLimit;
-import com.nsu.stu.meet.model.dto.AlbumDto;
 import com.nsu.stu.meet.model.dto.ArticleDto;
-import com.nsu.stu.meet.service.AlbumService;
 import com.nsu.stu.meet.service.ArticleService;
 import com.nsu.stu.meet.service.RelationLimitService;
+import com.nsu.stu.meet.service.UserRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -36,6 +29,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     RelationLimitService relationLimitService;
+
+    @Autowired
+    UserRelationService userRelationService;
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
 
     public ResponseEntity<String> createArticle (Long userId, ArticleDto albumDto, MultipartFile[] files)  {
@@ -62,28 +61,35 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public ResponseEntity<List<ArticleDto>> selectArticleByUserId(Long userId, Long queryId, List<RelationLimit> limits, int start, int end) {
-        return ResponseEntity.ok(baseMapper.selectArticleByUserId(userId, queryId, limits, start, end));
+    public ResponseEntity<IPage<ArticleDto>> selectArticleByFollow(int start, int end) {
+        Long userId = JwtStorage.userId();
+        List<Long> followIds = userRelationService.getFollowIdByUserId(userId);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleByUserIdList(userId, followIds, start, end);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, end));
     }
 
     @Override
-    public ResponseEntity<List<ArticleDto>> selectArticleList(Long userId, int start, int end) {
-        return ResponseEntity.ok(baseMapper.selectArticleList(userId, start, end));
+    public ResponseEntity<IPage<ArticleDto>> selectArticleListLatest(Long userId, int start, int end) {
+        List<ArticleDto> articleDtos = baseMapper.selectArticleListLatest(userId, start, end);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, end));
     }
 
     @Override
-    public ResponseEntity<List<ArticleDto>> selectArticleListWithNoLimit(Long userId, Long queryId, int start, int end) {
-        return ResponseEntity.ok(baseMapper.selectArticleListWithNoLimit(userId, queryId, start, end));
+    public ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int start, int end) {
+        List<ArticleDto> articleDtos = baseMapper.selectArticleListHot(userId, start, end);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, end));
     }
 
     @Override
-    public IPage<ArticleDto> test(IPage<ArticleDto> page, Long userId, Long queryId, int start, int end) {
-        return baseMapper.test(page, userId, queryId, start, end);
+    public Long selectUserIdByArticle(Long articleId) {
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Article::getArticleId, articleId).select(Article::getUserId);
+        Article article = baseMapper.selectOne(queryWrapper);
+        return article.getUserId();
     }
 
-
-    private void setBaseNull(ArticleDto articleDto) {
-
+    @Override
+    public Long getUserId(Long queryId) {
+        return this.selectUserIdByArticle(queryId);
     }
-
 }

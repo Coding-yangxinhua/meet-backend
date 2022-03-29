@@ -1,6 +1,7 @@
 package com.nsu.stu.meet.service;
 
 
+import com.nsu.stu.meet.common.base.LimitBaseService;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.model.User;
@@ -9,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
-public interface UserService {
+public interface UserService extends LimitBaseService {
 
     /**
      * 通过短信注册

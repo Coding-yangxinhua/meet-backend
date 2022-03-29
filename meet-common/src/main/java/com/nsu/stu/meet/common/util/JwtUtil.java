@@ -43,6 +43,9 @@ public class JwtUtil {
 
     public Long getUserId(String token) {
         Object tokenPayload = getTokenPayload(token, "userId");
+        if (tokenPayload == null) {
+            return null;
+        }
         return Long.valueOf(String.valueOf(tokenPayload));
     }
 

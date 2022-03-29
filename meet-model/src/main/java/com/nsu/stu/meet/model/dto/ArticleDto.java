@@ -18,6 +18,8 @@ public class ArticleDto extends Article {
 
     private int dislikeSum;
 
+    private int repostSum;
+
     private int starSum;
 
 

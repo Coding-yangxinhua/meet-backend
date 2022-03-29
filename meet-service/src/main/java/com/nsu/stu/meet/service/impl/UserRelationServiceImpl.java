@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
+import com.nsu.stu.meet.common.enums.MybatisEnums;
 import com.nsu.stu.meet.common.util.CosUtil;
 import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.AlbumPhotoMapper;
@@ -16,6 +17,7 @@ import com.nsu.stu.meet.dao.UserRelationMapper;
 import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.AlbumPhoto;
 import com.nsu.stu.meet.model.UserRelation;
+import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.service.AlbumPhotoService;
 import com.nsu.stu.meet.service.AlbumService;
 import com.nsu.stu.meet.service.UserRelationService;
@@ -25,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, UserRelation> implements UserRelationService {
@@ -46,5 +50,15 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         UserRelation userRelation = baseMapper.selectOne(queryWrapper);
         redisTemplate.opsForValue().set(key, JSON.toJSONString(userRelation));
         return userRelation;
+    }
+
+    @Override
+    public List<Long> getFollowIdByUserId(Long userId) {
+        LambdaQueryWrapper<UserRelation> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserRelation::getSrcId, userId).eq(UserRelation::getIsDeleted, MybatisEnums.NOT_DELETED.value()).in(UserRelation::getStatus, Arrays.asList(RelationEnums.FOLLOW, RelationEnums.LIKE)).select(UserRelation::getDestId);
+        List<UserRelation> userRelations = baseMapper.selectList(queryWrapper);
+        List<Long> ids = baseMapper.selectList(queryWrapper).stream().map(UserRelation::getDestId).collect(Collectors.toList());
+        return ids;
+
     }
 }

@@ -34,6 +34,7 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
         if (!StringUtils.hasText(albumDto.getTitle())) {
             albumDto.setTitle(DateUtil.today());
         }
+
         albumDto.setUserId(userId);
         baseMapper.insert(albumDto);
         return ResponseEntity.ok();

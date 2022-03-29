@@ -28,6 +28,15 @@ public class Article extends BaseModel {
      * 文章父id
      */
     private Long parentId;
+    /**
+     * 文章父用户
+     */
+    private Long parentUserId;
+    /**
+     * 文章父用户昵称
+     */
+    private String parentUserNickname;
+
 
     /**
      * 文章发布用户

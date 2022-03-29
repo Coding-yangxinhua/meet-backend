@@ -1,5 +1,6 @@
 package com.nsu.stu.meet.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.ArticleTypeEnums;
@@ -37,18 +38,17 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"type", "page", "size"})
-    public ResponseEntity<List<ArticleDto>> list(int type, int page, int size) {
+    public ResponseEntity<IPage<ArticleDto>> list(int type, int page, int size) {
         Long userId = JwtStorage.userId();
         switch (ArticleTypeEnums.lookUp(type)){
             case NEW:
-                return articleService.selectArticleList(userId, page, page + size);
+                return articleService.selectArticleListLatest(userId, page, page + size);
             case HOT:
-                break;
+                return articleService.selectArticleListHot(userId, page, page + size);
             case FOLLOW:
-                break;
+                return articleService.selectArticleByFollow(page, page + size);
             default:
-                return ResponseEntity.ok();
+                return ResponseEntity.ok(null);
         }
-        return ResponseEntity.ok();
     }
 }

@@ -83,4 +83,11 @@ public class OwnUtil {
         return getRedisKey(key, "_", names);
     }
 
+    public <T>IPage<T> records2Page(List<T> records, int current) {
+        IPage<T> page = new Page<>();
+        page.setRecords(records);
+        page.setCurrent(current);
+        return page;
+    }
+
 }

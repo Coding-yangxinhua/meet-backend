@@ -18,8 +18,16 @@
             <artifactId>meet-model</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.qcloud</groupId>
             <artifactId>cos_api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tencentcloudapi</groupId>
+            <artifactId>tencentcloud-sdk-java-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
@@ -34,7 +42,6 @@
                     <artifactId>gson</artifactId>
                 </exclusion>
             </exclusions>
-            <version>3.1.467</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp</groupId>
@@ -98,6 +105,11 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.4</version>
         </dependency>
     </dependencies>
 </project>

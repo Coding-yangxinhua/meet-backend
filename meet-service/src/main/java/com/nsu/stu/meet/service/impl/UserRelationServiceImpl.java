@@ -1,34 +1,26 @@
 package com.nsu.stu.meet.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.nsu.stu.meet.common.base.JwtStorage;
-import com.nsu.stu.meet.common.base.ResponseEntity;
-import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.MybatisEnums;
-import com.nsu.stu.meet.common.util.CosUtil;
 import com.nsu.stu.meet.common.util.OwnUtil;
-import com.nsu.stu.meet.dao.AlbumPhotoMapper;
 import com.nsu.stu.meet.dao.UserRelationMapper;
-import com.nsu.stu.meet.model.Album;
-import com.nsu.stu.meet.model.AlbumPhoto;
+import com.nsu.stu.meet.model.RelationLimit;
 import com.nsu.stu.meet.model.UserRelation;
 import com.nsu.stu.meet.model.enums.RelationEnums;
-import com.nsu.stu.meet.service.AlbumPhotoService;
-import com.nsu.stu.meet.service.AlbumService;
+import com.nsu.stu.meet.model.vo.LimitVo;
+import com.nsu.stu.meet.service.RelationLimitService;
 import com.nsu.stu.meet.service.UserRelationService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,53 +28,97 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Autowired
+    private RelationLimitService relationLimitService;
+
     private final String key = "user_relation";
 
     @Override
     public UserRelation getUserRelation(Long srcId, Long destId) {
+        // 缓存
         String key = OwnUtil.getRedisKey(this.key, srcId, destId);
         String userRelationKey = redisTemplate.opsForValue().get(key);
         if (userRelationKey != null) {
             return JSON.parseObject(userRelationKey, UserRelation.class);
         }
+        // 数据库
         LambdaQueryWrapper<UserRelation> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserRelation::getSrcId, srcId).eq(UserRelation::getDestId, destId);
         UserRelation userRelation = baseMapper.selectOne(queryWrapper);
+        // 存入缓存
         redisTemplate.opsForValue().set(key, JSON.toJSONString(userRelation));
         return userRelation;
     }
 
-    @Override
-    public List<Long> getFollowIdByUserId(Long userId) {
-        LambdaQueryWrapper<UserRelation> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserRelation::getSrcId, userId).eq(UserRelation::getIsDeleted, MybatisEnums.NOT_DELETED.value()).in(UserRelation::getStatus, Arrays.asList(RelationEnums.FOLLOW, RelationEnums.LIKE)).select(UserRelation::getDestId);
-        List<UserRelation> userRelations = baseMapper.selectList(queryWrapper);
-        List<Long> ids = baseMapper.selectList(queryWrapper).stream().map(UserRelation::getDestId).collect(Collectors.toList());
-        return ids;
+    public List<Long> getRelationLimit(Long srcId, Long destId) {
+        // 缓存
 
+        return null;
     }
 
     @Override
-    public List<Long> getBlockEachList(Long userId) {
-        String userRelationKey = OwnUtil.getRedisKey(key, "blockList", userId);
-        String s = redisTemplate.opsForValue().get(userRelationKey);
-        if (StringUtils.hasText(s)) {
-            return JSONArray.parseArray(s, Long.class);
-        }else {
-            LambdaQueryWrapper<UserRelation> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(UserRelation::getStatus, RelationEnums.BLOCK).and(wq ->
-                    wq.eq(UserRelation::getSrcId, userId).or().eq(UserRelation::getDestId, userId)).select(UserRelation::getSrcId, UserRelation::getDestId);
-            List<UserRelation> userRelations = baseMapper.selectList(queryWrapper);
-            Set<Long> blockSet = new HashSet<>(userRelations.size());
-            for (UserRelation relation :
-                    userRelations) {
-                blockSet.add(relation.getSrcId());
-                blockSet.add(relation.getDestId());
-            }
-            blockSet.remove(userId);
-            ArrayList<Long> blockList = new ArrayList<>(blockSet);
-            redisTemplate.opsForValue().set(userRelationKey, JSON.toJSONString(blockList));
-            return blockList;
+    public List<Long> getUserFollow(Long userId) {
+        // 缓存
+        String suffix = "follow";
+        String userFollowKey = OwnUtil.getRedisKey(this.key + suffix, userId);
+        return this.getIdsByFunction(userId, userFollowKey, RelationEnums.FOLLOW, UserRelation::getSrcId, UserRelation::getDestId);
+    }
+
+    @Override
+    public List<Long> getFollowedUser(Long userId) {
+        // 缓存
+        String suffix = "followed";
+        String userFollowedKey = OwnUtil.getRedisKey(this.key + suffix, userId);
+        return this.getIdsByFunction(userId, userFollowedKey, RelationEnums.FOLLOW, UserRelation::getDestId, UserRelation::getSrcId);
+    }
+
+    @Override
+    public List<Long> getUserBlock(Long userId) {
+        // 缓存
+        String suffix = "block";
+        String userBlockKey = OwnUtil.getRedisKey(this.key + suffix, userId);
+        return this.getIdsByFunction(userId, userBlockKey, RelationEnums.BLOCK, UserRelation::getSrcId, UserRelation::getDestId);
+    }
+
+    @Override
+    public List<Long> getBlockedUser(Long userId) {
+        String suffix = "blocked";
+        String userBlockedKey = OwnUtil.getRedisKey(this.key + suffix, userId);
+        return this.getIdsByFunction(userId, userBlockedKey, RelationEnums.BLOCK, UserRelation::getDestId, UserRelation::getSrcId);
+    }
+
+    @Override
+    public List<Long> getBlockedEach(Long userId) {
+        Set<Long> blockSet = new HashSet<>();
+        blockSet.addAll(this.getBlockedUser(userId));
+        blockSet.addAll(this.getUserBlock(userId));
+        return new ArrayList<>(blockSet);
+    }
+
+    @Override
+    public boolean isBlockedEach(Long userId, Long queryId) {
+        List<Long> blockedEach = this.getBlockedEach(userId);
+        return blockedEach.contains(queryId);
+    }
+
+
+    public List<Long> getIdsByFunction(Long userId, String key, RelationEnums relationEnums, SFunction<UserRelation, Long> eqFunc, SFunction<UserRelation, Long> selectFunc) {
+        // 缓存
+        String idsString = redisTemplate.opsForValue().get(key);
+        if (StringUtils.hasText(idsString)) {
+            return JSON.parseArray(idsString, Long.class);
         }
+        // 数据库
+        LambdaQueryWrapper<UserRelation> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(eqFunc, userId)
+                .eq(UserRelation::getIsDeleted, MybatisEnums.NOT_DELETED.value())
+                .eq(UserRelation::getStatus, relationEnums)
+                .select(selectFunc);
+        List<UserRelation> userRelations = baseMapper.selectList(queryWrapper);
+        List<Long> ids = userRelations.stream().map(selectFunc).collect(Collectors.toList());
+        // 存入缓存
+        redisTemplate.opsForValue().set(key, JSON.toJSONString(ids), 1, TimeUnit.DAYS);
+        return ids;
     }
+
 }

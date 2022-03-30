@@ -55,8 +55,8 @@ public class ArticleStatusServiceImpl extends ServiceImpl<ArticleStatusMapper, A
         return null;
     }
 
-    @Override
-    public Long getUserId(Long queryId) {
-        return articleService.selectUserIdByArticle(queryId);
-    }
+
+//    public Long getUserId(Long queryId) {
+//        return articleService.selectUserIdByArticle(queryId);
+//    }
 }

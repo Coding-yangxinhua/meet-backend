@@ -16,6 +16,7 @@ import com.nsu.stu.meet.common.util.*;
 import com.nsu.stu.meet.dao.UserMapper;
 import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.dto.UserDto;
+import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,7 +226,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Long getUserId(Long queryId) {
-        return queryId;
+    public LimitVo getLimitVo(Long queryId) {
+        return null;
     }
 }

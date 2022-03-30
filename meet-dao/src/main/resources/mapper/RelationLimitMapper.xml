@@ -6,6 +6,10 @@
 <mapper namespace="com.nsu.stu.meet.dao.RelationLimitMapper">
 
 
+    <resultMap id="limitMap" type="com.nsu.stu.meet.model.dto.RelationLimitDto">
+        <result column="relation_status" property="relationStatus" />
+        <result column="limitIds" property="limitIdString"/>
+    </resultMap>
     <select id="getLimitByUser" resultType="com.nsu.stu.meet.model.RelationLimit">
         <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
         SELECT
@@ -24,5 +28,8 @@
         AND src_id = #{srcId}
         AND dest_id = #{destId}
         )
+    </select>
+    <select id="getLimitGroupByStatus" resultMap="limitMap">
+        SELECT relation_status, GROUP_CONCAT(limit_id) as `limitIds` FROM `mt_relation_limit` GROUP BY relation_status
     </select>
 </mapper>

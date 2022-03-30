@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LimitEnums {
 
-    PRIVATE (0, "仅自己可见"),
+    PRIVATE (-1, "仅自己可见"),
 
-    PUBLIC (1, "公开"),
+    PUBLIC (0, "公开"),
 
-    FOLLOW (2, "关注可见");
+    FOLLOW (1, "关注可见");
 
 
     @EnumValue

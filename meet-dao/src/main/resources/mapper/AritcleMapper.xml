@@ -30,7 +30,7 @@
         </association>
     </resultMap>
     <select id="selectArticleByUserIdList" resultMap="articleMap">
-        <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
+        <bind name="private" value="@com.nsu.stu.meet.model.enums.LimitEnums@PRIVATE.value"/>
         SELECT
         ma.* ,
         mu.avatar,
@@ -51,6 +51,7 @@
         LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
         WHERE
         ma.is_deleted = ${NOT_DELETED}
+        AND ma.limit_id <![CDATA[ <> ]]> #{private}
         <choose>
             <when test="queryIdList.size > 0">
                 AND ma.user_id IN
@@ -62,25 +63,14 @@
                 AND 1 = 0
             </otherwise>
         </choose>
-        AND ma.limit_id IN (
-        SELECT
-        mrl.limit_id
-        FROM
-        mt_relation_limit mrl
-        WHERE
-        is_deleted = 0
-        AND `relation_status` IN (
-        SELECT
-        `status`
-        FROM
-        mt_user_relation
-        WHERE
-        ( SELECT `status` FROM `mt_user_relation` WHERE src_id = ma.user_id AND dest_id = #{userId} ) <![CDATA[ <> ]]> #{block}
-        AND src_id = #{userId}
-        AND dest_id = ma.user_id
-        )
-        OR ma.user_id = #{userId}
-        )
+        <choose>
+            <when test="blockList.size > 0">
+                AND ma.user_id NOT IN
+                <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                    #{blockId}
+                </foreach>
+            </when>
+        </choose>
         GROUP BY
         ma.article_id
         ORDER BY
@@ -90,6 +80,8 @@
 
     <select id="selectArticleListLatest" resultMap="articleMap">
         <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
+        <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
+        <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
         SELECT
         ma.* ,
         mu.avatar,
@@ -110,24 +102,23 @@
         LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
         WHERE
         ma.is_deleted = ${NOT_DELETED}
-        AND ma.limit_id IN (
-        SELECT
-        mrl.limit_id
-        FROM
-        mt_relation_limit mrl
-        WHERE
-        is_deleted = 0
-        AND `relation_status` IN (
-        SELECT
-        `status`
-        FROM
-        mt_user_relation
-        WHERE
-        ( SELECT `status` FROM `mt_user_relation` WHERE src_id = ma.user_id AND dest_id = #{userId} ) <![CDATA[ <> ]]> #{block}
-        AND src_id = #{userId}
-        AND dest_id = ma.user_id
-        )
-        OR ma.user_id = #{userId}
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                    #{blockId}
+            </foreach>
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+                ma.limit_id = #{follow} AND ma.user_id IN
+                <foreach collection="followList" item="followId" open="(" close=")" separator=",">
+                    #{followId}
+                </foreach>
+                )
+        </if>
+            OR (ma.user_id = #{userId})
         )
         GROUP BY
         ma.article_id
@@ -137,6 +128,8 @@
     </select>
     <select id="selectArticleListHot" resultMap="articleMap">
         <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
+        <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
+        <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
         SELECT
         ma.* ,
         mu.avatar,
@@ -157,24 +150,22 @@
         LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
         WHERE
         ma.is_deleted = ${NOT_DELETED}
-        AND ma.limit_id IN (
-        SELECT
-        mrl.limit_id
-        FROM
-        mt_relation_limit mrl
-        WHERE
-        is_deleted = 0
-        AND `relation_status` IN (
-        SELECT
-        `status`
-        FROM
-        mt_user_relation
-        WHERE
-        ( SELECT `status` FROM `mt_user_relation` WHERE src_id = ma.user_id AND dest_id = #{userId} ) <![CDATA[ <> ]]> #{block}
-        AND src_id = #{userId}
-        AND dest_id = ma.user_id
-        )
-        OR ma.user_id = #{userId}
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+            ma.limit_id = #{follow} AND ma.user_id IN
+            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
+            </foreach>
+            )
+            OR (ma.user_id = #{userId})
+        </if>
         )
         GROUP BY
         ma.article_id

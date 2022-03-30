@@ -1,26 +1,35 @@
 package com.nsu.stu.meet.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.util.CosUtil;
 import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.ArticleMapper;
+import com.nsu.stu.meet.dao.ArticleStatusMapper;
 import com.nsu.stu.meet.model.Article;
+import com.nsu.stu.meet.model.ArticleStatus;
 import com.nsu.stu.meet.model.dto.ArticleDto;
+import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.ArticleService;
+import com.nsu.stu.meet.service.CheckService;
 import com.nsu.stu.meet.service.RelationLimitService;
 import com.nsu.stu.meet.service.UserRelationService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
@@ -35,7 +44,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     StringRedisTemplate redisTemplate;
-
 
     public ResponseEntity<String> createArticle (Long userId, ArticleDto albumDto, MultipartFile[] files)  {
         albumDto.setUserId(userId);
@@ -63,33 +71,49 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public ResponseEntity<IPage<ArticleDto>> selectArticleByFollow(int start, int end) {
         Long userId = JwtStorage.userId();
-        List<Long> followIds = userRelationService.getFollowIdByUserId(userId);
-        List<ArticleDto> articleDtos = baseMapper.selectArticleByUserIdList(userId, followIds, start, end);
+        List<Long> followIds = userRelationService.getUserFollow(userId);
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleByUserIdList(userId, followIds, blockList, start, end);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, end));
     }
 
     @Override
     public ResponseEntity<IPage<ArticleDto>> selectArticleListLatest(Long userId, int start, int end) {
-        List<ArticleDto> articleDtos = baseMapper.selectArticleListLatest(userId, start, end);
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollow(userId);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleListLatest(userId, followIds, blockList, start, end);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, end));
     }
 
     @Override
     public ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int start, int end) {
-        List<ArticleDto> articleDtos = baseMapper.selectArticleListHot(userId, start, end);
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollow(userId);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleListHot(userId, followIds, blockList, start, end);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, end));
     }
 
     @Override
     public Long selectUserIdByArticle(Long articleId) {
-        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Article::getArticleId, articleId).select(Article::getUserId);
-        Article article = baseMapper.selectOne(queryWrapper);
+        Article article = this.getById(articleId);
+        if (article == null || article.getUserId() == null) {
+            return null;
+        }
         return article.getUserId();
     }
 
     @Override
-    public Long getUserId(Long queryId) {
-        return this.selectUserIdByArticle(queryId);
+    public LimitVo getLimitVo(Long queryId) {
+        // 获取文章实体
+        Article article = this.getById(queryId);
+        // 判空
+        if (article == null) {
+            return null;
+        }
+        // 文章所需权限
+        Long limitId = article.getLimitId();
+        // 好友间关系对于权限
+        Long userId = article.getUserId();
+        return new LimitVo(userId, limitId);
     }
 }

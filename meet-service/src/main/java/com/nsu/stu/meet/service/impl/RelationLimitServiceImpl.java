@@ -17,6 +17,9 @@ import com.nsu.stu.meet.dao.RelationLimitMapper;
 import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.AlbumPhoto;
 import com.nsu.stu.meet.model.RelationLimit;
+import com.nsu.stu.meet.model.UserRelation;
+import com.nsu.stu.meet.model.dto.RelationLimitDto;
+import com.nsu.stu.meet.model.enums.LimitEnums;
 import com.nsu.stu.meet.service.AlbumPhotoService;
 import com.nsu.stu.meet.service.AlbumService;
 import com.nsu.stu.meet.service.RelationLimitService;
@@ -24,11 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -53,4 +59,23 @@ public class RelationLimitServiceImpl extends ServiceImpl<RelationLimitMapper, R
         return limitList;
 
     }
+
+    public List<RelationLimitDto> getAllRelationLimit() {
+        String suffix = "all";
+        String redisKey = OwnUtil.getRedisKey(key, suffix);
+        String limitString = redisTemplate.opsForValue().get(redisKey);
+        if (StringUtils.hasText(limitString)) {
+            return JSON.parseArray(limitString, RelationLimitDto.class);
+        }
+        // 数据库
+        List<RelationLimitDto> limitGroupByStatus = baseMapper.getLimitGroupByStatus();
+        redisTemplate.opsForValue().set(redisKey, JSON.toJSONString(limitGroupByStatus), 1, TimeUnit.DAYS);
+        return limitGroupByStatus;
+    }
+
+    public boolean isLimitPass(Long userId, Long queryId, UserRelation relation) {
+
+    }
+
+
 }

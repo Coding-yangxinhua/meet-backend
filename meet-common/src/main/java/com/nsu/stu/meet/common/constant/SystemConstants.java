@@ -30,6 +30,7 @@ public class SystemConstants {
      */
     public static final String USER_EXIST = "账号已存在";
     public static final String USER_NOT_EXIST = "账号不存在";
+    public static final String BLOCK = "已拉黑";
 
     /**
      * 普通常量

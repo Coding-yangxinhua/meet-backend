@@ -25,7 +25,7 @@ public class UserRelationController {
     @Autowired
     private UserRelationService userRelationService;
 
-    @Limit(clazz = UserServiceImpl.class)
+    @Limit(clazz = UserServiceImpl.class, half = true)
     @RequestMapping(value = "/changeStatus", method = RequestMethod.GET)
     public ResponseEntity<String> changeStatus(UserRelationDto userRelationDto) {
         Long userId = JwtStorage.userId();

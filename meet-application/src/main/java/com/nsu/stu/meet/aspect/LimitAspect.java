@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 @Aspect
 @Component
@@ -55,11 +56,13 @@ public class LimitAspect {
         LimitVo limitVo = null;
         Class targetClass = Class.forName(targetName);
         Method[] methods = targetClass.getMethods();
+        boolean half = false;
         for (Method method :
                 methods) {
             Limit annotation = method.getAnnotation(Limit.class);
             if (annotation != null) {
                 Class<?> clazz = annotation.clazz();
+                half = annotation.half();
                 CheckService checkService = (CheckService) applicationContext.getBean(clazz);
                 limitVo = checkService.getLimitVo(queryId);
             }
@@ -75,8 +78,14 @@ public class LimitAspect {
         if (queryUserId == null || limitId == null) {
             return ResponseEntity.checkError(SystemConstants.INFO_NOT_EXISTS);
         }
-        // 判断是否在黑名单内
         Long tokenUserId = JwtStorage.userId();
+        // 判断是否在黑名单内
+        if (half) {
+            List<Long> blockedUser = relationService.getBlockedUser(tokenUserId);
+            if (blockedUser.contains(queryUserId)) {
+                return ResponseEntity.checkError(SystemConstants.BLOCK);
+            }
+        }
         boolean blockedEach = relationService.isBlockedEach(tokenUserId, limitVo.getUserId());
         if (blockedEach) {
             return ResponseEntity.checkError(SystemConstants.BLOCK);

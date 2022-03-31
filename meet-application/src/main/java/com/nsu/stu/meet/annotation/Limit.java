@@ -8,4 +8,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface Limit {
     Class<?> clazz();
+    boolean half() default false;
 }

@@ -70,5 +70,4 @@ public interface UserRelationService {
      */
     ResponseEntity<String> changeStatus(UserRelationDto userRelationDto);
 
-    ResponseEntity<String> changeBlock(RelationEnums relationEnums);
 }

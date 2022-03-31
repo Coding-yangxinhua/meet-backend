@@ -45,10 +45,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Autowired
     StringRedisTemplate redisTemplate;
 
-    public ResponseEntity<String> createArticle (Long userId, ArticleDto albumDto, MultipartFile[] files)  {
-        albumDto.setUserId(userId);
+    public ResponseEntity<String> createArticle (Long userId, Article album, MultipartFile[] files)  {
+        album.setUserId(userId);
         List<String> urls = cosUtil.upload(files, 9);
-        albumDto.setPicUrls(JSON.toJSONString(urls));
+        album.setPicUrls(JSON.toJSONString(urls));
         return ResponseEntity.ok();
     }
 
@@ -103,6 +103,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
+    public Article selectByArticleId(Long articleId) {
+        return baseMapper.selectById(articleId);
+    }
+
+    @Override
     public LimitVo getLimitVo(Long queryId) {
         // 获取文章实体
         Article article = this.getById(queryId);
@@ -111,7 +116,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             return null;
         }
         // 文章所需权限
-        Long limitId = article.getLimitId();
+        Integer limitId = article.getLimitId().value;
         // 好友间关系对于权限
         Long userId = article.getUserId();
         return new LimitVo(userId, limitId);

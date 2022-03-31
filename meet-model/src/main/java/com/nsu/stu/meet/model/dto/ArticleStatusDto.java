@@ -9,4 +9,8 @@ import lombok.Setter;
 @Setter
 public class ArticleStatusDto extends ArticleStatus {
 
+    @Override
+    public Long getQueryId() {
+        return this.getArticleId();
+    }
 }

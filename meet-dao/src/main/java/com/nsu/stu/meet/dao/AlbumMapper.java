@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface AlbumMapper extends BaseMapper<Album> {
-    List<AlbumDto> selectAlbumListByUserId (@Param("userId") Long userId, @Param("limits") List<RelationLimit> limits);
+    List<AlbumDto> selectAlbumListByUserId (@Param("userId") Long userId, @Param("limits") List<Integer> limits);
 
     List<AlbumDto> selectAlbumListWithNoLimit (@Param("userId") Long userId);
 }

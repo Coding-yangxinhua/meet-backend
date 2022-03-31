@@ -17,6 +17,9 @@ public class SystemConstants {
     public static final String FILE_TYPE_ERROR = "文件类型不合法";
     public static final String FILE_SIZE_ERROR = "文件大小不合法";
     public static final String ALBUM_NOT_EXISTS_ERROR = "相册不存在";
+    public static final String INFO_NOT_EXISTS = "信息不存在";
+    public static final String NO_RIGHTS_VISIT = "无权访问";
+    public static final String SELF_CHANGE_FAIL = "不能和自己建立关系";
     /**
      * 成功提示
      */

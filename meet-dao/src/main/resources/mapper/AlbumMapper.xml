@@ -21,7 +21,7 @@
                 <when test="limits.size > 0">
                     AND a.limit_id IN
                     <foreach collection="limits" item="limit" open="(" close=")" separator=",">
-                        #{limit.limitId}
+                        #{limit}
                     </foreach>
                 </when>
                 <otherwise>

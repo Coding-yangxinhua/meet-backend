@@ -69,9 +69,9 @@ public class OwnUtil {
         return imageSet.contains(suffix.toLowerCase(Locale.ROOT));
     }
 
-    public String getRedisKey(String key, String sep, Object ...names) {
+    public String getRedisKey(String key, Object ...names) {
         StringBuilder redisKey = new StringBuilder(key);
-
+        String sep = "_";
         for (Object name:
              names) {
             redisKey.append(sep).append(String.valueOf(name));
@@ -79,8 +79,8 @@ public class OwnUtil {
         return redisKey.toString();
     }
 
-    public String getRedisKey(String key, Object ...names) {
-        return getRedisKey(key, "_", names);
+    public String getRedisKey(String key, String value) {
+        return key + "_" + value;
     }
 
     public <T>IPage<T> records2Page(List<T> records, int current) {

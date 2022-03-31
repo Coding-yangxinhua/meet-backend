@@ -227,6 +227,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public LimitVo getLimitVo(Long queryId) {
-        return null;
+        return new LimitVo(queryId, null);
     }
 }

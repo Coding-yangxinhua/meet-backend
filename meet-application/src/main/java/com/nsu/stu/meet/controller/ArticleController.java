@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.ArticleTypeEnums;
+import com.nsu.stu.meet.model.Article;
 import com.nsu.stu.meet.model.dto.ArticleDto;
 import com.nsu.stu.meet.service.AlbumService;
 import com.nsu.stu.meet.service.ArticleService;
@@ -26,9 +27,9 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<String> create(@RequestBody ArticleDto articleDto, @RequestPart("files") MultipartFile[] files) {
+    public ResponseEntity<String> create(@RequestPart("files") MultipartFile[] files, @RequestBody Article article) {
         Long userId = JwtStorage.userId();
-        return articleService.createArticle(userId, articleDto, files);
+        return articleService.createArticle(userId, article, files);
     }
 
     @RequestMapping(value = "/modify", method = RequestMethod.POST)

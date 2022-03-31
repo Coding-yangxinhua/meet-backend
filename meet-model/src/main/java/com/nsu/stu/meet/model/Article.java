@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nsu.stu.meet.model.enums.LimitEnums;
+import com.nsu.stu.meet.model.enums.RelationEnums;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,7 +48,7 @@ public class Article extends BaseModel {
     /**
      * 访问权限
      */
-    private Long limitId;
+    private LimitEnums limitId;
 
 
     /**

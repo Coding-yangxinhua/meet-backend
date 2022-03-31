@@ -9,5 +9,5 @@ import lombok.*;
 public class LimitVo {
     private Long userId;
 
-    private Long limitId;
+    private Integer limitId;
 }

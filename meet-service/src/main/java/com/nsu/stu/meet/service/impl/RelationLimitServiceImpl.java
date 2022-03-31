@@ -1,6 +1,7 @@
 package com.nsu.stu.meet.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -20,17 +21,22 @@ import com.nsu.stu.meet.model.RelationLimit;
 import com.nsu.stu.meet.model.UserRelation;
 import com.nsu.stu.meet.model.dto.RelationLimitDto;
 import com.nsu.stu.meet.model.enums.LimitEnums;
+import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.service.AlbumPhotoService;
 import com.nsu.stu.meet.service.AlbumService;
 import com.nsu.stu.meet.service.RelationLimitService;
+import com.nsu.stu.meet.service.UserRelationService;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,23 +49,13 @@ public class RelationLimitServiceImpl extends ServiceImpl<RelationLimitMapper, R
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Autowired
+    UserRelationService userRelationService;
+
     private final String key = "relation_limit";
 
+
     @Override
-    public List<RelationLimit> getUserRelationLimit(Long srcId, Long destId) {
-        List<RelationLimit> limitList;
-        String redisKey = OwnUtil.getRedisKey(this.key, srcId, destId);
-        String relationLimit = redisTemplate.opsForValue().get(redisKey);
-        if (relationLimit != null) {
-            limitList = JSON.parseArray(relationLimit, RelationLimit.class);
-        } else {
-            limitList = baseMapper.getLimitByUser(srcId, destId);
-            redisTemplate.opsForValue().set(redisKey, JSON.toJSONString(limitList), 1, TimeUnit.HOURS);
-        }
-        return limitList;
-
-    }
-
     public List<RelationLimitDto> getAllRelationLimit() {
         String suffix = "all";
         String redisKey = OwnUtil.getRedisKey(key, suffix);
@@ -73,7 +69,58 @@ public class RelationLimitServiceImpl extends ServiceImpl<RelationLimitMapper, R
         return limitGroupByStatus;
     }
 
-    public boolean isLimitPass(Long userId, Long queryId, UserRelation relation) {
+    @Override
+    public List<Integer> getRelationLimit(Integer relation) {
+        Map<Integer, List<Integer>> limitMap = getLimitMap();
+        List<Integer> limits = limitMap.get(relation);
+        if (limits == null) {
+            return new ArrayList<>();
+        }
+
+        return limits;
+    }
+
+    @Override
+    public List<Integer> getUserRelationLimit(Long userId, Long queryId) {
+        UserRelation userRelation = userRelationService.getUserRelation(userId, queryId);
+        int relation = userRelation.getStatus().value;
+        return this.getRelationLimit(relation);
+    }
+
+    @Override
+    public Map<Integer, List<Integer>> getLimitMap() {
+        // 缓存
+        String suffix = "all_map";
+        String redisKey = OwnUtil.getRedisKey(key, suffix);
+        String limitMapString = redisTemplate.opsForValue().get(redisKey);
+        if (StringUtils.hasText(limitMapString)){
+            return JSON.parseObject(limitMapString, new TypeReference<HashMap<Integer, List<Integer>>>() {});
+        }
+        // 数据库
+        List<RelationLimitDto> allRelationLimit = this.getAllRelationLimit();
+        Map<Integer, List<Integer>> limitMap = allRelationLimit.stream().collect(Collectors.toMap(RelationLimitDto::getRelationStatus, RelationLimitDto::getLimitIds));
+        redisTemplate.opsForValue().set(redisKey, JSON.toJSONString(limitMap));
+        return limitMap;
+    }
+
+    public boolean isLimitPass(Long userId, Long queryId, Integer limitId) {
+        if (userId.equals(queryId)) {
+            return true;
+        }
+        if (limitId == null) {
+            return true;
+        }
+        UserRelation userRelation = userRelationService.getUserRelation(userId, queryId);
+        if (userRelation == null) {
+            return false;
+        }
+        RelationEnums status = userRelation.getStatus();
+        Map<Integer, List<Integer>> limitMap = getLimitMap();
+        List<Integer> limits = limitMap.get(status.value);
+        if (limits.size() == 0) {
+            return false;
+        }
+        return limits.contains(limitId);
 
     }
 

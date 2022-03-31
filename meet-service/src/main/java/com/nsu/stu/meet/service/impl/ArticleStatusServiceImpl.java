@@ -2,6 +2,7 @@ package com.nsu.stu.meet.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
@@ -13,6 +14,7 @@ import com.nsu.stu.meet.dao.ArticleStatusMapper;
 import com.nsu.stu.meet.model.Article;
 import com.nsu.stu.meet.model.ArticleStatus;
 import com.nsu.stu.meet.model.dto.ArticleDto;
+import com.nsu.stu.meet.model.dto.ArticleStatusDto;
 import com.nsu.stu.meet.service.*;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,32 +33,14 @@ public class ArticleStatusServiceImpl extends ServiceImpl<ArticleStatusMapper, A
     @Autowired
     StringRedisTemplate redisTemplate;
 
-    @Autowired
-    ArticleService articleService;
-
 
     @Override
-    public ResponseEntity<String> like(Long articleId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<String> dislike(Long articleId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<String> repost(Long articleId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<String> star(Long articleId) {
-        return null;
+    public ResponseEntity<String> changeStatus(ArticleStatusDto articleStatusDto) {
+        LambdaUpdateWrapper<ArticleStatus> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(ArticleStatus::getArticleId, articleStatusDto.getArticleId()).eq(ArticleStatus::getUserId, articleStatusDto.getUserId());
+        this.saveOrUpdate(articleStatusDto, updateWrapper);
+        return ResponseEntity.ok();
     }
 
 
-//    public Long getUserId(Long queryId) {
-//        return articleService.selectUserIdByArticle(queryId);
-//    }
 }

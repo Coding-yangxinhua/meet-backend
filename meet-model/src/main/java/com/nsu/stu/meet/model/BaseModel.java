@@ -24,4 +24,8 @@ public class BaseModel implements Serializable {
     @TableField(exist = false)
     private Map<String, String> sortMap;
 
+    public Long getQueryId() {
+        return null;
+    }
+
 }

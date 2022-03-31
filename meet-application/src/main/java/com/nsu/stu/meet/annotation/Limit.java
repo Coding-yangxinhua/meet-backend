@@ -7,5 +7,5 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD})
 @Documented
 public @interface Limit {
-    Class clazz();
+    Class<?> clazz();
 }

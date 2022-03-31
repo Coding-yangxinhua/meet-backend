@@ -2,12 +2,16 @@ package com.nsu.stu.meet.controller;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.nsu.stu.meet.annotation.Limit;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.util.JwtUtil;
 import com.nsu.stu.meet.dao.AlbumMapper;
+import com.nsu.stu.meet.model.Article;
 import com.nsu.stu.meet.service.AlbumService;
+import com.nsu.stu.meet.service.ArticleService;
+import com.nsu.stu.meet.service.impl.ArticleServiceImpl;
 import com.qcloud.cos.exception.CosClientException;
 import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.model.PutObjectRequest;
@@ -36,10 +40,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("test")
 public class TestController {
+    @Autowired
+    private ArticleService articleService;
 
-    @RequestMapping(value = "/testThrow", method = RequestMethod.GET)
-    public String testException() {
-        return "" + JwtUtil.isValidToken("dddd");
+    @Limit(clazz = ArticleServiceImpl.class)
+    @RequestMapping(value = "/testLimit", method = RequestMethod.GET, params = {"articleId"})
+    public ResponseEntity<Article> testLimit(Long articleId) {
+        return ResponseEntity.ok(articleService.selectByArticleId(articleId));
     }
 
     

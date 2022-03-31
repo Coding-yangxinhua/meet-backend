@@ -78,7 +78,7 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
     @Override
     public ResponseEntity<List<AlbumDto>> selectAlbumListOther(Long userId) {
         Long tokenUserId = JwtStorage.userId();
-        List<RelationLimit> userRelationLimit = relationLimitService.getUserRelationLimit(tokenUserId, userId);
+        List<Integer> userRelationLimit = relationLimitService.getUserRelationLimit(tokenUserId, userId);
         List<AlbumDto> albumDtos = baseMapper.selectAlbumListByUserId(userId, userRelationLimit);
         return ResponseEntity.ok(albumDtos);
     }

@@ -7,5 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRelationDto extends UserRelation {
-
+    @Override
+    public Long getQueryId() {
+        return this.getDestId();
+    }
 }

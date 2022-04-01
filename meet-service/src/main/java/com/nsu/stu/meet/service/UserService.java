@@ -62,4 +62,6 @@ public interface UserService extends CheckService{
 
     ResponseEntity<User> getSelfInfo();
 
+    boolean checkExists(Long userId);
+
 }

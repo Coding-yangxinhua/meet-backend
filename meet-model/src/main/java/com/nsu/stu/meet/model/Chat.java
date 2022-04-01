@@ -72,9 +72,7 @@ public class Chat extends BaseModel {
      * 置顶时间
      */
     @TableField(value = "`top_time`")
-    private Long topTime;
-
-    /**
+    private Long topTime;/**
      *
      * 创建时间
      */

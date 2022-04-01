@@ -116,7 +116,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             return null;
         }
         // 文章所需权限
-        Integer limitId = article.getLimitId().value;
+        Integer limitId = article.getLimitId().value();
         // 好友间关系对于权限
         Long userId = article.getUserId();
         return new LimitVo(userId, limitId);

@@ -8,9 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ArticleDto extends Article {
-    private ArticleDto article;
 
-    private UserDto userDto;
+    private UserBaseDto userBaseDto;
 
     private ArticleStatusDto articleStatusDto;
 
@@ -22,6 +21,7 @@ public class ArticleDto extends Article {
 
     private int starSum;
 
+    private int commentSum;
 
 
 }

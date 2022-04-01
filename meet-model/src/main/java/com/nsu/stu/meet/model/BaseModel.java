@@ -1,5 +1,6 @@
 package com.nsu.stu.meet.model;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -13,16 +14,23 @@ import java.util.Map;
 @Setter
 public class BaseModel implements Serializable {
 
-    @TableField(exist = false)
-    private List<String> sortColumns;
+    /**
+     * 创建时间
+     */
+    @TableField(value = "`gmt_create`",fill = FieldFill.INSERT)
+    private Long gmtCreate;
 
-    @JsonIgnore
-    @TableField(exist = false)
-    private String[] selectColumns;
+    /**
+     * 修改时间
+     */
+    @TableField(value = "`gmt_modified`", fill = FieldFill.INSERT_UPDATE)
+    private Long gmtModified;
 
-    @JsonIgnore
-    @TableField(exist = false)
-    private Map<String, String> sortMap;
+    /**
+     * 逻辑删除 0-未删除 1-删除
+     */
+    @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
+    private Integer isDeleted;
 
     public Long getQueryId() {
         return null;

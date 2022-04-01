@@ -10,14 +10,16 @@
         <result column="parent_id" property="parentId" />
         <result column="parent_user_id" property="parentUserId" />
         <result column="parent_user_nickname" property="parentUserNickname" />
+        <result column="parent_content" property="content" />
         <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="pic_urls" property="picUrls" />
         <result column="gmt_create" property="gmtCreate" />
-        <result column="repost_sum" property="repostSum" jdbcType="VARCHAR" />
+        <result column="repost_sum" property="repostSum" jdbcType="INTEGER" />
         <result column="like_sum" property="likeSum" jdbcType="INTEGER" />
         <result column="dislike_sum" property="dislikeSum" jdbcType="INTEGER" />
-        <result column="star_sum" property="starSum" jdbcType="BIGINT" />
-        <association property="userDto" javaType="com.nsu.stu.meet.model.dto.UserDto">
+        <result column="star_sum" property="starSum" jdbcType="INTEGER" />
+        <result column="comment_sum" property="commentSum" jdbcType="INTEGER" />
+        <association property="userBaseDto" javaType="com.nsu.stu.meet.model.dto.UserBaseDto">
             <result property="avatar"  column="avatar" />
             <result property="userId"  column="user_id" />
             <result property="nickname"  column="nickname" />
@@ -29,26 +31,32 @@
             <result property="starStatus"  column="star_status" />
         </association>
     </resultMap>
+
+    <sql id="selectBase">
+        SELECT
+            ma.* ,
+            mu.avatar,
+            mu.user_id,
+            mu.nickname,
+            ma2.content parent_content,
+            SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
+            SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
+            SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS star_sum,
+            SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repost_sum,
+            count( mc.comment_id ) AS comment_sum,
+            mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
+        FROM
+            mt_article ma
+                LEFT JOIN mt_article ma2 ON ma2.article_id = ma.parent_id
+                LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+                LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+                LEFT JOIN mt_comment mc ON mc.article_id = ma.article_id
+                AND mas2.user_id = #{userId}
+                LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+    </sql>
     <select id="selectArticleByUserIdList" resultMap="articleMap">
         <bind name="private" value="@com.nsu.stu.meet.model.enums.LimitEnums@PRIVATE.value"/>
-        SELECT
-        ma.* ,
-        mu.avatar,
-        mu.user_id,
-        mu.nickname,
-        ma2.content parent_content,
-        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
-        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
-        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS star_sum,
-        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repost_sum,
-        mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
-        FROM
-        mt_article ma
-        LEFT JOIN mt_article ma2 ON ma2.article_id = ma.parent_id
-        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
-        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
-        AND mas2.user_id = #{userId}
-        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
         AND ma.limit_id <![CDATA[ <> ]]> #{private}
@@ -82,24 +90,7 @@
         <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
         <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
         <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
-        SELECT
-        ma.* ,
-        mu.avatar,
-        mu.user_id,
-        mu.nickname,
-        ma2.content parent_content,
-        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
-        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
-        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS star_sum,
-        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repost_sum,
-        mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
-        FROM
-        mt_article ma
-        LEFT JOIN mt_article ma2 ON ma2.article_id = ma.parent_id
-        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
-        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
-        AND mas2.user_id = #{userId}
-        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
         <if test="blockList.size > 0">
@@ -130,24 +121,7 @@
         <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
         <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
         <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
-        SELECT
-        ma.* ,
-        mu.avatar,
-        mu.user_id,
-        mu.nickname,
-        ma2.content parent_content,
-        SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
-        SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
-        SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS star_sum,
-        SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repost_sum,
-        mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
-        FROM
-        mt_article ma
-        LEFT JOIN mt_article ma2 ON ma2.article_id = ma.parent_id
-        LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
-        LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
-        AND mas2.user_id = #{userId}
-        LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+        <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
         <if test="blockList.size > 0">

@@ -14,8 +14,8 @@ public enum LimitEnums {
 
     @EnumValue
     @JsonValue
-    public int value;
-    public String desc;
+    private final int value;
+    private final String desc;
 
     LimitEnums(int value, String desc) {
         this.value = value;

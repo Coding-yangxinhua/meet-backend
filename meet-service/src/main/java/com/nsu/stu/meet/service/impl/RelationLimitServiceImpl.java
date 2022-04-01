@@ -83,7 +83,7 @@ public class RelationLimitServiceImpl extends ServiceImpl<RelationLimitMapper, R
     @Override
     public List<Integer> getUserRelationLimit(Long userId, Long queryId) {
         UserRelation userRelation = userRelationService.getUserRelation(userId, queryId);
-        int relation = userRelation.getStatus().value;
+        int relation = userRelation.getStatus().value();
         return this.getRelationLimit(relation);
     }
 
@@ -116,7 +116,7 @@ public class RelationLimitServiceImpl extends ServiceImpl<RelationLimitMapper, R
         }
         RelationEnums status = userRelation.getStatus();
         Map<Integer, List<Integer>> limitMap = getLimitMap();
-        List<Integer> limits = limitMap.get(status.value);
+        List<Integer> limits = limitMap.get(status.value());
         if (limits.size() == 0) {
             return false;
         }

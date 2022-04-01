@@ -14,15 +14,15 @@ public enum GenderEnums  {
 
     @EnumValue
     @JsonValue
-    public int value;
-    public String desc;
+    private final int value;
+    private final String desc;
 
     GenderEnums(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }
 
-    public Integer value() {
+    public int value() {
         return this.value;
     }
 }

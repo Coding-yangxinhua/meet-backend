@@ -212,6 +212,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return ResponseEntity.ok(user);
     }
 
+    @Override
+    public boolean checkExists(Long userId) {
+        return baseMapper.selectById(userId) != null;
+    }
+
     private void setBaseNull(UserDto userDto) {
         // 屏蔽基础信息
         setBaseNull(null, userDto);

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 写入 自己 dao 里的接口名称-->
+<mapper namespace="com.nsu.stu.meet.dao.CommentMapper">
+
+    <resultMap id="commentMap" type="com.nsu.stu.meet.model.dto.CommentDto">
+        <id column="comment_id" property="commentId" jdbcType="BIGINT" />
+        <result column="parent_id" property="parentId" />
+        <result column="article_id" property="articleId" />
+        <result column="user_id" property="userId" />
+        <result column="content" property="content" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="like_sum" property="likeSum" jdbcType="INTEGER" />
+        <result column="dislike_sum" property="dislikeSum" jdbcType="INTEGER" />
+        <result column="comment_sum" property="commentSum" jdbcType="INTEGER" />
+        <association property="userBaseDto" javaType="com.nsu.stu.meet.model.dto.UserBaseDto">
+            <result property="avatar"  column="avatar" />
+            <result property="userId"  column="user_id" />
+            <result property="nickname"  column="nickname" />
+        </association>
+        <association property="commentStatusDto" javaType="com.nsu.stu.meet.model.dto.CommentStatusDto">
+            <result property="likeStatus"  column="like_status" />
+            <result property="dislikeStatus"  column="dislike_status" />
+        </association>
+    </resultMap>
+
+    <sql id="selectRoot">
+        SELECT
+        mc.* ,
+        mu.avatar,
+        mu.user_id,
+        mu.nickname,
+        SUM( CASE WHEN mcs.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
+        SUM( CASE WHEN mcs.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
+        COUNT( mc2.comment_id ) AS comment_sum,
+        mas2.like_status, mas2.dislike_status
+        FROM
+        mt_comment mc
+        LEFT JOIN mt_user mu ON mu.user_id = mc.user_id
+        LEFT JOIN mt_comment mc2 ON mc2.root_id = mc.comment_id
+        LEFT JOIN mt_comment_status mcs ON mcs.comment_id = mc.comment_id
+        LEFT JOIN mt_comment_status mcs2 ON mcs2.comment_id = mc.comment_id
+        AND mcs2.user_id = #{userId}
+        WHERE
+        mc.article_id = #{articleId}
+        mc.is_deleted = ${NOT_DELETED}
+        <if test="blockList.size > 0">
+            AND mc.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        GROUP BY
+        ma.article_id
+    </sql>
+    <sql id="selectChildren">
+        SELECT
+        mc.* ,
+        mu.avatar,
+        mu.user_id,
+        mu.nickname,
+        SUM( CASE WHEN mcs.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
+        SUM( CASE WHEN mcs.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
+        mas2.like_status, mas2.dislike_status
+        FROM
+        mt_comment mc
+        LEFT JOIN mt_user mu ON mu.user_id = mc.user_id
+        LEFT JOIN mt_comment_status mcs ON mcs.comment_id = mc.comment_id
+        LEFT JOIN mt_comment_status mcs2 ON mcs2.comment_id = mc.comment_id
+        AND mcs2.user_id = #{userId}
+        WHERE
+        mc.is_deleted = ${NOT_DELETED}
+        mc.parent_id = #{comment_id}
+        <if test="blockList.size > 0">
+            AND mc.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        GROUP BY
+        ma.article_id
+    </sql>
+    <sql id="selectChildrenByArticleList">
+        SELECT
+        mc.content,
+        mu.nickname,
+        SUM( CASE WHEN mcs.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum
+        FROM
+        mt_comment mc
+        LEFT JOIN mt_user mu ON mu.user_id = mc.user_id
+        LEFT JOIN mt_comment_status mcs ON mcs.comment_id = mc.comment_id
+        WHERE
+        mc.is_deleted = ${NOT_DELETED}
+        AND mc.parent_id = #{commentId}
+        <if test="blockList.size > 0">
+            AND mc.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        GROUP BY
+        ma.article_id
+    </sql>
+
+    <select id="selectCommentRootListLatest" resultMap="commentMap">
+        <include refid="selectRoot" />
+        ORDER BY ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectCommentRootListHot" resultMap="commentMap">
+        <include refid="selectRoot" />
+        ORDER BY
+        like_sum DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectCommentChildrenLatest" resultMap="commentMap">
+        <include refid="selectChildren" />
+        ORDER BY
+        mc.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectCommentChildrenHot" resultMap="commentMap">
+        <include refid="selectChildren" />
+        ORDER BY
+        like_sum DESC
+        LIMIT #{start}, #{end}
+    </select>
+
+    <select id="selectHotChildrenByIds" resultMap="commentMap">
+        <if test="commentIds.size > 0">
+            <foreach collection="commentIds" item="commentId" separator="UNION ALL">
+                <include refid="selectChildrenByArticleList" />
+                ORDER BY
+                like_sum
+                Limit #{size}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectLatestChildrenByIds" resultMap="commentMap">
+        <if test="commentIds.size > 0">
+            <foreach collection="commentIds" item="commentId" separator="UNION ALL">
+                <include refid="selectChildrenByArticleList" />
+                ORDER BY
+                mc.gmt_create
+                Limit #{size}
+            </foreach>
+        </if>
+    </select>
+</mapper>

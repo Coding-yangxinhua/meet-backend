@@ -16,15 +16,15 @@ public enum RelationEnums {
 
     @EnumValue
     @JsonValue
-    public int value;
-    public String desc;
+    private final int value;
+    private final String desc;
 
     RelationEnums(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }
 
-    public Integer value() {
+    public int value() {
         return this.value;
     }
 }

@@ -23,6 +23,7 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -72,7 +73,7 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
     public List<Long> getUserFollow(Long userId) {
         // 缓存
         String suffix = "follow";
-        String userFollowKey = OwnUtil.getRedisKey(this.key + suffix, userId);
+        String userFollowKey = OwnUtil.getRedisKey(this.key, suffix, userId);
         return this.getIdsByFunction(userId, userFollowKey, RelationEnums.FOLLOW, UserRelation::getSrcId, UserRelation::getDestId);
     }
 
@@ -109,7 +110,7 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
 
     @Override
     public boolean isBlockedEach(Long userId, Long queryId) {
-        if (userId == queryId) {
+        if (userId.equals(queryId)) {
             return false;
         }
         List<Long> blockedEach = this.getBlockedEach(userId);
@@ -118,22 +119,26 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
 
     @Override
     public ResponseEntity<String> changeStatus(UserRelationDto userRelationDto) {
+        // 基础值置空
+        this.setBaseNull(userRelationDto);
+        // 判断用户状态
         Long srcId = userRelationDto.getSrcId();
         Long destId = userRelationDto.getDestId();
         if (srcId == null || destId == null || srcId.equals(destId)) {
             return ResponseEntity.checkError(SystemConstants.SELF_CHANGE_FAIL);
         }
+        // 删除关系key
+        List<String> deleteKeys = new ArrayList<>();
+        deleteKeys.add(OwnUtil.getRedisKey(this.key, srcId, destId));
+        deleteKeys.add(OwnUtil.getRedisKey(this.key, "block", srcId));
+        deleteKeys.add(OwnUtil.getRedisKey(this.key, "blocked", destId));
+        redisTemplate.delete(deleteKeys);
+        // 改变数据库
         LambdaUpdateWrapper<UserRelation> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(UserRelation::getSrcId, userRelationDto.getSrcId()).eq(UserRelation::getDestId, userRelationDto.getDestId());
         this.saveOrUpdate(userRelationDto, updateWrapper);
         return ResponseEntity.ok();
     }
-
-    @Override
-    public ResponseEntity<String> changeBlock(RelationEnums relationEnums) {
-        return null;
-    }
-
 
     public List<Long> getIdsByFunction(Long userId, String key, RelationEnums relationEnums, SFunction<UserRelation, Long> eqFunc, SFunction<UserRelation, Long> selectFunc) {
         // 缓存
@@ -152,6 +157,12 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         // 存入缓存
         redisTemplate.opsForValue().set(key, JSON.toJSONString(ids), 1, TimeUnit.DAYS);
         return ids;
+    }
+
+    void setBaseNull(UserRelationDto userRelationDto) {
+        userRelationDto.setRelationId(null);
+        userRelationDto.setGmtCreate(null);
+        userRelationDto.setIsDeleted(null);
     }
 
 }

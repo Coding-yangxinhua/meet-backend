@@ -33,25 +33,5 @@ public class RelationLimit extends BaseModel {
      */
     private LimitEnums limitId;
 
-
-
-    /**
-     * 创建时间
-     */
-    @TableField(value = "`gmt_create`",fill = FieldFill.INSERT)
-    private Long gmtCreate;
-
-    /**
-     * 修改时间
-     */
-    @TableField(value = "`gmt_modified`", fill = FieldFill.INSERT_UPDATE)
-    private Long gmtModified;
-
-    /**
-     * 逻辑删除 0-未删除 1-删除
-     */
-    @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
-    private Integer isDeleted;
-
     private static final long serialVersionUID = 1L;
 }

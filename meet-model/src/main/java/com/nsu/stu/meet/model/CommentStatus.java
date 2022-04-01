@@ -15,55 +15,37 @@ import lombok.Setter;
 @TableName("mt_comment_status")
 public class CommentStatus extends BaseModel {
     /**
-     * 文章唯一标识
+     * 评论唯一标识
      */
     @TableId(type = IdType.ASSIGN_ID)
     @JsonFormat(shape= JsonFormat.Shape.STRING)
-    private Long articleStatusId;
+    private Long commentStatusId;
 
     /**
-     * 文章父id
+     * 评论状态用户
      */
     private Long userId;
 
     /**
-     * 文章发布用户
+     * 评论id
      */
-    private Long articleId;
+    private Long commentId;
 
     /**
      * 是否点赞
      */
-    private Long likeStatus;
-
-
-    /**
-     * 是否收藏
-     */
-    private Long starStatus;
+    private Integer likeStatus;
 
     /**
      * 是否点踩
      */
-    private Long dislikeStatus;
+    private Integer dislikeStatus;
 
     /**
-     * 创建时间
+     * 是否转发
      */
-    @TableField(value = "`gmt_create`",fill = FieldFill.INSERT)
-    private Long gmtCreate;
+    private Integer repostStatus;
 
-    /**
-     * 修改时间
-     */
-    @TableField(value = "`gmt_modified`", fill = FieldFill.INSERT_UPDATE)
-    private Long gmtModified;
-
-    /**
-     * 逻辑删除 0-未删除 1-删除
-     */
-    @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
-    private Integer isDeleted;
 
     private static final long serialVersionUID = 1L;
 }

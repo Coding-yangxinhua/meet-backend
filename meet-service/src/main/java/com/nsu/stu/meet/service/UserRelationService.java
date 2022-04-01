@@ -66,8 +66,9 @@ public interface UserRelationService {
     boolean isBlockedEach(Long userId, Long queryId);
 
     /**
-     * 是否双向拉黑
+     * 改变用户关系
      */
     ResponseEntity<String> changeStatus(UserRelationDto userRelationDto);
+
 
 }

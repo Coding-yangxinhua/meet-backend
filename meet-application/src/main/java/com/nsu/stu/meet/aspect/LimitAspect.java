@@ -9,6 +9,7 @@ import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.CheckService;
 import com.nsu.stu.meet.service.RelationLimitService;
 import com.nsu.stu.meet.service.UserRelationService;
+import com.nsu.stu.meet.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -37,6 +38,9 @@ public class LimitAspect {
     @Autowired
     ApplicationContext applicationContext;
 
+    @Autowired
+    UserService userService;
+
     /**
      * 在切点之前织入
      * @param joinPoint
@@ -47,7 +51,6 @@ public class LimitAspect {
         String targetName = joinPoint.getTarget().getClass().getName();
         Object obj = joinPoint.getArgs()[0];
         Long queryId = null;
-
         if (obj.getClass().equals(Long.class)) {
             queryId = (Long) obj;
         } else {
@@ -75,7 +78,7 @@ public class LimitAspect {
         // 待查询用户及其所需权限
         Long queryUserId = limitVo.getUserId();
         Integer limitId = limitVo.getLimitId();
-        if (queryUserId == null || limitId == null) {
+        if (queryUserId == null || !userService.checkExists(queryUserId)) {
             return ResponseEntity.checkError(SystemConstants.INFO_NOT_EXISTS);
         }
         Long tokenUserId = JwtStorage.userId();
@@ -85,6 +88,7 @@ public class LimitAspect {
             if (blockedUser.contains(queryUserId)) {
                 return ResponseEntity.checkError(SystemConstants.BLOCK);
             }
+            return joinPoint.proceed();
         }
         boolean blockedEach = relationService.isBlockedEach(tokenUserId, limitVo.getUserId());
         if (blockedEach) {

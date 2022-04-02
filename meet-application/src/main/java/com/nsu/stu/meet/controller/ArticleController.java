@@ -43,11 +43,11 @@ public class ArticleController {
         Long userId = JwtStorage.userId();
         switch (ArticleTypeEnums.lookUp(type)){
             case NEW:
-                return articleService.selectArticleListLatest(userId, page, page + size);
+                return articleService.selectArticleListLatest(userId, page, size);
             case HOT:
-                return articleService.selectArticleListHot(userId, page, page + size);
+                return articleService.selectArticleListHot(userId, page, size);
             case FOLLOW:
-                return articleService.selectArticleByFollow(page, page + size);
+                return articleService.selectArticleByFollow(page, size);
             default:
                 return ResponseEntity.ok(null);
         }

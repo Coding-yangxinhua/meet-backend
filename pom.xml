@@ -64,7 +64,7 @@
                 <artifactId>tencentcloud-sdk-java</artifactId>
                 <version>${tencent-sdk.version}</version>
             </dependency>
-            <!-- =============spring-boot======================== -->
+            <!-- =============spring-boot starer======================== -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>
@@ -93,6 +93,11 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-websocket</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-validation</artifactId>
                 <version>${spring-boot.version}</version>
                 <exclusions>
@@ -111,11 +116,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-log4j2</artifactId>
                 <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-redis</artifactId>
-                <version>2.5.3</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -252,16 +252,16 @@
                 <version>4.1.63.Final</version>
             </dependency>
             <!-- ==================rocketmq============================== -->
-            <dependency>
-                <groupId>org.apache.rocketmq</groupId>
-                <artifactId>rocketmq-spring-boot-starter</artifactId>
-                <version>2.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.rocketmq</groupId>
-                <artifactId>rocketmq-spring-boot</artifactId>
-                <version>2.2.0</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.rocketmq</groupId>-->
+<!--                <artifactId>rocketmq-spring-boot-starter</artifactId>-->
+<!--                <version>2.2.0</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.rocketmq</groupId>-->
+<!--                <artifactId>rocketmq-spring-boot</artifactId>-->
+<!--                <version>2.2.0</version>-->
+<!--            </dependency>-->
             <!--================druid========================== -->
             <dependency>
                 <groupId>com.alibaba</groupId>

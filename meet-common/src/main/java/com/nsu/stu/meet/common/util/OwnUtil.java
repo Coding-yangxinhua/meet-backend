@@ -10,7 +10,7 @@ import java.util.*;
 
 @UtilityClass
 public class OwnUtil {
-    private Set<String> imageSet = new HashSet<String>() {
+    private final Set<String>  imageSet = new HashSet<String>() {
         {
             add(".jpeg");
             add(".jpg");
@@ -83,11 +83,12 @@ public class OwnUtil {
         return key + "_" + value;
     }
 
-    public <T>IPage<T> records2Page(List<T> records, int current) {
-        IPage<T> page = new Page<>();
-        page.setRecords(records);
-        page.setCurrent(current);
-        return page;
+    public <T>IPage<T> records2Page(List<T> records, int page, int size) {
+        IPage<T> Ipage = new Page<>();
+        Ipage.setRecords(records);
+        Ipage.setCurrent(page);
+        Ipage.setSize(size);
+        return Ipage;
     }
 
 }

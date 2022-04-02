@@ -12,7 +12,7 @@ import java.util.List;
 public interface CommentMapper extends BaseMapper<Comment> {
     List<CommentDto> selectCommentRootListLatest (@Param("articleId") Long articleId, @Param("userId") Long userId, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
 
-    List<CommentDto> selectCommentRootListHot (@Param("userId") Long userId, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+    List<CommentDto> selectCommentRootListHot (@Param("articleId") Long articleId, @Param("userId") Long userId, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
 
     List<CommentDto> selectCommentChildrenLatest (@Param("commentId") Long commentId, @Param("userId") Long userId, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
 

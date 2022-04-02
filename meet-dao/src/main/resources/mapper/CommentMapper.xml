@@ -12,6 +12,8 @@
         <result column="user_id" property="userId" />
         <result column="content" property="content" />
         <result column="gmt_create" property="gmtCreate" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="is_deleted" property="isDeleted" />
         <result column="like_sum" property="likeSum" jdbcType="INTEGER" />
         <result column="dislike_sum" property="dislikeSum" jdbcType="INTEGER" />
         <result column="comment_sum" property="commentSum" jdbcType="INTEGER" />
@@ -35,7 +37,7 @@
         SUM( CASE WHEN mcs.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
         SUM( CASE WHEN mcs.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
         COUNT( mc2.comment_id ) AS comment_sum,
-        mas2.like_status, mas2.dislike_status
+        mcs2.like_status, mcs2.dislike_status
         FROM
         mt_comment mc
         LEFT JOIN mt_user mu ON mu.user_id = mc.user_id
@@ -45,6 +47,9 @@
         AND mcs2.user_id = #{userId}
         WHERE
         mc.article_id = #{articleId}
+        AND
+        mc.parent_id IS NULL
+        AND
         mc.is_deleted = ${NOT_DELETED}
         <if test="blockList.size > 0">
             AND mc.user_id NOT IN
@@ -53,7 +58,7 @@
             </foreach>
         </if>
         GROUP BY
-        ma.article_id
+        mc.comment_id
     </sql>
     <sql id="selectChildren">
         SELECT
@@ -63,7 +68,7 @@
         mu.nickname,
         SUM( CASE WHEN mcs.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
         SUM( CASE WHEN mcs.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
-        mas2.like_status, mas2.dislike_status
+        mcs2.like_status, mcs2.dislike_status
         FROM
         mt_comment mc
         LEFT JOIN mt_user mu ON mu.user_id = mc.user_id
@@ -72,6 +77,7 @@
         AND mcs2.user_id = #{userId}
         WHERE
         mc.is_deleted = ${NOT_DELETED}
+        AND
         mc.parent_id = #{comment_id}
         <if test="blockList.size > 0">
             AND mc.user_id NOT IN
@@ -80,12 +86,15 @@
             </foreach>
         </if>
         GROUP BY
-        ma.article_id
+        mc.comment_id
     </sql>
     <sql id="selectChildrenByArticleList">
-        SELECT
+        (SELECT
+        mc.parent_id,
+        mc.comment_id,
         mc.content,
         mu.nickname,
+        mu.user_id
         SUM( CASE WHEN mcs.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum
         FROM
         mt_comment mc
@@ -101,12 +110,12 @@
             </foreach>
         </if>
         GROUP BY
-        ma.article_id
+        mc.comment_id
     </sql>
 
     <select id="selectCommentRootListLatest" resultMap="commentMap">
         <include refid="selectRoot" />
-        ORDER BY ma.gmt_create DESC
+        ORDER BY mc.gmt_create DESC
         LIMIT #{start}, #{end}
     </select>
     <select id="selectCommentRootListHot" resultMap="commentMap">
@@ -145,7 +154,7 @@
                 <include refid="selectChildrenByArticleList" />
                 ORDER BY
                 mc.gmt_create
-                Limit #{size}
+                Limit #{size})
             </foreach>
         </if>
     </select>

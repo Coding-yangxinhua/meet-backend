@@ -71,19 +71,21 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     }
 
     @Override
-    public ResponseEntity<IPage<CommentDto>> selectCommentList(Long articleId, Long userId, OrderEnums orderEnums, int start, int end) {
+    public ResponseEntity<IPage<CommentDto>> selectCommentList(Long articleId, Long userId, OrderEnums orderEnums, int page, int size) {
         List<Long> blockList = userRelationService.getBlockedEach(userId);
+        int start = page * size;
+        int end = start + size;
         List<CommentDto> commentDtos = null;
                 switch (orderEnums){
             case TIME:
                 commentDtos = baseMapper.selectCommentRootListLatest(articleId, userId, blockList, start, end);
                 break;
             case HOT:
-                commentDtos = baseMapper.selectCommentRootListLatest(articleId, userId, blockList, start, end);
+                commentDtos = baseMapper.selectCommentRootListHot(articleId, userId, blockList, start, end);
         }
 
         this.combineRootWithChildren(commentDtos, userId, blockList, orderEnums);
-        return ResponseEntity.ok(OwnUtil.records2Page(commentDtos, end));
+        return ResponseEntity.ok(OwnUtil.records2Page(commentDtos, page, size));
     }
 
 
@@ -117,9 +119,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         }
         List<Long> commentIds = commentDtos.stream().map(Comment::getCommentId).collect(Collectors.toList());
         List<CommentDto> children = null;
-        switch (OrderEnums.lookUp(orderEnums.value())) {
+        switch (orderEnums) {
             case TIME:
-                children= baseMapper.selectLatestChildrenByIds(commentIds, userId, blockList, 3);
+                children = baseMapper.selectLatestChildrenByIds(commentIds, userId, blockList, 3);
                 break;
             case HOT:
                 children = baseMapper.selectHotChildrenByIds(commentIds, userId, blockList, 3);

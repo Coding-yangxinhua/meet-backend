@@ -9,7 +9,6 @@ import org.hibernate.validator.constraints.Length;
 
 /**
  * mt_article_comment
- * @author 
  */
 @Getter
 @Setter
@@ -22,17 +21,19 @@ public class Message extends BaseModel {
     @JsonFormat(shape= JsonFormat.Shape.STRING)
     private Long messageId;
 
-    /**
-     * 目标id
-     */
-    @TableField(value = "`dest_id`")
-    private Long destId;
 
     /**
      * 用户id
      */
     @TableField(value = "`src_id`")
     private Long srcId;
+
+    /**
+     * 目标id
+     */
+    @TableField(value = "`dest_id`")
+    private Long destId;
+
 
     /**
      * 消息内容

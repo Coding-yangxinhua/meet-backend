@@ -16,7 +16,7 @@ public interface CommentService extends CheckService{
 
     ResponseEntity<String> deleteCommentBatch (Long userId, List<Long> CommentIdList);
 
-    ResponseEntity<IPage<CommentDto>> selectCommentList(Long articleId, Long userId, OrderEnums orderEnums, int start, int end);
+    ResponseEntity<IPage<CommentDto>> selectCommentList(Long articleId, Long userId, OrderEnums orderEnums, int page, int size);
 
 
     Long selectUserIdByComment(Long CommentId);

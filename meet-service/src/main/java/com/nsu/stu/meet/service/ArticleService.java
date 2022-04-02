@@ -15,11 +15,11 @@ public interface ArticleService extends CheckService{
 
     ResponseEntity<String> deleteArticleBatch (Long userId, List<Long> articleIdList);
 
-    ResponseEntity<IPage<ArticleDto>> selectArticleByFollow (int start, int end);
+    ResponseEntity<IPage<ArticleDto>> selectArticleByFollow (int page, int size);
 
-    ResponseEntity<IPage<ArticleDto>> selectArticleListLatest (Long userId, int start, int end);
+    ResponseEntity<IPage<ArticleDto>> selectArticleListLatest (Long userId, int page, int size);
 
-    ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int start, int end);
+    ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int page, int size);
 
     Long selectUserIdByArticle(Long articleId);
 

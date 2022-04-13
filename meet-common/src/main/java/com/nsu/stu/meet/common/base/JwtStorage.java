@@ -9,7 +9,8 @@ public class JwtStorage {
     public static ThreadLocal<JwtInfo> jwtInfo = new InheritableThreadLocal<>();
 
     public void set(Long userId, String userName) {
-        jwtInfo.set(new JwtInfo(userId, userName));
+        JwtInfo jwtInfo = new JwtInfo(userId, userName);
+        set(jwtInfo);
     }
     public void set(JwtInfo jwtInfo) {
         JwtStorage.jwtInfo.set(jwtInfo);

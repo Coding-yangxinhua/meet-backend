@@ -38,12 +38,11 @@ public class SsoFilter implements Filter {
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-        // 设置跨域
-        this.setCros(response);
         /**
          * 1. 判断是否使用内置账号
          */
         if (!ssoConfig.getEnable()) {
+            JwtStorage.set(ssoConfig.getDefaultUserId(), ssoConfig.getDefaultNickName());
             chain.doFilter(req, res);
             return;
         }
@@ -84,12 +83,5 @@ public class SsoFilter implements Filter {
         PrintWriter writer = response.getWriter();
         writer.append(json);
     }
-    private void setCros(HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, GET");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers", " Accept,Origin,X-Requested-With,Content-Type,Last-Modified");
-    }
-
 
 }

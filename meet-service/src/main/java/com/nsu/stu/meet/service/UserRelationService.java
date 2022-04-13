@@ -4,6 +4,7 @@ package com.nsu.stu.meet.service;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.model.UserRelation;
+import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.model.dto.UserRelationDto;
 import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.model.vo.LimitVo;
@@ -25,15 +26,15 @@ public interface UserRelationService {
      * @param userId
      * @return
      */
-    List<Long> getUserFollow (Long userId);
+    List<Long> getUserFollowIds (Long userId);
 
 
     /**
-     * 关注用户的用户
+     * 关注用户的用户Id
      * @param userId
      * @return
      */
-    List<Long> getFollowedUser (Long userId);
+    List<Long> getFollowedUserIds (Long userId);
 
 
     /**

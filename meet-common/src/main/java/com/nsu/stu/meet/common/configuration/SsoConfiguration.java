@@ -24,6 +24,7 @@ public class SsoConfiguration {
         registration.setFilter(ssoFilter);
         registration.setUrlPatterns(new ArrayList<>(Collections.singletonList("/*")));
         registration.setName("ssoFilter");
+        registration.setOrder(5);
         return registration;
     }
 

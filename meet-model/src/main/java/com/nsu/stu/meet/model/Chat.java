@@ -24,8 +24,8 @@ public class Chat extends BaseModel {
     /**
      * 用户id
      */
-    @TableField(value = "`user_id`")
-    private Long userId;
+    @TableField(value = "`src_id`")
+    private Long srcId;
 
     /**
      * 目标id
@@ -56,24 +56,7 @@ public class Chat extends BaseModel {
     @TableField(value = "`is_hide`")
     private Integer isHide;
 
-    /**
-     * 是否隐藏 0-不隐藏 1-隐藏
-     */
-    @TableField(value = "`content_time`")
-    private Long contentTime;
-
-    /**
-     * 聊天最新内容
-     */
-    @TableField(value = "`content`")
-    private String content;
-
-    /**
-     * 置顶时间
-     */
-    @TableField(value = "`top_time`")
-    private Long topTime;/**
-     *
+     /**
      * 创建时间
      */
     @TableField(value = "`gmt_create`",fill = FieldFill.INSERT)

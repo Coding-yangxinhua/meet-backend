@@ -8,4 +8,51 @@
         SELECT user_id, nickname, avatar FROM mt_user
         WHERE user_id = #{userId} AND is_deleted = ${NOT_DELETED}
     </select>
+    <select id="getFollowedUser" resultType="com.nsu.stu.meet.model.dto.UserDto">
+        SELECT user_id, nickname, avatar, intro, user_id in
+        <choose>
+            <when test="userFollowIds.size > 0">
+                <foreach collection="userFollowIds" item="followId" open="(" close=")" separator=",">
+                    #{followId}
+                </foreach>
+            </when>
+            <otherwise>
+                (-1)
+            </otherwise>
+        </choose> as relationStatus
+        FROM mt_user
+        WHERE
+        <choose>
+            <when test="followedUserIds.size > 0">
+                user_id IN
+                <foreach collection="followedUserIds" item="followedUserId" open="(" close=")" separator=",">
+                    #{followedUserId}
+                </foreach>
+            </when>
+            <otherwise>
+                1 = 0
+            </otherwise>
+        </choose>
+        AND is_deleted = ${NOT_DELETED}
+        LIMIT #{start}, #{end}
+    </select>
+
+    <select id="getUserFollow" resultType="com.nsu.stu.meet.model.dto.UserDto">
+        SELECT user_id, nickname, avatar, intro
+        FROM mt_user
+        WHERE
+        <choose>
+            <when test="userFollowIds.size > 0">
+                user_id IN
+                <foreach collection="userFollowIds" item="userFollowId" open="(" close=")" separator=",">
+                    #{userFollowId}
+                </foreach>
+            </when>
+            <otherwise>
+                1 = 0
+            </otherwise>
+        </choose>
+        AND is_deleted = ${NOT_DELETED}
+        LIMIT #{start}, #{end}
+    </select>
 </mapper>

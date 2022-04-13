@@ -9,6 +9,7 @@ import com.nsu.stu.meet.model.dto.UserDto;
 import org.apache.ibatis.annotations.Param;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 
 public interface UserMapper extends BaseMapper<User> {
@@ -20,5 +21,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     UserDto selectBaseFromUser(Long userId);
 
+    List<UserDto> getFollowedUser (@Param("userFollowIds") List<Long> userFollowIds, @Param("followedUserIds") List<Long> followedUserIds, @Param("start") int start, @Param("end") int end);
+
+    List<UserDto> getUserFollow (@Param("userFollowIds") List<Long> userFollowIds, @Param("start") int start, @Param("end") int end);
 
 }

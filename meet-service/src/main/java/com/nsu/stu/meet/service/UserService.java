@@ -1,8 +1,8 @@
 package com.nsu.stu.meet.service;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
-import com.nsu.stu.meet.model.Article;
 import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.dto.UserDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,6 +61,20 @@ public interface UserService extends CheckService{
     ResponseEntity<User> getInfo(Long queryUserId);
 
     ResponseEntity<User> getSelfInfo();
+
+    /**
+     * 关注用户的用户
+     * @param userId
+     * @return
+     */
+    ResponseEntity<IPage<UserDto>> getFollowedUser(Long userId, int page, int size);
+
+    /**
+     * 用户关注的用户
+     * @param userId
+     * @return
+     */
+    ResponseEntity<IPage<UserDto>> getUserFollow(Long userId, int page, int size);
 
     boolean checkExists(Long userId);
 

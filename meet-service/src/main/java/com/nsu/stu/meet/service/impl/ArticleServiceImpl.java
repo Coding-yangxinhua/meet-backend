@@ -72,7 +72,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ResponseEntity<IPage<ArticleDto>> selectArticleByFollow(int page, int size) {
         int start = page * size;
         Long userId = JwtStorage.userId();
-        List<Long> followIds = userRelationService.getUserFollow(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
         List<Long> blockList = userRelationService.getBlockedEach(userId);
         List<ArticleDto> articleDtos = baseMapper.selectArticleByUserIdList(userId, followIds, blockList, start, size + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
@@ -82,7 +82,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ResponseEntity<IPage<ArticleDto>> selectArticleListLatest(Long userId, int page, int size) {
         int start = page * size;
         List<Long> blockList = userRelationService.getBlockedEach(userId);
-        List<Long> followIds = userRelationService.getUserFollow(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
         List<ArticleDto> articleDtos = baseMapper.selectArticleListLatest(userId, followIds, blockList, start, start + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
     }
@@ -91,7 +91,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int page, int size) {
         int start = page * size;
         List<Long> blockList = userRelationService.getBlockedEach(userId);
-        List<Long> followIds = userRelationService.getUserFollow(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
         List<ArticleDto> articleDtos = baseMapper.selectArticleListHot(userId, followIds, blockList, start, start + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
     }

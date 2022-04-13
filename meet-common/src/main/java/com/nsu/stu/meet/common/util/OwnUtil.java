@@ -70,17 +70,16 @@ public class OwnUtil {
     }
 
     public String getRedisKey(String key, Object ...names) {
-        StringBuilder redisKey = new StringBuilder(key);
-        String sep = "_";
-        for (Object name:
-             names) {
-            redisKey.append(sep).append(String.valueOf(name));
-        }
-        return redisKey.toString();
+        return concatString('_', key, names);
     }
 
-    public String getRedisKey(String key, String value) {
-        return key + "_" + value;
+    public String concatString(char sep, Object ...names) {
+        StringBuilder key = new StringBuilder();
+        key.append(names[0]);
+        for (int i = 1; i <names.length; i ++){
+            key.append(sep).append(names[i]);
+        }
+        return key.toString();
     }
 
     public <T>IPage<T> records2Page(List<T> records, int page, int size) {

@@ -2,15 +2,12 @@ package com.nsu.stu.meet.service.impl;
 
 
 import cn.hutool.core.util.RandomUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
-import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.enums.SmsEnums;
 import com.nsu.stu.meet.common.util.*;
 import com.nsu.stu.meet.dao.UserMapper;
@@ -18,11 +15,14 @@ import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.SmsService;
+import com.nsu.stu.meet.service.UserRelationService;
 import com.nsu.stu.meet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -30,6 +30,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private SmsService smsService;
     @Autowired
     private CosUtil cosUtil;
+
+    @Autowired
+    private UserRelationService relationService;
 
 
 
@@ -210,6 +213,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = baseMapper.selectById(tokenUserId);
         user.setPassword(null);
         return ResponseEntity.ok(user);
+    }
+
+    @Override
+    public ResponseEntity<IPage<UserDto>> getFollowedUser(Long userId, int page, int size) {
+        List<Long> followedUserIds = relationService.getFollowedUserIds(userId);
+        List<Long> userFollowIds = relationService.getUserFollowIds(userId);
+        List<UserDto> followedUser = baseMapper.getFollowedUser(userFollowIds, followedUserIds, (page - 1) * size, page * size + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(followedUser, page, size));
+    }
+
+    @Override
+    public ResponseEntity<IPage<UserDto>> getUserFollow(Long userId, int page, int size) {
+        List<Long> userFollowIds = relationService.getUserFollowIds(userId);
+        List<UserDto> userFollow = baseMapper.getUserFollow(userFollowIds, (page - 1) * size, page * size + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(userFollow, page, size));
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.nsu.stu.meet.dao.UserRelationMapper;
 import com.nsu.stu.meet.model.ArticleStatus;
 import com.nsu.stu.meet.model.RelationLimit;
 import com.nsu.stu.meet.model.UserRelation;
+import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.model.dto.UserRelationDto;
 import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.model.vo.LimitVo;
@@ -34,9 +35,6 @@ import java.util.stream.Collectors;
 public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, UserRelation> implements UserRelationService {
     @Autowired
     private StringRedisTemplate redisTemplate;
-
-    @Autowired
-    private RelationLimitService relationLimitService;
 
     private final String key = "user_relation";
 
@@ -63,14 +61,8 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         return userRelation;
     }
 
-    public List<Long> getRelationLimit(Long srcId, Long destId) {
-        // 缓存
-
-        return null;
-    }
-
     @Override
-    public List<Long> getUserFollow(Long userId) {
+    public List<Long> getUserFollowIds(Long userId) {
         // 缓存
         String suffix = "follow";
         String userFollowKey = OwnUtil.getRedisKey(this.key, suffix, userId);
@@ -78,10 +70,10 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
     }
 
     @Override
-    public List<Long> getFollowedUser(Long userId) {
+    public List<Long> getFollowedUserIds(Long userId) {
         // 缓存
         String suffix = "followed";
-        String userFollowedKey = OwnUtil.getRedisKey(this.key + suffix, userId);
+        String userFollowedKey = OwnUtil.getRedisKey(this.key, suffix, userId);
         return this.getIdsByFunction(userId, userFollowedKey, RelationEnums.FOLLOW, UserRelation::getDestId, UserRelation::getSrcId);
     }
 
@@ -132,6 +124,7 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         deleteKeys.add(OwnUtil.getRedisKey(this.key, srcId, destId));
         deleteKeys.add(OwnUtil.getRedisKey(this.key, "block", srcId));
         deleteKeys.add(OwnUtil.getRedisKey(this.key, "blocked", destId));
+        deleteKeys.add(OwnUtil.getRedisKey(this.key, "follow", srcId));
         redisTemplate.delete(deleteKeys);
         // 改变数据库
         LambdaUpdateWrapper<UserRelation> updateWrapper = new LambdaUpdateWrapper<>();

@@ -7,11 +7,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.config.SsoConfig;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.SmsEnums;
 import com.nsu.stu.meet.common.util.*;
 import com.nsu.stu.meet.dao.UserMapper;
 import com.nsu.stu.meet.model.User;
+import com.nsu.stu.meet.model.dto.UserBaseDto;
 import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.SmsService;
@@ -22,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Service
@@ -33,6 +38,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private UserRelationService relationService;
+
+    @Autowired
+    private SsoConfig ssoConfig;
 
 
 
@@ -97,7 +105,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<String> loginByCode(UserDto userDto, String code, int type) {
+    public ResponseEntity<UserBaseDto> loginByCode(UserDto userDto, String code, int type, HttpServletResponse response) {
         // 获取手机号
         String mobile = userDto.getMobile();
         // 检测手机号格式
@@ -112,13 +120,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 对比验证码是否正确
         Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
         if (isCodeRight) {
-            return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS, SsoUtil.login(user.getUserId()));
+            String token = SsoUtil.login(user.getUserId());
+            setTokenToCookies (token, response);
+            return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS, OwnUtil.entity2Dto(user, UserBaseDto.class));
         }
         return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> loginByPassword(UserDto userDto) {
+    public ResponseEntity<UserBaseDto> loginByPassword(UserDto userDto, HttpServletResponse response) {
         // 获取手机号
         String mobile = userDto.getMobile();
         // 提取出密码
@@ -140,7 +150,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 密码正确
         if (md5Password.equals(userDto.getPassword())) {
-            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, SsoUtil.login(user.getUserId()));
+            String token = SsoUtil.login(user.getUserId());
+            setTokenToCookies (token, response);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, OwnUtil.entity2Dto(user, UserBaseDto.class));
+
         }
         return ResponseEntity.checkError(SystemConstants.PASSWORD_ERROR);
 
@@ -251,5 +264,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public LimitVo getLimitVo(Long queryId) {
         return new LimitVo(queryId, null);
+    }
+
+    private void setTokenToCookies(@NotNull String token, @NotNull HttpServletResponse response) {
+        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
+        cookie.setDomain(ssoConfig.getCookie().getHost());
+        cookie.setPath(ssoConfig.getCookie().getPath());
+        cookie.setValue(token);
+        response.addCookie(cookie);
     }
 }

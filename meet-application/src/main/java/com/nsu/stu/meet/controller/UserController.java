@@ -8,6 +8,7 @@ import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.enums.SmsEnums;
 import com.nsu.stu.meet.model.User;
+import com.nsu.stu.meet.model.dto.UserBaseDto;
 import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserService;
@@ -32,8 +33,7 @@ public class UserController {
     @Autowired
     private SmsService smsService;
 
-    @Autowired
-    private SsoConfig ssoConfig;
+
 
 
     @RequestMapping(value = "/sendSms", method = RequestMethod.GET, params = {"mobile", "type"})
@@ -50,21 +50,18 @@ public class UserController {
             responseEntity = userService.registerByPassword(userDto);
         }
         if (responseEntity.getStatus().equals(ResultStatus.OK)) {
-            setTokenToCookies (responseEntity.getResult(), response);
+
         }
         return responseEntity;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST, params = {"code"})
-    public ResponseEntity<String> login(@RequestBody UserDto userDto, @Nullable String code, HttpServletResponse response) {
-        ResponseEntity<String> responseEntity = null;
+    public ResponseEntity<UserBaseDto> login(@RequestBody UserDto userDto, @Nullable String code, HttpServletResponse response) {
+        ResponseEntity<UserBaseDto> responseEntity = null;
         if (code != null) {
-            responseEntity = userService.loginByCode(userDto, code, SmsEnums.LOGIN.type());
+            responseEntity = userService.loginByCode(userDto, code, SmsEnums.LOGIN.type(), response);
         }else {
-            responseEntity = userService.loginByPassword(userDto);
-        }
-        if (responseEntity.getStatus().equals(ResultStatus.OK)) {
-            setTokenToCookies (responseEntity.getResult(), response);
+            responseEntity = userService.loginByPassword(userDto, response);
         }
         return responseEntity;
     }
@@ -107,13 +104,7 @@ public class UserController {
 
 
 
-    private void setTokenToCookies(@NotNull String token, @NotNull HttpServletResponse response) {
-        Cookie cookie = new Cookie(SystemConstants.TOKEN_NAME, "utf-8");
-        cookie.setDomain(ssoConfig.getCookie().getHost());
-        cookie.setPath(ssoConfig.getCookie().getPath());
-        cookie.setValue(token);
-        response.addCookie(cookie);
-    }
+
 
 
 

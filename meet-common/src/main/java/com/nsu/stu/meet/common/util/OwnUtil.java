@@ -3,6 +3,9 @@ package com.nsu.stu.meet.common.util;
 import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.nsu.stu.meet.common.base.BusinessException;
+import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.constant.SystemConstants;
 import lombok.experimental.UtilityClass;
 import org.springframework.beans.BeanUtils;
 
@@ -88,6 +91,17 @@ public class OwnUtil {
         Ipage.setCurrent(page);
         Ipage.setSize(size);
         return Ipage;
+    }
+
+    public <T, V> V entity2Dto(T entity, Class<V> clazz) {
+        try {
+            V v = clazz.newInstance();
+            BeanUtils.copyProperties(entity, clazz);
+            return v;
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new BusinessException("反射失败");
+        }
     }
 
 }

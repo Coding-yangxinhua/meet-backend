@@ -4,8 +4,11 @@ package com.nsu.stu.meet.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.model.User;
+import com.nsu.stu.meet.model.dto.UserBaseDto;
 import com.nsu.stu.meet.model.dto.UserDto;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 public interface UserService extends CheckService{
 
@@ -32,14 +35,14 @@ public interface UserService extends CheckService{
      * @param type
      * @return
      */
-    ResponseEntity<String> loginByCode (UserDto userDto, String code, int type);
+    ResponseEntity<UserBaseDto> loginByCode (UserDto userDto, String code, int type, HttpServletResponse response);
 
     /**
      * 通过密码登录
      * @param userDto
      * @return
      */
-    ResponseEntity<String> loginByPassword (UserDto userDto);
+    ResponseEntity<UserBaseDto> loginByPassword (UserDto userDto, HttpServletResponse response);
 
     /**
      * 通过短信修改密码

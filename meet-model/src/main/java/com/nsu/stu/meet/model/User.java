@@ -60,4 +60,9 @@ public class User extends BaseModel {
      */
     private Long birth;
 
+    /**
+     * 被赞总数
+     */
+    private Integer likeTotal;
+
 }

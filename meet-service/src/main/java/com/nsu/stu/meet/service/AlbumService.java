@@ -6,7 +6,7 @@ import com.nsu.stu.meet.model.dto.AlbumDto;
 
 import java.util.List;
 
-public interface AlbumService {
+public interface AlbumService extends CheckService{
     ResponseEntity<String> createAlbum (AlbumDto albumDto);
 
     ResponseEntity<String> modifyAlbum (AlbumDto albumDto);
@@ -16,6 +16,8 @@ public interface AlbumService {
     Album selectAlbumByIdAndUserId (Long albumId, Long userId);
 
     ResponseEntity<List<AlbumDto>> selectAlbumListSelf ();
+
+    void updateAlbum(Album album);
 
     ResponseEntity<List<AlbumDto>> selectAlbumListOther (Long userId);
 }

@@ -18,7 +18,6 @@ public class CommentStatus extends BaseModel {
      * 评论唯一标识
      */
     @TableId(type = IdType.ASSIGN_ID)
-    @JsonFormat(shape= JsonFormat.Shape.STRING)
     private Long commentStatusId;
 
     /**
@@ -48,4 +47,9 @@ public class CommentStatus extends BaseModel {
 
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    public Long getQueryId() {
+        return this.getCommentId();
+    }
 }

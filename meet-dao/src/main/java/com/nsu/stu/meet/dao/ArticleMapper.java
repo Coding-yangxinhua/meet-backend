@@ -14,9 +14,21 @@ import java.util.Set;
 
 
 public interface ArticleMapper extends BaseMapper<Article>{
-    List<ArticleDto> selectArticleByUserIdList (@Param("userId") Long userId, @Param("queryIdList") List<Long> queryIdList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+    List<ArticleDto> selectArticleByUserIdList (@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("queryIdList") List<Long> queryIdList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
 
-    List<ArticleDto> selectArticleListLatest (@Param("userId") Long userId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+    List<ArticleDto> selectArticleListLatest (@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
 
-    List<ArticleDto> selectArticleListHot (@Param("userId") Long userId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+    List<ArticleDto> selectArticleListHot (@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
+    List<ArticleDto> selectArticleByUserId (@Param("userId") Long userId, @Param("queryId") Long queryId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
+
+    List<ArticleDto> refreshArticleByUserIdList (@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("queryIdList") List<Long> queryIdList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
+    List<ArticleDto> refreshArticleListLatest (@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
+    List<ArticleDto> refreshArticleListHot (@Param("userId") Long userId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
+    List<ArticleDto> refreshArticleByUserId (@Param("userId") Long userId, @Param("queryId") Long queryId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
 }

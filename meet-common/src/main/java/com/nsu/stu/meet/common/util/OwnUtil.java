@@ -72,8 +72,8 @@ public class OwnUtil {
         return imageSet.contains(suffix.toLowerCase(Locale.ROOT));
     }
 
-    public String getRedisKey(String key, Object ...names) {
-        return concatString('_', key, names);
+    public String getRedisKey(Object ...names) {
+        return concatString('_', names);
     }
 
     public String concatString(char sep, Object ...names) {
@@ -96,7 +96,7 @@ public class OwnUtil {
     public <T, V> V entity2Dto(T entity, Class<V> clazz) {
         try {
             V v = clazz.newInstance();
-            BeanUtils.copyProperties(entity, clazz);
+            BeanUtils.copyProperties(entity, v);
             return v;
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();

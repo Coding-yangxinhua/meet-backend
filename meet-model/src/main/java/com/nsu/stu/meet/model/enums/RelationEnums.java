@@ -7,7 +7,7 @@ public enum RelationEnums {
 
     BLOCK (-1, "拉黑"),
 
-    NORMAL (0, "无关系"),
+    NORMAL (0, "取关"),
 
     FOLLOW (1, "关注"),
 
@@ -26,5 +26,9 @@ public enum RelationEnums {
 
     public int value() {
         return this.value;
+    }
+
+    public String desc() {
+        return this.desc;
     }
 }

@@ -1,13 +1,12 @@
 package com.nsu.stu.meet.service;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
-import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.model.UserRelation;
-import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.model.dto.UserRelationDto;
-import com.nsu.stu.meet.model.enums.RelationEnums;
-import com.nsu.stu.meet.model.vo.LimitVo;
+import com.nsu.stu.meet.model.dto.user.FriendBaseDto;
+import com.nsu.stu.meet.model.dto.user.UserDto;
 
 import java.util.List;
 
@@ -35,6 +34,13 @@ public interface UserRelationService {
      * @return
      */
     List<Long> getFollowedUserIds (Long userId);
+
+    /**
+     * 互关id
+     * @param userId
+     * @return
+     */
+    List<Long> getFollowedEach(Long userId);
 
 
     /**
@@ -70,6 +76,5 @@ public interface UserRelationService {
      * 改变用户关系
      */
     ResponseEntity<String> changeStatus(UserRelationDto userRelationDto);
-
 
 }

@@ -10,7 +10,7 @@
         <result column="parent_id" property="parentId" />
         <result column="parent_user_id" property="parentUserId" />
         <result column="parent_user_nickname" property="parentUserNickname" />
-        <result column="parent_content" property="content" />
+        <result column="parent_content" property="parentContent" />
         <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="pic_urls" property="picUrls" />
         <result column="gmt_create" property="gmtCreate" />
@@ -19,12 +19,14 @@
         <result column="dislike_sum" property="dislikeSum" jdbcType="INTEGER" />
         <result column="star_sum" property="starSum" jdbcType="INTEGER" />
         <result column="comment_sum" property="commentSum" jdbcType="INTEGER" />
-        <association property="userBaseDto" javaType="com.nsu.stu.meet.model.dto.UserBaseDto">
+        <association property="userBase" javaType="com.nsu.stu.meet.model.dto.user.UserBaseDto">
             <result property="avatar"  column="avatar" />
             <result property="userId"  column="user_id" />
             <result property="nickname"  column="nickname" />
+            <result property="relation" column="relation"/>
         </association>
-        <association property="articleStatusDto" javaType="com.nsu.stu.meet.model.dto.ArticleStatusDto">
+        <association property="articleStatus" javaType="com.nsu.stu.meet.model.dto.ArticleStatusDto">
+            <result property="articleId"  column="status_article_id" />
             <result property="likeStatus"  column="like_status" />
             <result property="dislikeStatus"  column="dislike_status" />
             <result property="repostStatus"  column="repost_status" />
@@ -33,33 +35,40 @@
     </resultMap>
 
     <sql id="selectBase">
+        <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
+        <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
+        <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
+        <bind name="private" value="@com.nsu.stu.meet.model.enums.LimitEnums@PRIVATE.value"/>
         SELECT
             ma.* ,
             mu.avatar,
             mu.user_id,
             mu.nickname,
+            mur.status relation,
             ma2.content parent_content,
-            SUM( CASE WHEN mas.like_status = 1 THEN 1 ELSE 0 END ) AS like_sum,
-            SUM( CASE WHEN mas.dislike_status = 1 THEN 1 ELSE 0 END ) AS dislike_sum,
-            SUM( CASE WHEN mas.star_status = 1 THEN 1 ELSE 0 END ) AS star_sum,
-            SUM( CASE WHEN mas.repost_status = 1 THEN 1 ELSE 0 END ) AS repost_sum,
-            count( mc.comment_id ) AS comment_sum,
+            count( DISTINCT mas.article_status_id, mas.like_status = 1  OR NULL ) AS like_sum,
+            count( DISTINCT mas.article_status_id, mas.dislike_status = 1 OR NULL ) AS dislike_sum,
+            count( DISTINCT mas.article_status_id, mas.star_status = 1 OR NULL ) AS star_sum,
+            count( DISTINCT mas.article_status_id, mas.repost_status = 1 OR NULL ) AS repost_sum,
+            count( distinct mc.comment_id ) AS comment_sum,
             mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
         FROM
             mt_article ma
                 LEFT JOIN mt_article ma2 ON ma2.article_id = ma.parent_id
                 LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
-                LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id
+                LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id AND mas2.user_id = #{userId}
                 LEFT JOIN mt_comment mc ON mc.article_id = ma.article_id
-                AND mas2.user_id = #{userId}
                 LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+                LEFT JOIN mt_user_relation mur ON mur.src_id = #{userId} AND mur.dest_id = ma.user_id
     </sql>
     <select id="selectArticleByUserIdList" resultMap="articleMap">
-        <bind name="private" value="@com.nsu.stu.meet.model.enums.LimitEnums@PRIVATE.value"/>
         <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
         AND ma.limit_id <![CDATA[ <> ]]> #{private}
+        <if test="articleId != null">
+            AND ma.article_id <![CDATA[ < ]]> #{articleId}
+        </if>
         <choose>
             <when test="queryIdList.size > 0">
                 AND ma.user_id IN
@@ -79,20 +88,20 @@
                 </foreach>
             </when>
         </choose>
-        GROUP BY
-        ma.article_id
+
+        GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
         LIMIT #{start}, #{end}
     </select>
 
     <select id="selectArticleListLatest" resultMap="articleMap">
-        <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
-        <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
-        <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
         <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
+        <if test="articleId != null">
+            AND ma.article_id <![CDATA[ < ]]> #{articleId}
+        </if>
         <if test="blockList.size > 0">
             AND ma.user_id NOT IN
             <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
@@ -111,19 +120,19 @@
         </if>
             OR (ma.user_id = #{userId})
         )
-        GROUP BY
-        ma.article_id
+
+        GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
         LIMIT #{start}, #{end}
     </select>
     <select id="selectArticleListHot" resultMap="articleMap">
-        <bind name="block" value="@com.nsu.stu.meet.model.enums.RelationEnums@BLOCK.value"/>
-        <bind name="public" value="@com.nsu.stu.meet.model.enums.LimitEnums@PUBLIC.value"/>
-        <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
         <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
+        <if test="articleId != null">
+            AND ma.article_id <![CDATA[ < ]]> #{articleId}
+        </if>
         <if test="blockList.size > 0">
             AND ma.user_id NOT IN
             <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
@@ -141,10 +150,164 @@
             OR (ma.user_id = #{userId})
         </if>
         )
-        GROUP BY
-        ma.article_id
+        GROUP BY mas.article_id, ma.article_id
         ORDER BY
         like_sum DESC
+        LIMIT #{start}, #{end}
+    </select>
+
+    <select id="refreshArticleByUserIdList" resultMap="articleMap">
+        <include refid="selectBase" />
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.limit_id <![CDATA[ <> ]]> #{private}
+        <if test="articleId != null">
+            AND ma.article_id > #{articleId}
+        </if>
+        <choose>
+            <when test="queryIdList.size > 0">
+                AND ma.user_id IN
+                <foreach collection="queryIdList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="blockList.size > 0">
+                AND ma.user_id NOT IN
+                <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                    #{blockId}
+                </foreach>
+            </when>
+        </choose>
+
+        GROUP BY mas.article_id, ma.article_id
+        ORDER BY
+        ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+
+    <select id="refreshArticleListLatest" resultMap="articleMap">
+        <include refid="selectBase" />
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        <if test="articleId != null">
+            AND ma.article_id > #{articleId}
+        </if>
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+            ma.limit_id = #{follow} AND ma.user_id IN
+            <foreach collection="followList" item="followId" open="(" close=")" separator=",">
+                #{followId}
+            </foreach>
+            )
+        </if>
+        OR (ma.user_id = #{userId})
+        )
+        GROUP BY mas.article_id, ma.article_id
+        ORDER BY
+        ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="refreshArticleListHot" resultMap="articleMap">
+        <include refid="selectBase" />
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        <if test="articleId != null">
+            AND ma.article_id > #{articleId}
+        </if>
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+            ma.limit_id = #{follow} AND ma.user_id IN
+            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
+            </foreach>
+            )
+            OR (ma.user_id = #{userId})
+        </if>
+        )
+        GROUP BY mas.article_id, ma.article_id
+        ORDER BY
+        like_sum DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectArticleByUserId" resultMap="articleMap">
+        <include refid="selectBase" />
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.user_id = #{queryId}
+        <if test="articleId != null">
+            AND ma.article_id <![CDATA[ < ]]> #{articleId}
+        </if>
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+            ma.limit_id = #{follow} AND ma.user_id IN
+            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
+            </foreach>
+            )
+            OR (ma.user_id = #{userId})
+        </if>
+        )
+        GROUP BY mas.article_id, ma.article_id
+        ORDER BY
+        ma.gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="refreshArticleByUserId" resultMap="articleMap">
+        <include refid="selectBase" />
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        AND ma.user_id = #{queryId}
+        <if test="articleId != null">
+            AND ma.article_id > #{articleId}
+        </if>
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+            ma.limit_id = #{follow} AND ma.user_id IN
+            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
+            </foreach>
+            )
+            OR (ma.user_id = #{userId})
+        </if>
+        )
+        GROUP BY mas.article_id, ma.article_id
+        ORDER BY
+        ma.gmt_create DESC
         LIMIT #{start}, #{end}
     </select>
 </mapper>

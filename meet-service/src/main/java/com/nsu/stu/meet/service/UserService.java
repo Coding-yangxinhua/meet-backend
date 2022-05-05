@@ -4,8 +4,9 @@ package com.nsu.stu.meet.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.model.User;
-import com.nsu.stu.meet.model.dto.UserBaseDto;
-import com.nsu.stu.meet.model.dto.UserDto;
+import com.nsu.stu.meet.model.dto.user.FriendBaseDto;
+import com.nsu.stu.meet.model.dto.user.UserBaseDto;
+import com.nsu.stu.meet.model.dto.user.UserDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -19,14 +20,14 @@ public interface UserService extends CheckService{
      * @param type
      * @return
      */
-    ResponseEntity<String> registerByCode (UserDto userDto, String code, int type);
+    ResponseEntity<String> registerByCode (UserDto userDto, String code, int type, HttpServletResponse response);
 
     /**
      * 通过密码注册
      * @param userDto
      * @return
      */
-    ResponseEntity<String> registerByPassword (UserDto userDto);
+    ResponseEntity<String> registerByPassword (UserDto userDto, HttpServletResponse response);
 
     /**
      * 通过短信登录
@@ -63,21 +64,16 @@ public interface UserService extends CheckService{
 
     ResponseEntity<User> getInfo(Long queryUserId);
 
-    ResponseEntity<User> getSelfInfo();
-
     /**
-     * 关注用户的用户
+     * 用户关注数、被关注数、被点赞数和基础信息
      * @param userId
      * @return
      */
-    ResponseEntity<IPage<UserDto>> getFollowedUser(Long userId, int page, int size);
+    ResponseEntity<UserBaseDto> getUserBase(Long userId);
 
-    /**
-     * 用户关注的用户
-     * @param userId
-     * @return
-     */
-    ResponseEntity<IPage<UserDto>> getUserFollow(Long userId, int page, int size);
+    ResponseEntity<IPage<FriendBaseDto>> getFollowedUser(Long selfId, Long queryId, int page, int size);
+
+    ResponseEntity<IPage<FriendBaseDto>> getUserFollow(Long selfId, Long queryId, int page, int size);
 
     boolean checkExists(Long userId);
 

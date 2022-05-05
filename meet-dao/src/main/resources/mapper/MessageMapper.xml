@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nsu.stu.meet.dao.MessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.nsu.stu.meet.model.dto.MessageDto">
+            <id property="messageId" column="message_id" jdbcType="BIGINT"/>
+            <result property="srcId" column="src_id" jdbcType="BIGINT"/>
+            <result property="destId" column="dest_id" jdbcType="BIGINT"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="gmtCreate" column="gmt_create" jdbcType="BIGINT"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="BIGINT"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        message_id,src_id,dest_id,
+        content,status,gmt_create,
+        gmt_modified,is_deleted
+    </sql>
+    <select id="list" resultType="com.nsu.stu.meet.model.dto.MessageDto">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM mt_message
+        WHERE (src_id = #{srcId} AND dest_id = #{destId})
+        OR src_id = #{destId} AND dest_id = #{srcId}
+        ORDER BY gmt_create
+        Limit #{start}, #{end}
+    </select>
+</mapper>

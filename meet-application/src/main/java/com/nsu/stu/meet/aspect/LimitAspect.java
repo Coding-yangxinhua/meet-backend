@@ -5,6 +5,7 @@ import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.model.BaseModel;
+import com.nsu.stu.meet.model.CheckModel;
 import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.CheckService;
 import com.nsu.stu.meet.service.RelationLimitService;
@@ -51,10 +52,14 @@ public class LimitAspect {
         String targetName = joinPoint.getTarget().getClass().getName();
         Object obj = joinPoint.getArgs()[0];
         Long queryId = null;
+        if (obj == null) {
+            return joinPoint.proceed();
+        }
         if (obj.getClass().equals(Long.class)) {
             queryId = (Long) obj;
+
         } else {
-            queryId = ((BaseModel) obj).getQueryId();
+            queryId = ((CheckModel) obj).getQueryId();
         }
         LimitVo limitVo = null;
         Class targetClass = Class.forName(targetName);

@@ -8,4 +8,10 @@ import lombok.Setter;
 @Setter
 public class AlbumDto extends Album {
     private Integer total;
+
+    private String limitDesc ;
+
+    public String getLimitDesc() {
+        return getLimitId().desc();
+    }
 }

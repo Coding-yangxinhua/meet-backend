@@ -4,6 +4,7 @@ import com.nsu.stu.meet.annotation.Limit;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
+import com.nsu.stu.meet.common.enums.FriendEnums;
 import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.UserRelation;
 import com.nsu.stu.meet.model.dto.RelationLimitDto;
@@ -12,12 +13,10 @@ import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.service.RelationLimitService;
 import com.nsu.stu.meet.service.UserRelationService;
 import com.nsu.stu.meet.service.impl.UserServiceImpl;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -59,4 +58,6 @@ public class UserRelationController {
         }
         return userRelationService.changeStatus(userRelationDto);
     }
+
+
 }

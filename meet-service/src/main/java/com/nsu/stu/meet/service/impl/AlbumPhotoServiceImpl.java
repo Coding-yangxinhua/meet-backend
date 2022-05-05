@@ -20,6 +20,8 @@ import com.nsu.stu.meet.service.AlbumService;
 import com.tencentcloudapi.cms.v20190321.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -34,41 +36,28 @@ public class AlbumPhotoServiceImpl extends ServiceImpl<AlbumPhotoMapper, AlbumPh
     private AlbumService albumService;
 
     @Override
+    @Transactional
     public ResponseEntity<String> uploadBatch(Long albumId, MultipartFile[] files) {
         Long userId = JwtStorage.userId();
-        List<String> urls = cosUtil.upload(files);
-        List<AlbumPhoto> albumPhotos = url2AlbumPhoto(userId, albumId, urls);
         Album album = albumService.selectAlbumByIdAndUserId(albumId, userId);
         if (album == null) {
             return ResponseEntity.checkError(SystemConstants.ALBUM_NOT_EXISTS_ERROR);
+        }
+        List<String> urls = cosUtil.upload(files);
+        List<AlbumPhoto> albumPhotos = url2AlbumPhoto(userId, albumId, urls);
+        if(!StringUtils.hasText(album.getCover())) {
+            album.setCover(urls.get(0));
+            albumService.updateAlbum(album);
         }
         this.saveBatch(albumPhotos);
         return ResponseEntity.ok();
     }
 
     @Override
-    public ResponseEntity<IPage<AlbumPhotoDto>> listOther(Long userId, Long albumId, Integer page, Integer size) {
-        List<Long> albumIdList = albumService.selectAlbumListOther(userId).getResult().stream().map(Album::getAlbumId).collect(Collectors.toList());
-        if (albumIdList.size() == 0) {
-            return ResponseEntity.ok();
-        }
-        LambdaQueryWrapper<AlbumPhoto> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AlbumPhoto::getAlbumId, albumId).in(AlbumPhoto::getAlbumId, albumIdList);
-        IPage<AlbumPhoto> photoIPage = baseMapper.selectPage(new Page<>(page, size), queryWrapper);
-        List<AlbumPhotoDto> albumPhotoDtos = OwnUtil.covertL2L(photoIPage.getRecords(), AlbumPhotoDto.class);
-        IPage<AlbumPhotoDto> photoDtoIPage = OwnUtil.pageDtoCovert(photoIPage, AlbumPhotoDto.class);
-        return ResponseEntity.ok(photoDtoIPage);
-    }
-
-    @Override
-    public ResponseEntity<IPage<AlbumPhotoDto>> listSelf(Long albumId, Integer page, Integer size) {
-        Long tokenUserId = JwtStorage.userId();
-        LambdaQueryWrapper<AlbumPhoto> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AlbumPhoto::getUserId, tokenUserId).eq(AlbumPhoto::getAlbumId, albumId);
-        IPage<AlbumPhoto> photoIPage = this.page(new Page<>(page, size), queryWrapper);
-        IPage<AlbumPhotoDto> photoDtoIPage = OwnUtil.pageDtoCovert(photoIPage, AlbumPhotoDto.class);
-
-        return ResponseEntity.ok(photoDtoIPage);
+    public ResponseEntity<IPage<AlbumPhotoDto>> listByAlbumId(Long albumId, Long photoId, Integer page, Integer size) {
+        int start = (page - 1) * size;
+        List<AlbumPhotoDto> albumPhotoDtos = baseMapper.listByAlbumId(albumId, photoId, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(albumPhotoDtos, page, size));
     }
 
     @Override

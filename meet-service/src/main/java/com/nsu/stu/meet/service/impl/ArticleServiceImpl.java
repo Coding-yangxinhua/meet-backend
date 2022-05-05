@@ -45,10 +45,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Autowired
     StringRedisTemplate redisTemplate;
 
-    public ResponseEntity<String> createArticle (Long userId, Article album, MultipartFile[] files)  {
-        album.setUserId(userId);
-        List<String> urls = cosUtil.upload(files, 9);
-        album.setPicUrls(JSON.toJSONString(urls));
+    public ResponseEntity<String> createArticle (Long userId, Article article, MultipartFile[] files)  {
+        article.setUserId(userId);
+        List<String> urls = null;
+        if (files != null && files.length > 0) {
+            urls = cosUtil.upload(files, 9);
+        }
+        article.setPicUrls(JSON.toJSONString(urls));
+        this.save(article);
         return ResponseEntity.ok();
     }
 
@@ -69,30 +73,76 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public ResponseEntity<IPage<ArticleDto>> selectArticleByFollow(int page, int size) {
-        int start = page * size;
-        Long userId = JwtStorage.userId();
+    public ResponseEntity<IPage<ArticleDto>> selectArticleByFollow(Long userId, Long articleId, int page, int size) {
+        int start = (page - 1) * size;
         List<Long> followIds = userRelationService.getUserFollowIds(userId);
         List<Long> blockList = userRelationService.getBlockedEach(userId);
-        List<ArticleDto> articleDtos = baseMapper.selectArticleByUserIdList(userId, followIds, blockList, start, size + size);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleByUserIdList(userId, articleId, followIds, blockList, start, size + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
     }
 
     @Override
-    public ResponseEntity<IPage<ArticleDto>> selectArticleListLatest(Long userId, int page, int size) {
-        int start = page * size;
+    public ResponseEntity<IPage<ArticleDto>> selectArticleListLatest(Long userId, Long articleId, int page, int size) {
+        int start = (page - 1) * size;
         List<Long> blockList = userRelationService.getBlockedEach(userId);
         List<Long> followIds = userRelationService.getUserFollowIds(userId);
-        List<ArticleDto> articleDtos = baseMapper.selectArticleListLatest(userId, followIds, blockList, start, start + size);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleListLatest(userId, articleId, followIds, blockList, start, start + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
     }
 
     @Override
-    public ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, int page, int size) {
-        int start = page * size;
+    public ResponseEntity<IPage<ArticleDto>> selectArticleListHot(Long userId, Long articleId, int page, int size) {
+        int start = (page - 1) * size;
         List<Long> blockList = userRelationService.getBlockedEach(userId);
         List<Long> followIds = userRelationService.getUserFollowIds(userId);
-        List<ArticleDto> articleDtos = baseMapper.selectArticleListHot(userId, followIds, blockList, start, start + size);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleListHot(userId, articleId, followIds, blockList, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
+    }
+
+    @Override
+    public ResponseEntity<IPage<ArticleDto>> selectArticleByUserId(Long userId, Long queryId, Long articleId, int page, int size) {
+        Long selfId = JwtStorage.userId();
+        int start = (page - 1) * size;
+        List<Long> blockList = userRelationService.getBlockedEach(selfId);
+        List<Long> followIds = userRelationService.getUserFollowIds(selfId);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleByUserId(userId, queryId, articleId, followIds, blockList, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
+    }
+
+    @Override
+    public ResponseEntity<IPage<ArticleDto>> refreshArticleByFollow(Long userId, Long articleId, int page, int size) {
+        int start = (page - 1) * size;
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
+        List<ArticleDto> articleDtos = baseMapper.refreshArticleByUserIdList(userId, articleId, followIds, blockList, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
+    }
+
+    @Override
+    public ResponseEntity<IPage<ArticleDto>> refreshArticleListLatest(Long userId, Long articleId, int page, int size) {
+        int start = (page - 1) * size;
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
+        List<ArticleDto> articleDtos = baseMapper.refreshArticleListLatest(userId, articleId, followIds, blockList, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
+    }
+
+    @Override
+    public ResponseEntity<IPage<ArticleDto>> refreshArticleListHot(Long userId, Long articleId, int page, int size) {
+        int start = (page - 1) * size;
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
+        List<ArticleDto> articleDtos = baseMapper.refreshArticleListHot(userId, articleId, followIds, blockList, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
+    }
+
+    @Override
+    public ResponseEntity<IPage<ArticleDto>> refreshArticleByUserId(Long userId, Long queryId, Long articleId, int page, int size) {
+        Long selfId = JwtStorage.userId();
+        int start = (page - 1) * size;
+        List<Long> blockList = userRelationService.getBlockedEach(selfId);
+        List<Long> followIds = userRelationService.getUserFollowIds(selfId);
+        List<ArticleDto> articleDtos = baseMapper.refreshArticleByUserId(userId, queryId, articleId, followIds, blockList, start, start + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
     }
 

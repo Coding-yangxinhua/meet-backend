@@ -5,4 +5,15 @@
 <!-- namespace 写入 自己 dao 里的接口名称-->
 <mapper namespace="com.nsu.stu.meet.dao.AlbumPhotoMapper">
 
+    <select id="listByAlbumId" resultType="com.nsu.stu.meet.model.dto.AlbumPhotoDto">
+        SELECT album_photo_id, url, gmt_create
+        FROM mt_album_photo
+        WHERE album_id = #{albumId}
+        <if test="photoId != null">
+            AND album_photo_id <![CDATA[ < ]]> #{photoId}
+        </if>
+        AND is_deleted = ${NOT_DELETED}
+        ORDER BY gmt_create DESC
+        LIMIT #{start}, #{end}
+    </select>
 </mapper>

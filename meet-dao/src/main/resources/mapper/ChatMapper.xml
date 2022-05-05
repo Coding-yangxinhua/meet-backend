@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nsu.stu.meet.dao.ChatMapper">
+
+    <resultMap id="BaseResultMap" type="com.nsu.stu.meet.model.dto.ChatDto">
+            <id property="chatId" column="chat_id" jdbcType="BIGINT"/>
+            <result property="srcId" column="src_id" jdbcType="BIGINT"/>
+            <result property="destId" column="dest_id" jdbcType="BIGINT"/>
+            <result property="type" column="type" jdbcType="TINYINT"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="isTop" column="is_top" jdbcType="TINYINT"/>
+            <result property="isHide" column="is_hide" jdbcType="TINYINT"/>
+            <result property="gmtCreate" column="gmt_create" jdbcType="BIGINT"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="BIGINT"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+            <association property="user">
+                <result property="avatar"  column="avatar" />
+                <result property="userId"  column="user_id" />
+                <result property="nickname"  column="nickname" />
+            </association>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        SELECT
+            mc.*,
+            mu.avatar,
+            mu.user_id,
+            mu.nickname
+        FROM mt_chat mc
+
+    </sql>
+    <select id="list" resultMap="BaseResultMap">
+        <include refid="Base_Column_List" />
+        LEFT JOIN mt_user mu ON mu.user_id = mc.dest_id
+        WHERE mc.src_id = #{userId}
+        AND mc.is_deleted = ${NOT_DELETED}
+
+        UNION DISTINCT
+        <include refid="Base_Column_List" />
+        LEFT JOIN mt_user mu ON mu.user_id = mc.src_id
+        WHERE mc.dest_id = #{userId}
+        AND mc.is_deleted = ${NOT_DELETED}
+        ORDER BY gmt_modified DESC
+        LIMIT #{start}, #{end}
+    </select>
+
+</mapper>

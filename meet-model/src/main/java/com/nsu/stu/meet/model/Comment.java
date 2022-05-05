@@ -22,37 +22,36 @@ public class Comment extends BaseModel {
      * 评论id
      */
     @TableId(type = IdType.ASSIGN_ID)
-    @JsonFormat(shape= JsonFormat.Shape.STRING)
     private Long commentId;
 
     /**
-     * 根id
+     * 一级评论id
      */
-    private Long rootId;
+    private Long firstId;
 
     /**
-     * 评论父id
+     * 二级评论id
      */
-    @TableField(value = "`parent_id`")
-    private Long parentId;
+    private Long secondId;
 
+    /**
+     * 二级评论id
+     */
+    private Long replyUserId;
     /**
      * 评论的文章id
      */
-    @TableField(value = "`article_id`")
     private Long articleId;
 
     /**
      * 评论人id
      */
-    @TableField(value = "`user_id`")
     private Long userId;
 
     /**
      * 评论内容
      */
     @Length(max = 511)
-    @TableField(value = "`content`")
     private String content;
 
 

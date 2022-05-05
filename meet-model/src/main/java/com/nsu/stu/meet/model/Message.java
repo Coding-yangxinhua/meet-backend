@@ -21,7 +21,6 @@ public class Message extends BaseModel {
     @JsonFormat(shape= JsonFormat.Shape.STRING)
     private Long messageId;
 
-
     /**
      * 用户id
      */

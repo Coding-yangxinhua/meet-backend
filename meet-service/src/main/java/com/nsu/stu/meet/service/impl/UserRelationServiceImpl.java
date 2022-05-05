@@ -3,28 +3,23 @@ package com.nsu.stu.meet.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
 import com.nsu.stu.meet.common.enums.MybatisEnums;
-import com.nsu.stu.meet.common.enums.ResultStatus;
 import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.UserRelationMapper;
-import com.nsu.stu.meet.model.ArticleStatus;
-import com.nsu.stu.meet.model.RelationLimit;
 import com.nsu.stu.meet.model.UserRelation;
-import com.nsu.stu.meet.model.dto.UserDto;
 import com.nsu.stu.meet.model.dto.UserRelationDto;
+import com.nsu.stu.meet.model.dto.user.FriendBaseDto;
+import com.nsu.stu.meet.model.dto.user.UserDto;
 import com.nsu.stu.meet.model.enums.RelationEnums;
-import com.nsu.stu.meet.model.vo.LimitVo;
-import com.nsu.stu.meet.service.RelationLimitService;
 import com.nsu.stu.meet.service.UserRelationService;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -75,6 +70,14 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         String suffix = "followed";
         String userFollowedKey = OwnUtil.getRedisKey(this.key, suffix, userId);
         return this.getIdsByFunction(userId, userFollowedKey, RelationEnums.FOLLOW, UserRelation::getDestId, UserRelation::getSrcId);
+    }
+
+    @Override
+    public List<Long> getFollowedEach(Long userId) {
+        Set<Long> followSet = new HashSet<>();
+        followSet.addAll(this.getFollowedUserIds(userId));
+        followSet.retainAll(this.getUserFollowIds(userId));
+        return new ArrayList<>(followSet);
     }
 
     @Override
@@ -130,7 +133,7 @@ public class UserRelationServiceImpl extends ServiceImpl<UserRelationMapper, Use
         LambdaUpdateWrapper<UserRelation> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(UserRelation::getSrcId, userRelationDto.getSrcId()).eq(UserRelation::getDestId, userRelationDto.getDestId());
         this.saveOrUpdate(userRelationDto, updateWrapper);
-        return ResponseEntity.ok();
+        return ResponseEntity.ok(userRelationDto.getStatus().desc() + "成功");
     }
 
     public List<Long> getIdsByFunction(Long userId, String key, RelationEnums relationEnums, SFunction<UserRelation, Long> eqFunc, SFunction<UserRelation, Long> selectFunc) {

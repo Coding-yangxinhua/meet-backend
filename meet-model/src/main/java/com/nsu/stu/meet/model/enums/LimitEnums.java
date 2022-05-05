@@ -25,4 +25,8 @@ public enum LimitEnums {
     public Integer value() {
         return this.value;
     }
+
+    public String desc() {
+        return desc;
+    }
 }

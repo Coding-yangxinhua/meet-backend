@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.apache.ibatis.reflection.MetaObject;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -15,6 +18,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -55,29 +60,25 @@ public class MeetApplicationConfiguration {
 		return docket;
 	}
 
-//	@Bean
-//	@ConditionalOnMissingBean
-//	public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
-//		DataSourceTransactionManager manager = new DataSourceTransactionManager();
-//		manager.setDataSource(dataSource);
-//		return manager;
-//	}
+	/**
+	 * Long 转 String 防止雪花id精度丢失
+	 * @param builder
+	 * @return
+	 */
+	@Bean
+	@Primary
+	@ConditionalOnMissingBean(ObjectMapper.class)
+	public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder)
+	{
+		ObjectMapper objectMapper = builder.createXmlMapper(false).build();
 
-//	/**
-//	 * druid监控
-//	 */
-//	@Bean
-//	@ConditionalOnMissingBean
-//	public ServletRegistrationBean statViewServlet() {
-//		ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
-//		Map<String, String> initParams = new HashMap<>();
-//		initParams.put("loginApplicationname", "admin");
-//		initParams.put("loginPassword", "admin");
-//		initParams.put("allow", "");
-//		bean.setInitParameters(initParams);
-//		return bean;
-//	}
-
+		// 全局配置序列化返回 JSON 处理
+		SimpleModule simpleModule = new SimpleModule();
+		//JSON Long ==> String
+		simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
+		objectMapper.registerModule(simpleModule);
+		return objectMapper;
+	}
 
 	@Bean
 	@ConditionalOnMissingBean

@@ -11,8 +11,10 @@ import com.nsu.stu.meet.common.util.CosUtil;
 import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.AlbumMapper;
 import com.nsu.stu.meet.model.Album;
+import com.nsu.stu.meet.model.Article;
 import com.nsu.stu.meet.model.RelationLimit;
 import com.nsu.stu.meet.model.dto.AlbumDto;
+import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.AlbumService;
 import com.nsu.stu.meet.service.RelationLimitService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +84,11 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
         return ResponseEntity.ok(albumDtos);
     }
 
+    @Override
+    public void updateAlbum(Album album) {
+        this.updateById(album);
+    }
+
     private void setBaseNull(AlbumDto albumDto) {
         albumDto.setUserId(null);
         albumDto.setIsDeleted(null);
@@ -89,4 +96,18 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
         albumDto.setGmtModified(null);
     }
 
+    @Override
+    public LimitVo getLimitVo(Long queryId) {
+        // 获取文章实体
+        Album album = this.getById(queryId);
+        // 判空
+        if (album == null) {
+            return null;
+        }
+        // 文章所需权限
+        Integer limitId = album.getLimitId().value();
+        // 好友间关系对于权限
+        Long userId = album.getUserId();
+        return new LimitVo(userId, limitId);
+    }
 }

@@ -13,7 +13,5 @@ public interface AlbumPhotoService {
 
     ResponseEntity<String> deleteAlbumPhotoBatch (List<Long> albumIdList);
 
-    ResponseEntity<IPage<AlbumPhotoDto>> listOther(Long userId, Long albumId, Integer page, Integer size);
-
-    ResponseEntity<IPage<AlbumPhotoDto>> listSelf(Long albumId, Integer page, Integer size);
+    ResponseEntity<IPage<AlbumPhotoDto>> listByAlbumId(Long albumId, Long photoId, Integer page, Integer size);
 }

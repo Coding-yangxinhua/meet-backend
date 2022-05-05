@@ -37,7 +37,6 @@ public class AlbumPhoto extends BaseModel {
     /**
      * 相册封面
      */
-    @URL
     @TableField(value = "`url`")
     private String url;
 

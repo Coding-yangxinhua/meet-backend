@@ -4,48 +4,32 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace 写入 自己 dao 里的接口名称-->
 <mapper namespace="com.nsu.stu.meet.dao.UserMapper">
-    <select id="selectBaseFromUser" resultType="com.nsu.stu.meet.model.dto.UserDto">
-        SELECT user_id, nickname, avatar FROM mt_user
-        WHERE user_id = #{userId} AND is_deleted = ${NOT_DELETED}
-    </select>
-    <select id="getFollowedUser" resultType="com.nsu.stu.meet.model.dto.UserDto">
-        SELECT user_id, nickname, avatar, intro, user_id in
-        <choose>
-            <when test="userFollowIds.size > 0">
-                <foreach collection="userFollowIds" item="followId" open="(" close=")" separator=",">
-                    #{followId}
-                </foreach>
-            </when>
-            <otherwise>
-                (-1)
-            </otherwise>
-        </choose> as relationStatus
-        FROM mt_user
+    <select id="selectBaseFromUser" resultType="com.nsu.stu.meet.model.dto.user.UserBaseDto">
+        <bind name="followStatus" value="@com.nsu.stu.meet.model.enums.RelationEnums@FOLLOW.value()"/>
+        SELECT
+        mu.user_id,
+        mu.nickname,
+        mu.avatar,
+        mu.like_total,
+        COUNT( mur.src_id = #{userId}  OR NULL) AS followSum,
+        COUNT( mur.dest_id = #{userId}  OR NULL) AS fanSum
+        FROM
+        mt_user mu
+        LEFT JOIN mt_user_relation mur ON mur.`status` = #{followStatus}
         WHERE
-        <choose>
-            <when test="followedUserIds.size > 0">
-                user_id IN
-                <foreach collection="followedUserIds" item="followedUserId" open="(" close=")" separator=",">
-                    #{followedUserId}
-                </foreach>
-            </when>
-            <otherwise>
-                1 = 0
-            </otherwise>
-        </choose>
-        AND is_deleted = ${NOT_DELETED}
-        LIMIT #{start}, #{end}
+        mu.user_id = #{userId}
+        AND mu.is_deleted = ${NOT_DELETED}
     </select>
 
-    <select id="getUserFollow" resultType="com.nsu.stu.meet.model.dto.UserDto">
+    <select id="getFriendBaseByIds" resultType="com.nsu.stu.meet.model.dto.user.FriendBaseDto">
         SELECT user_id, nickname, avatar, intro
         FROM mt_user
         WHERE
         <choose>
-            <when test="userFollowIds.size > 0">
+            <when test="queryIds.size > 0">
                 user_id IN
-                <foreach collection="userFollowIds" item="userFollowId" open="(" close=")" separator=",">
-                    #{userFollowId}
+                <foreach collection="queryIds" item="queryId" open="(" close=")" separator=",">
+                    #{queryId}
                 </foreach>
             </when>
             <otherwise>
@@ -53,6 +37,8 @@
             </otherwise>
         </choose>
         AND is_deleted = ${NOT_DELETED}
+        ORDER BY gmt_create DESC
         LIMIT #{start}, #{end}
+
     </select>
 </mapper>

@@ -20,7 +20,7 @@ public class ArticleStatusController {
     private ArticleStatusService articleStatusService;
 
     @Limit(clazz = ArticleServiceImpl.class)
-    @RequestMapping(value = "/changeStatus", method = RequestMethod.POST, params = {"articleId"})
+    @RequestMapping(value = "/changeStatus", method = RequestMethod.POST)
     public ResponseEntity<String> changeStatus(@RequestBody ArticleStatusDto articleStatusDto) {
         Long userId = JwtStorage.userId();
         articleStatusDto.setUserId(userId);

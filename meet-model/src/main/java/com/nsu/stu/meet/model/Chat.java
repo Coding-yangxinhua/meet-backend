@@ -40,6 +40,12 @@ public class Chat extends BaseModel {
     private Integer type;
 
     /**
+     * 最新消息
+     */
+    @TableField(value = "`content`")
+    private String content;
+
+    /**
      * 状态 0-正常接收 1-接收不提醒 2-屏蔽
      */
     @TableField(value = "`status`")

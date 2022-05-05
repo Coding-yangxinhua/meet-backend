@@ -3,7 +3,8 @@ package com.nsu.stu.meet.common.enums;
 public enum ArticleTypeEnums {
     NEW(0, "最新"),
     HOT(1, "热门"),
-    FOLLOW(2, "关注");
+    FOLLOW(2, "关注"),
+    POINT (3, "指定用户");
 
 
     private final int value;

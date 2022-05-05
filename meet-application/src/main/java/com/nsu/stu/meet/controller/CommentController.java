@@ -5,11 +5,9 @@ import com.nsu.stu.meet.annotation.Limit;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.enums.OrderEnums;
-import com.nsu.stu.meet.model.dto.CommentDto;
-import com.nsu.stu.meet.service.CommentService;
+import com.nsu.stu.meet.model.dto.comment.CommentDto;
 import com.nsu.stu.meet.service.CommentService;
 import com.nsu.stu.meet.service.impl.ArticleServiceImpl;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,10 +36,21 @@ public class CommentController {
         return null;
     }
 
-    @Limit(clazz = ArticleServiceImpl.class)
     @RequestMapping(value = "/listRoot", method = RequestMethod.GET, params = {"articleId", "order", "page", "size"})
     public ResponseEntity<IPage<CommentDto>> listRoot(Long articleId, Integer order, Integer page, Integer size) {
         Long userId = JwtStorage.userId();
-        return commentService.selectCommentList(articleId, userId, OrderEnums.lookUp(order), page, size);
+        return commentService.selectCommentRoot(articleId, userId, OrderEnums.lookUp(order), page, size);
+    }
+
+    @RequestMapping(value = "/listChildren", method = RequestMethod.GET, params = {"firstId", "page", "size"})
+    public ResponseEntity<List<CommentDto>> listChildren(Long firstId, @RequestParam(value = "commentId", required = false) Long commentId, Integer page, Integer size) {
+        Long userId = JwtStorage.userId();
+        return commentService.selectCommentChildren(firstId, userId, commentId, page, size);
+    }
+
+    @RequestMapping(value = "/listSecond", method = RequestMethod.GET, params = {"secondId", "page", "size"})
+    public ResponseEntity<List<CommentDto>> listSecond(Long secondId, @RequestParam(value = "commentId", required = false) Long commentId, Integer page, Integer size) {
+        Long userId = JwtStorage.userId();
+        return commentService.selectCommentSecond(secondId, userId, commentId, page, size);
     }
 }

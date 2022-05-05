@@ -13,13 +13,16 @@ import com.nsu.stu.meet.common.enums.SmsEnums;
 import com.nsu.stu.meet.common.util.*;
 import com.nsu.stu.meet.dao.UserMapper;
 import com.nsu.stu.meet.model.User;
-import com.nsu.stu.meet.model.dto.UserBaseDto;
-import com.nsu.stu.meet.model.dto.UserDto;
+import com.nsu.stu.meet.model.dto.user.FriendBaseDto;
+import com.nsu.stu.meet.model.dto.user.UserBaseDto;
+import com.nsu.stu.meet.model.dto.user.UserDto;
+import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserRelationService;
 import com.nsu.stu.meet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +30,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -42,10 +49,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private SsoConfig ssoConfig;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    private final static String USER_KEY = "user";
+
 
 
     @Override
-    public ResponseEntity<String> registerByPassword(UserDto userDto) {
+    public ResponseEntity<String> registerByPassword(UserDto userDto, HttpServletResponse response) {
         // 提取出密码
         String password = userDto.getPassword();
         String mobile = userDto.getMobile();
@@ -54,7 +66,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return ResponseEntity.checkError(SystemConstants.MOBILE_ERROR);
         }
         // 密码校验
-        if (ValidateUtil.isPassword(password)) {
+        if (!ValidateUtil.isPassword(password)) {
             return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
         }
         // 根据手机号查询账号是否存在
@@ -74,11 +86,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         baseMapper.insert(userDto);
         // 注册成功
         // 生成token
-        return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, SsoUtil.login(userDto.getUserId()));
+        String token = SsoUtil.login(userDto.getUserId());
+        setTokenToCookies (token, response);
+        return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
     }
 
     @Override
-    public ResponseEntity<String> registerByCode(UserDto userDto, String code, int type) {
+    public ResponseEntity<String> registerByCode(UserDto userDto, String code, int type, HttpServletResponse response) {
         // 获取手机号
         String mobile = userDto.getMobile();
         // 检测手机号格式
@@ -99,7 +113,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 屏蔽基础信息
             this.setBaseNull(userDto);
             baseMapper.insert(userDto);
-            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, SsoUtil.login(userDto.getUserId()));
+            String token = SsoUtil.login(userDto.getUserId());
+            setTokenToCookies(token, response);
+            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS);
         }
         return ResponseEntity.checkError(SystemConstants.CODE_ERROR);
     }
@@ -137,10 +153,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!ValidateUtil.isMobile(mobile)) {
             return ResponseEntity.checkError(SystemConstants.MOBILE_ERROR);
         }
-        // 密码校验
-        if (ValidateUtil.isPassword(password)) {
-            return ResponseEntity.checkError(SystemConstants.PASSWORD_LENGTH_ERROR);
-        }
         // 根据md5加密密码
         String md5Password = MD5Util.md5Password(password);
         // 根据手机号查询账号是否存在
@@ -149,10 +161,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return ResponseEntity.checkError(SystemConstants.USER_NOT_EXIST);
         }
         // 密码正确
-        if (md5Password.equals(userDto.getPassword())) {
+        if (md5Password.equals(user.getPassword())) {
             String token = SsoUtil.login(user.getUserId());
             setTokenToCookies (token, response);
-            return ResponseEntity.ok(SystemConstants.REGISTER_SUCCESS, OwnUtil.entity2Dto(user, UserBaseDto.class));
+            return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS, OwnUtil.entity2Dto(user, UserBaseDto.class));
 
         }
         return ResponseEntity.checkError(SystemConstants.PASSWORD_ERROR);
@@ -221,26 +233,63 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResponseEntity<User> getSelfInfo() {
-        Long tokenUserId = JwtStorage.userId();
-        User user = baseMapper.selectById(tokenUserId);
-        user.setPassword(null);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<IPage<FriendBaseDto>> getFollowedUser(Long selfId, Long queryId, int page, int size) {
+        // 查询自己关注列表
+        Set<Long> selfFollowIds = new HashSet<>(relationService.getUserFollowIds(selfId));
+        Set<Long> selFanIds = new HashSet<>(relationService.getFollowedUserIds(selfId));
+        // 查询待查询用户粉丝列表
+        List<Long> queryFanIds = relationService.getFollowedUserIds(queryId);
+
+        List<FriendBaseDto> friendBaseByIds = baseMapper.getFriendBaseByIds(queryFanIds, (page - 1) * size, page * size + size);
+        friendBaseByIds.forEach(friendBaseDto -> {
+            friendBaseDto.setIsFan(selFanIds.contains(friendBaseDto.getUserId()));
+            friendBaseDto.setIsFollow(selfFollowIds.contains(friendBaseDto.getUserId()));
+        });
+        return ResponseEntity.ok(OwnUtil.records2Page(friendBaseByIds, page, size));
     }
 
     @Override
-    public ResponseEntity<IPage<UserDto>> getFollowedUser(Long userId, int page, int size) {
-        List<Long> followedUserIds = relationService.getFollowedUserIds(userId);
-        List<Long> userFollowIds = relationService.getUserFollowIds(userId);
-        List<UserDto> followedUser = baseMapper.getFollowedUser(userFollowIds, followedUserIds, (page - 1) * size, page * size + size);
-        return ResponseEntity.ok(OwnUtil.records2Page(followedUser, page, size));
+    public ResponseEntity<IPage<FriendBaseDto>> getUserFollow(Long selfId, Long queryId, int page, int size) {
+        // 查询自己关注列表
+        Set<Long> selfFollowIds = new HashSet<>(relationService.getUserFollowIds(selfId));
+        Set<Long> selFanIds = new HashSet<>(relationService.getFollowedUserIds(selfId));
+        // 查询待查询用户粉丝列表
+        List<Long> queryFollowIds = relationService.getUserFollowIds(queryId);
+
+        List<FriendBaseDto> friendBaseByIds = baseMapper.getFriendBaseByIds(queryFollowIds, (page - 1) * size, page * size + size);
+        friendBaseByIds.forEach(friendBaseDto -> {
+            friendBaseDto.setIsFan(selFanIds.contains(friendBaseDto.getUserId()));
+            friendBaseDto.setIsFollow(selfFollowIds.contains(friendBaseDto.getUserId()));
+        });
+        return ResponseEntity.ok(OwnUtil.records2Page(friendBaseByIds, page, size));
     }
 
     @Override
-    public ResponseEntity<IPage<UserDto>> getUserFollow(Long userId, int page, int size) {
-        List<Long> userFollowIds = relationService.getUserFollowIds(userId);
-        List<UserDto> userFollow = baseMapper.getUserFollow(userFollowIds, (page - 1) * size, page * size + size);
-        return ResponseEntity.ok(OwnUtil.records2Page(userFollow, page, size));
+    public ResponseEntity<UserBaseDto> getUserBase(Long userId) {
+        Long selfId = JwtStorage.userId();
+        // 查询自己关注列表
+        Set<Long> selfFollowIds = new HashSet<>(relationService.getUserFollowIds(selfId));
+        Set<Long> selFanIds = new HashSet<>(relationService.getFollowedUserIds(selfId));
+        // 查询待查询用户粉丝列表
+        List<Long> queryFollowIds = relationService.getUserFollowIds(userId);
+
+        UserBaseDto userBaseDto = baseMapper.selectBaseFromUser(userId);
+
+        userBaseDto.setIsFan(selFanIds.contains(userBaseDto.getUserId()));
+        userBaseDto.setIsFollow(selfFollowIds.contains(userBaseDto.getUserId()));
+        userBaseDto.setIsSelf(Objects.equals(selfId, userId));
+        String key = OwnUtil.getRedisKey(USER_KEY, userId, "LIKE_TOTAL");
+        String likeTotalS = redisTemplate.opsForValue().get(key);
+        Integer likeTotal = userBaseDto.getLikeTotal();
+        if (likeTotal == null) {
+            likeTotal = 0;
+        }
+        if (likeTotalS != null) {
+            userBaseDto.setLikeTotal(Integer.parseInt(likeTotalS));
+        } else {
+            redisTemplate.opsForValue().set(key, String.valueOf(likeTotal));
+        }
+        return ResponseEntity.ok(userBaseDto);
     }
 
     @Override

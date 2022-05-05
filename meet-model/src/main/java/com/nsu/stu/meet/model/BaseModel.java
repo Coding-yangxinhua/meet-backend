@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class BaseModel implements Serializable {
+public class BaseModel extends CheckModel {
 
     /**
      * 创建时间
@@ -32,6 +32,7 @@ public class BaseModel implements Serializable {
     @TableField(value = "`is_deleted`", fill = FieldFill.INSERT)
     private Integer isDeleted;
 
+    @JsonIgnore
     public Long getQueryId() {
         return null;
     }

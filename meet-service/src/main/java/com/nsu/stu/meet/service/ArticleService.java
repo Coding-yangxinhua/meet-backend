@@ -44,6 +44,11 @@ public interface ArticleService extends CheckService{
      */
     ResponseEntity<IPage<ArticleDto>> selectArticleByUserId (Long userId, Long queryId, Long articleId, int page, int size);
 
+    /*
+     * 加载用户浏览记录
+     */
+    ResponseEntity<IPage<ArticleDto>> selectArticleByHistory (Long userId, int page, int size);
+
     ResponseEntity<IPage<ArticleDto>> refreshArticleByFollow (Long userId, Long articleId, int page, int size);
 
     ResponseEntity<IPage<ArticleDto>> refreshArticleListLatest (Long userId, Long articleId, int page, int size);
@@ -57,5 +62,6 @@ public interface ArticleService extends CheckService{
 
     Long selectUserIdByArticle(Long articleId);
 
-    Article selectByArticleId(Long articleId);
+    Article selectById(Long articleId);
+    ResponseEntity<ArticleDto> selectByArticleId(Long userId, Long articleId);
 }

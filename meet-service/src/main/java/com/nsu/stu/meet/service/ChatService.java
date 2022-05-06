@@ -6,6 +6,8 @@ import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.model.Chat;
 import com.nsu.stu.meet.model.dto.ChatDto;
 
+import java.util.List;
+
 /**
 * @author Xinhua X Yang
 * @description 针对表【mt_chat】的数据库操作Service
@@ -13,5 +15,10 @@ import com.nsu.stu.meet.model.dto.ChatDto;
 */
 public interface ChatService extends IService<Chat> {
     ResponseEntity<IPage<ChatDto>> list(Long userId, Integer page, Integer size);
+
+    Chat getChatBySrcAndDest(Long srcId, Long destId);
+
+    void createOrUpdateChat(List<Chat> chats);
+
 
 }

@@ -25,8 +25,8 @@
         <include refid="Base_Column_List" />
         FROM mt_message
         WHERE (src_id = #{srcId} AND dest_id = #{destId})
-        OR src_id = #{destId} AND dest_id = #{srcId}
-        ORDER BY gmt_create
+        OR (src_id = #{destId} AND dest_id = #{srcId})
+        ORDER BY gmt_create DESC
         Limit #{start}, #{end}
     </select>
 </mapper>

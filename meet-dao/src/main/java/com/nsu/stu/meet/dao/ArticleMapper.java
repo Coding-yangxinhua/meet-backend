@@ -31,4 +31,7 @@ public interface ArticleMapper extends BaseMapper<Article>{
 
     List<ArticleDto> refreshArticleByUserId (@Param("userId") Long userId, @Param("queryId") Long queryId, @Param("articleId") Long articleId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
 
+    List<ArticleDto> selectArticleByHistory(@Param("userId") Long userId, @Param("followList") List<Long> followList, @Param("blockList") List<Long> blockList, @Param("start") int start, @Param("end") int end);
+
+    ArticleDto selectArticleById(@Param("userId") Long userId, @Param("articleId") Long articleId);
 }

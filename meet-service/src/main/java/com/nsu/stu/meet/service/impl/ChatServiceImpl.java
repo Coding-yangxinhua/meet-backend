@@ -1,10 +1,12 @@
 package com.nsu.stu.meet.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.ResponseEntity;
+import com.nsu.stu.meet.common.enums.ChatEnums;
 import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.ChatMapper;
 import com.nsu.stu.meet.model.Chat;
@@ -28,6 +30,26 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         int end = start + size;
         List<ChatDto> list = baseMapper.list(userId, start, end);
         return ResponseEntity.ok(OwnUtil.records2Page(list, page, size));
+    }
+
+    @Override
+    public Chat getChatBySrcAndDest(Long srcId, Long destId) {
+        LambdaQueryWrapper<Chat> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Chat::getSrcId, srcId).eq(Chat::getDestId, destId);
+        return baseMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void createOrUpdateChat(List<Chat> chats) {
+        chats.forEach(chat -> {
+            if (chat.getChatId() == null) {
+                chat.setIsTop(0);
+                chat.setIsHide(0);
+                chat.setStatus(ChatEnums.NORMAL.value());
+                chat.setType(0);
+            }
+        });
+        this.saveOrUpdateBatch(chats);
     }
 }
 

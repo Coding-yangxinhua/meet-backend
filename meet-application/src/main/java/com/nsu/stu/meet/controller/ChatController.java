@@ -24,27 +24,13 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
 
     @Autowired
-    public SimpMessagingTemplate template;
-
-    @Autowired
     public ChatService chatService;
-
-    @ResponseBody
-    @RequestMapping(value = "/pushToAll", method = RequestMethod.POST)
-    public void pushToAll( @RequestBody Message msg) {
-        template.convertAndSend("/topic/all", msg);
-    }
-
-    @ResponseBody
-    @MessageMapping("/alone")
-    @RequestMapping(value = "/pushToOne", method = RequestMethod.POST)
-    public void pushToOne( @RequestBody Message msg) {
-        template.convertAndSendToUser(msg.getDestId().toString(), "/message", msg);
-    }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"page", "size"})
     public ResponseEntity<IPage<ChatDto>> list(int page, int size) {
         Long userId = JwtStorage.userId();
         return chatService.list(userId, page, size);
     }
+
+
 }

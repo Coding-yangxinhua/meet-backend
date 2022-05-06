@@ -9,6 +9,7 @@ import com.nsu.stu.meet.common.enums.ArticleTypeEnums;
 import com.nsu.stu.meet.model.Article;
 import com.nsu.stu.meet.model.dto.ArticleDto;
 import com.nsu.stu.meet.service.AlbumService;
+import com.nsu.stu.meet.service.ArticleHistoryService;
 import com.nsu.stu.meet.service.ArticleService;
 import io.swagger.util.Json;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class ArticleController {
     @Autowired
     private ArticleService articleService;
 
+    @Autowired
+    private ArticleHistoryService articleHistoryService;
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ResponseEntity<String> deleteBatch(@RequestBody List<Long> articleList) {
         Long userId = JwtStorage.userId();
@@ -100,4 +103,19 @@ public class ArticleController {
         return articleService.refreshArticleByUserId(userId, queryId, articleId, page, size);
     }
 
+
+    @RequestMapping(value = "/list/history", method = RequestMethod.GET, params = {"page", "size"})
+    public ResponseEntity<IPage<ArticleDto>> listHistory(int page, int size) {
+        Long userId = JwtStorage.userId();
+        return articleService.selectArticleByHistory(userId, page, size);
+
+    }
+
+    @RequestMapping(value = "/detail", method = RequestMethod.GET, params = {"articleId"})
+    public ResponseEntity<ArticleDto> articleDetail(Long articleId) {
+        Long userId = JwtStorage.userId();
+        articleHistoryService.setArticleHistory(userId, articleId);
+        return articleService.selectByArticleId(userId, articleId);
+
+    }
 }

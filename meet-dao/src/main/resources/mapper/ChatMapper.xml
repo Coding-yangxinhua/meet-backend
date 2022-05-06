@@ -37,12 +37,6 @@
         LEFT JOIN mt_user mu ON mu.user_id = mc.dest_id
         WHERE mc.src_id = #{userId}
         AND mc.is_deleted = ${NOT_DELETED}
-
-        UNION DISTINCT
-        <include refid="Base_Column_List" />
-        LEFT JOIN mt_user mu ON mu.user_id = mc.src_id
-        WHERE mc.dest_id = #{userId}
-        AND mc.is_deleted = ${NOT_DELETED}
         ORDER BY gmt_modified DESC
         LIMIT #{start}, #{end}
     </select>

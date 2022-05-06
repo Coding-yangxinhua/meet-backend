@@ -310,4 +310,57 @@
         ma.gmt_create DESC
         LIMIT #{start}, #{end}
     </select>
+    <select id="selectArticleByHistory" resultMap="articleMap">
+        <include refid="selectBase" />
+        INNER JOIN mt_article_history mah ON mah.user_id = #{userId} AND mah.article_id = ma.article_id
+        WHERE
+        ma.is_deleted = ${NOT_DELETED}
+        <if test="blockList.size > 0">
+            AND ma.user_id NOT IN
+            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
+                #{blockId}
+            </foreach>
+        </if>
+        AND (
+        ma.limit_id = #{public}
+        <if test="followList.size > 0">
+            OR (
+            ma.limit_id = #{follow} AND ma.user_id IN
+            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
+            </foreach>
+            )
+            OR (ma.user_id = #{userId})
+        </if>
+        )
+        GROUP BY mas.article_id, ma.article_id
+        ORDER BY
+        mah.gmt_modified DESC
+        LIMIT #{start}, #{end}
+    </select>
+    <select id="selectArticleById" resultMap="articleMap">
+        SELECT
+            ma.* ,
+            mu.avatar,
+            mu.user_id,
+            mu.nickname,
+            mur.status relation,
+            ma2.content parent_content,
+            count( DISTINCT mas.article_status_id, mas.like_status = 1  OR NULL ) AS like_sum,
+            count( DISTINCT mas.article_status_id, mas.dislike_status = 1 OR NULL ) AS dislike_sum,
+            count( DISTINCT mas.article_status_id, mas.star_status = 1 OR NULL ) AS star_sum,
+            count( DISTINCT mas.article_status_id, mas.repost_status = 1 OR NULL ) AS repost_sum,
+            count( DISTINCT mc.comment_id ) AS comment_sum,
+            mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
+        FROM
+            mt_article ma
+                LEFT JOIN mt_article ma2 ON ma2.article_id = ma.parent_id
+                LEFT JOIN mt_article_status mas ON mas.article_id = ma.article_id
+                LEFT JOIN mt_article_status mas2 ON mas2.article_id = ma.article_id AND mas2.user_id = #{userId}
+                LEFT JOIN mt_comment mc ON mc.article_id = ma.article_id
+                LEFT JOIN mt_user mu ON mu.user_id = ma.user_id
+                LEFT JOIN mt_user_relation mur ON mur.src_id = #{userId} AND mur.dest_id = ma.user_id
+        WHERE
+        ma.article_id = #{articleId}
+        AND ma.is_deleted = ${NOT_DELETED}
+    </select>
 </mapper>

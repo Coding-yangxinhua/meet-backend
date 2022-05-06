@@ -14,13 +14,11 @@ import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.ArticleMapper;
 import com.nsu.stu.meet.dao.ArticleStatusMapper;
 import com.nsu.stu.meet.model.Article;
+import com.nsu.stu.meet.model.ArticleHistory;
 import com.nsu.stu.meet.model.ArticleStatus;
 import com.nsu.stu.meet.model.dto.ArticleDto;
 import com.nsu.stu.meet.model.vo.LimitVo;
-import com.nsu.stu.meet.service.ArticleService;
-import com.nsu.stu.meet.service.CheckService;
-import com.nsu.stu.meet.service.RelationLimitService;
-import com.nsu.stu.meet.service.UserRelationService;
+import com.nsu.stu.meet.service.*;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -110,6 +108,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
+    public ResponseEntity<IPage<ArticleDto>> selectArticleByHistory(Long userId, int page, int size) {
+        int start = (page - 1) * size;
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
+        List<ArticleDto> articleDtos = baseMapper.selectArticleByHistory(userId, followIds, blockList, start, start + size);
+        return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
+    }
+
+    @Override
     public ResponseEntity<IPage<ArticleDto>> refreshArticleByFollow(Long userId, Long articleId, int page, int size) {
         int start = (page - 1) * size;
         List<Long> blockList = userRelationService.getBlockedEach(userId);
@@ -156,9 +163,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public Article selectByArticleId(Long articleId) {
-        return baseMapper.selectById(articleId);
+    public Article selectById(Long articleId) {
+        return this.getById(articleId);
     }
+
+    @Override
+    public ResponseEntity<ArticleDto> selectByArticleId(Long userId, Long articleId) {
+        return ResponseEntity.ok(baseMapper.selectArticleById(userId, articleId));
+    }
+
+
 
     @Override
     public LimitVo getLimitVo(Long queryId) {

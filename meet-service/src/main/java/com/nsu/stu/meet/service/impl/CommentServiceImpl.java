@@ -126,7 +126,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Override
     public LimitVo getLimitVo(Long queryId) {
         // 获取文章实体
-        Article article = articleService.selectByArticleId(queryId);
+        Article article = articleService.selectById(queryId);
         if (article == null) {
             return null;
         }

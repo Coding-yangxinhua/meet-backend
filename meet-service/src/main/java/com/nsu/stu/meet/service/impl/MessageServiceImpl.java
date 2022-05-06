@@ -28,6 +28,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
         List<MessageDto> list = baseMapper.list(srcId, destId, start, end);
         return ResponseEntity.ok(OwnUtil.records2Page(list, page, size));
     }
+
 }
 
 

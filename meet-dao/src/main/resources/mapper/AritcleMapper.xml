@@ -65,7 +65,7 @@
         <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
-        AND ma.limit_id <![CDATA[ <> ]]> #{private}
+        
         <if test="articleId != null">
             AND ma.article_id <![CDATA[ < ]]> #{articleId}
         </if>
@@ -110,6 +110,7 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
                 ma.limit_id = #{follow} AND ma.user_id IN
@@ -118,7 +119,7 @@
                 </foreach>
                 )
         </if>
-            OR (ma.user_id = #{userId})
+            OR ma.user_id = #{userId}
         )
 
         GROUP BY mas.article_id, ma.article_id
@@ -141,14 +142,15 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
             ma.limit_id = #{follow} AND ma.user_id IN
             <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
             </foreach>
             )
-            OR (ma.user_id = #{userId})
         </if>
+        OR (ma.user_id = #{userId})
         )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
@@ -160,7 +162,7 @@
         <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
-        AND ma.limit_id <![CDATA[ <> ]]> #{private}
+        
         <if test="articleId != null">
             AND ma.article_id > #{articleId}
         </if>
@@ -205,6 +207,7 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
             ma.limit_id = #{follow} AND ma.user_id IN
@@ -235,14 +238,15 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
             ma.limit_id = #{follow} AND ma.user_id IN
             <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
             </foreach>
             )
-            OR (ma.user_id = #{userId})
         </if>
+        OR (ma.user_id = #{userId})
         )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
@@ -266,14 +270,15 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
             ma.limit_id = #{follow} AND ma.user_id IN
             <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
             </foreach>
             )
-            OR (ma.user_id = #{userId})
         </if>
+        OR #{queryId} = #{userId}
         )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
@@ -296,14 +301,16 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
             ma.limit_id = #{follow} AND ma.user_id IN
             <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
             </foreach>
             )
-            OR (ma.user_id = #{userId})
+
         </if>
+        OR (ma.user_id = #{userId})
         )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
@@ -323,14 +330,16 @@
         </if>
         AND (
         ma.limit_id = #{public}
+        
         <if test="followList.size > 0">
             OR (
             ma.limit_id = #{follow} AND ma.user_id IN
             <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
             </foreach>
             )
-            OR (ma.user_id = #{userId})
+
         </if>
+        OR (ma.user_id = #{userId})
         )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY

@@ -99,10 +99,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public ResponseEntity<IPage<ArticleDto>> selectArticleByUserId(Long userId, Long queryId, Long articleId, int page, int size) {
-        Long selfId = JwtStorage.userId();
         int start = (page - 1) * size;
-        List<Long> blockList = userRelationService.getBlockedEach(selfId);
-        List<Long> followIds = userRelationService.getUserFollowIds(selfId);
+        List<Long> blockList = userRelationService.getBlockedEach(userId);
+        List<Long> followIds = userRelationService.getUserFollowIds(userId);
         List<ArticleDto> articleDtos = baseMapper.selectArticleByUserId(userId, queryId, articleId, followIds, blockList, start, start + size);
         return ResponseEntity.ok(OwnUtil.records2Page(articleDtos, page, size));
     }

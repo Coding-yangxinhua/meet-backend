@@ -18,6 +18,7 @@ public class OwnUtil {
             add(".jpeg");
             add(".jpg");
             add(".png");
+            add(".webp");
         }
     };
 

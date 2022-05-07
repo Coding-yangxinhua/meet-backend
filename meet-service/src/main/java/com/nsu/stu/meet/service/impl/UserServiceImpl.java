@@ -306,7 +306,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userDto.setUserId(userId);
         userDto.setAvatar(null);
         userDto.setPassword(null);
-        userDto.setMobile(null);
         userDto.setIsDeleted(null);
     }
 

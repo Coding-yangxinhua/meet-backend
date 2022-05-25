@@ -38,26 +38,26 @@
 <!--            <artifactId>mybatis-plus-boot-starter</artifactId>-->
 <!--        </dependency>-->
 <!--    </dependencies>-->
-    <build>
-        <defaultGoal>compile</defaultGoal>
-        <finalName>meet-job</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin </artifactId>
-                <configuration>
-                    <fork>true</fork>
-                    <mainClass>com.nsu.stu.meet.job.MeetJobApplication</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+<!--    <build>-->
+<!--        <defaultGoal>compile</defaultGoal>-->
+<!--        <finalName>meet-job</finalName>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin </artifactId>-->
+<!--                <configuration>-->
+<!--                    <fork>true</fork>-->
+<!--                    <mainClass>com.nsu.stu.meet.job.MeetJobApplication</mainClass>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 
 </project>

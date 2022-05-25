@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nsu.stu.meet.dao.CommentStatusMapper">
+
+    <resultMap id="BaseResultMap" type="com.nsu.stu.meet.model.dto.CommentStatusDto">
+            <id property="commentStatusId" column="comment_status_id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="commentId" column="comment_id" jdbcType="BIGINT"/>
+            <result property="likeStatus" column="like_status" jdbcType="TINYINT"/>
+            <result property="dislikeStatus" column="dislike_status" jdbcType="TINYINT"/>
+            <result property="repostStatus" column="repost_status" jdbcType="TINYINT"/>
+            <result property="gmtCreate" column="gmt_create" jdbcType="BIGINT"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="BIGINT"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        comment_status_id,user_id,comment_id,
+        like_status,dislike_status,repost_status,
+        gmt_create,gmt_modified,is_deleted
+    </sql>
+</mapper>

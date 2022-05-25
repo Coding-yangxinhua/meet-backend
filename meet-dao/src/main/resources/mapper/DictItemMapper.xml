@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nsu.stu.meet.dao.DictItemMapper">
+
+    <resultMap id="BaseResultMap" type="com.nsu.stu.meet.model.dto.DictItemDto">
+            <id property="dictId" column="dict_id" jdbcType="BIGINT"/>
+            <result property="typeId" column="type_id" jdbcType="BIGINT"/>
+            <result property="itemLabel" column="item_label" jdbcType="VARCHAR"/>
+            <result property="itemValue" column="item_value" jdbcType="VARCHAR"/>
+            <result property="order" column="order" jdbcType="INTEGER"/>
+            <result property="isEnable" column="is_enable" jdbcType="TINYINT"/>
+            <result property="gmtCreate" column="gmt_create" jdbcType="BIGINT"/>
+            <result property="gmtModified" column="gmt_modified" jdbcType="BIGINT"/>
+            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        dict_id, item_label, item_value
+    </sql>
+    <select id="getDictItemsByType" resultType="com.nsu.stu.meet.model.DictItem">
+        SELECT <include refid="Base_Column_List" />
+        FROM mt_dict_item
+        WHERE type_id = #{typeId}
+        AND is_deleted = ${NOT_DELETED}
+        AND is_enable = 1
+        ORDER BY `order`
+    </select>
+
+
+</mapper>

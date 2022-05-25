@@ -47,6 +47,18 @@ public class SsoFilter implements Filter {
             return;
         }
         /**
+         * 3.非免登录地址 判断是否登录
+         */
+        // 获得用户token
+        String token = SsoUtil.getToken(request.getCookies());
+        // 判断是否登录
+        JwtInfo jwtInfo = SsoUtil.getJwtInfo(token);
+        if (jwtInfo != null && jwtInfo.getUserId() != null) {
+            JwtStorage.set(jwtInfo);
+            chain.doFilter(req, res);
+            return;
+        }
+        /**
          * 2. 判断是否为免登录地址
          */
         // 获取请求地址
@@ -67,18 +79,7 @@ public class SsoFilter implements Filter {
                 return;
             }
         }
-        /**
-         * 3.非免登录地址 判断是否登录
-         */
-        // 获得用户token
-        String token = SsoUtil.getToken(request.getCookies());
-        // 判断是否登录
-        JwtInfo jwtInfo = SsoUtil.getJwtInfo(token);
-        if (jwtInfo != null && jwtInfo.getUserId() != null) {
-            JwtStorage.set(jwtInfo);
-            chain.doFilter(req, res);
-            return;
-        }
+
         String json = JSON.toJSONString(ResponseEntity.builder().status(ResultStatus.FORBIDDEN).build());
         PrintWriter writer = response.getWriter();
         writer.append(json);

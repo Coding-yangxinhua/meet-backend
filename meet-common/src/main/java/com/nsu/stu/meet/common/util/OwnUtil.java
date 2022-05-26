@@ -13,14 +13,7 @@ import java.util.*;
 
 @UtilityClass
 public class OwnUtil {
-    private final Set<String>  imageSet = new HashSet<String>() {
-        {
-            add(".jpeg");
-            add(".jpg");
-            add(".png");
-            add(".webp");
-        }
-    };
+    private final Set<String>  imageSet = new HashSet<>(Arrays.asList(".jpeg", ".jpg", ".png", ".webp", ".bmp", ".raw"));
 
     public <T, S> List<T> covertL2L(Collection<S> src, Class<T> tType) {
         if (CollectionUtils.isEmpty(src)) {

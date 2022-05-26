@@ -47,7 +47,7 @@ public class SsoFilter implements Filter {
             return;
         }
         /**
-         * 3.非免登录地址 判断是否登录
+         * 2. 非免登录地址 判断是否登录
          */
         // 获得用户token
         String token = SsoUtil.getToken(request.getCookies());
@@ -59,7 +59,7 @@ public class SsoFilter implements Filter {
             return;
         }
         /**
-         * 2. 判断是否为免登录地址
+         * 3.判断是否为免登录地址
          */
         // 获取请求地址
         String requestUrl = request.getRequestURI();

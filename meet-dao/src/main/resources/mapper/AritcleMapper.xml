@@ -75,6 +75,7 @@
                 <foreach collection="queryIdList" item="id" open="(" close=")" separator=",">
                     #{id}
                 </foreach>
+                AND ma.limit_id IN(#{follow, #{public})
             </when>
             <otherwise>
                 AND 1 = 0

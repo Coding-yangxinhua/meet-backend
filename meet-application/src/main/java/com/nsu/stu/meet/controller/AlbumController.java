@@ -1,11 +1,13 @@
 package com.nsu.stu.meet.controller;
 
+import com.nsu.stu.meet.annotation.Limit;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.util.JwtUtil;
 import com.nsu.stu.meet.model.Album;
 import com.nsu.stu.meet.model.dto.AlbumDto;
 import com.nsu.stu.meet.service.AlbumPhotoService;
 import com.nsu.stu.meet.service.AlbumService;
+import com.nsu.stu.meet.service.impl.AlbumServiceImpl;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,6 @@ import java.util.List;
 public class AlbumController {
     @Autowired
     private AlbumService albumService;
-
-    @Autowired
-    private AlbumPhotoService albumPhotoService;
 
     @RequestMapping(value = "/deleteBatch", method = RequestMethod.POST)
     public ResponseEntity<String> deleteBatch(@RequestBody List<Long> albumIdList) {
@@ -45,5 +44,11 @@ public class AlbumController {
         }
         return albumService.selectAlbumListOther(userId);
 
+    }
+
+    @Limit(clazz = AlbumService.class)
+    @RequestMapping(value = "/getAlbumById", method = RequestMethod.GET, params = {"albumId"})
+    public ResponseEntity<AlbumDto> getAlbumById(Long albumId) {
+        return albumService.selectAlbumById(albumId);
     }
 }

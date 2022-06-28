@@ -61,13 +61,17 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
     }
 
     @Override
+    public ResponseEntity<AlbumDto> selectAlbumById(Long albumId) {
+        AlbumDto albumDto = baseMapper.selectAlbumById(albumId);
+        albumDto.setSelf(JwtStorage.isSelf());
+        return ResponseEntity.ok(albumDto);
+    }
+
+    @Override
     public Album selectAlbumByIdAndUserId(Long albumId, Long userId) {
-        if (userId == null) {
-            userId = JwtStorage.info().getUserId();
-        }
-        LambdaQueryWrapper<Album> albumQueryWrapper = new LambdaQueryWrapper<>();
-        albumQueryWrapper.eq(Album::getUserId, userId).eq(Album::getAlbumId, albumId);
-        return baseMapper.selectOne(albumQueryWrapper);
+        LambdaQueryWrapper<Album> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Album::getAlbumId, albumId).eq(Album::getUserId, userId);
+        return baseMapper.selectOne(lambdaQueryWrapper);
     }
 
     @Override
@@ -104,10 +108,6 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
         if (album == null) {
             return null;
         }
-        // 文章所需权限
-        Integer limitId = album.getLimitId().value();
-        // 好友间关系对于权限
-        Long userId = album.getUserId();
-        return new LimitVo(userId, limitId);
+        return new LimitVo(album.getUserId(), album.getLimitId());
     }
 }

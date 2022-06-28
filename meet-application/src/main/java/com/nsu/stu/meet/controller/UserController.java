@@ -83,6 +83,11 @@ public class UserController {
         return userService.updateUserAvatar(file);
     }
 
+    @RequestMapping(value = "/updateBackground", method = RequestMethod.POST)
+    public ResponseEntity<String> updateBackground(@RequestPart("file") MultipartFile file) {
+        return userService.updateUserBackground(file);
+    }
+
     @RequestMapping(value = "/getInfo", method = RequestMethod.GET)
     public ResponseEntity<User> getInfo(@RequestParam(value = "userId", required = false) Long userId) {
         if (userId == null) {

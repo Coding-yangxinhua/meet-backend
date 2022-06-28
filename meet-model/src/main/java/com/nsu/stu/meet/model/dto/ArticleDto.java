@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 public class ArticleDto extends Article {
 
-    private UserBaseDto userBase;
+    private UserBaseDto user;
 
     private ArticleStatusDto articleStatus;
 

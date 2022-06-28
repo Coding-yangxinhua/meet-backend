@@ -121,18 +121,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return ResponseEntity.ok(baseMapper.selectCommentSecond(secondId, userId, blockList, commentId, start, end));
     }
 
-
-
-    @Override
-    public LimitVo getLimitVo(Long queryId) {
-        // 获取文章实体
-        Article article = articleService.selectById(queryId);
-        if (article == null) {
-            return null;
-        }
-        return new LimitVo(article.getUserId(), article.getLimitId().value());
-    }
-
     public void combineRootWithChildren(List<CommentDto> commentDtos, List<Long> blockList) {
         if (commentDtos.size() == 0) {
             return;
@@ -145,5 +133,15 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
              commentDtos) {
             commentDto.setChildrenComments(childrenMap.get(commentDto.getCommentId()));
         }
+    }
+
+    @Override
+    public LimitVo getLimitVo(Long queryId) {
+        // 获取文章实体
+        Article article = articleService.selectById(queryId);
+        if (article == null) {
+            return null;
+        }
+        return new LimitVo(article.getUserId(), article.getLimitId());
     }
 }

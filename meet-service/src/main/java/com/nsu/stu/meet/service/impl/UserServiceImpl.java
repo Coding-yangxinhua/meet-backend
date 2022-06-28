@@ -226,6 +226,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public ResponseEntity<String> updateUserBackground(MultipartFile file) {
+        Long userId = JwtStorage.userId();
+        User user = new User();
+        user.setUserId(userId);
+        boolean isImage = OwnUtil.checkFileIsImage(file.getResource().getFilename());
+        long size = file.getSize();
+        if (!isImage) {
+            return ResponseEntity.checkError(SystemConstants.FILE_TYPE_ERROR);
+        }
+        if (size > 5 * 1024 * 1000) {
+            return ResponseEntity.checkError(SystemConstants.FILE_SIZE_ERROR);
+        }
+        String url = cosUtil.upload(file);
+        user.setBackground(url);
+        baseMapper.updateById(user);
+        return ResponseEntity.ok();
+    }
+
+    @Override
     public ResponseEntity<User> getInfo(Long queryUserId) {
         User user = baseMapper.selectById(queryUserId);
         user.setPassword(null);

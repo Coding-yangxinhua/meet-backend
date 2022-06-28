@@ -19,8 +19,6 @@ import java.util.List;
 @RestController
 @RequestMapping("albumPhoto")
 public class AlbumPhotoController {
-    @Autowired
-    private CosUtil cosUtil;
 
     @Autowired
     private AlbumPhotoService albumPhotoService;

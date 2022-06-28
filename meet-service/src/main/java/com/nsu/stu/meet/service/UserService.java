@@ -62,6 +62,8 @@ public interface UserService extends CheckService{
 
     ResponseEntity<String> updateUserAvatar(MultipartFile file);
 
+    ResponseEntity<String> updateUserBackground(MultipartFile file);
+
     ResponseEntity<User> getInfo(Long queryUserId);
 
     /**

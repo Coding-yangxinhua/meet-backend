@@ -23,12 +23,12 @@ public class ArticleStatus extends BaseModel {
     private Long articleStatusId;
 
     /**
-     * 文章父id
+     * 文章状态用户
      */
     private Long userId;
 
     /**
-     * 文章发布用户
+     * 文章id
      */
     private Long articleId;
 

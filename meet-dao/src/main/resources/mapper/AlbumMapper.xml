@@ -30,6 +30,21 @@
             </choose>
         GROUP BY a.album_id
     </select>
+
+    <select id="selectAlbumById" resultType="com.nsu.stu.meet.model.dto.AlbumDto">
+        SELECT
+        a.*,
+        COUNT(ap.album_id) as total
+        FROM
+        mt_album a
+        Left JOIN
+        mt_album_photo ap
+        ON ap.album_id = a.album_id
+        WHERE
+        a.album_id = #{albumId}
+        AND a.is_deleted = ${NOT_DELETED}
+    </select>
+
     <select id="selectAlbumListWithNoLimit" resultType="com.nsu.stu.meet.model.dto.AlbumDto">
         SELECT
             a.*,

@@ -114,7 +114,9 @@ public class ArticleController {
     @RequestMapping(value = "/detail", method = RequestMethod.GET, params = {"articleId"})
     public ResponseEntity<ArticleDto> articleDetail(Long articleId) {
         Long userId = JwtStorage.userId();
-        articleHistoryService.setArticleHistory(userId, articleId);
+        if (userId != null) {
+            articleHistoryService.setArticleHistory(userId, articleId);
+        }
         return articleService.selectByArticleId(userId, articleId);
 
     }

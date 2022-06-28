@@ -50,6 +50,11 @@ public class User extends BaseModel {
     private String avatar;
 
     /**
+     * 用户背景图
+     */
+    private String background;
+
+    /**
      * 用户简介
      */
     @Length(max = 511)

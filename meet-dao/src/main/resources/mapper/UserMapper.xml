@@ -11,6 +11,7 @@
         mu.nickname,
         mu.avatar,
         mu.like_total,
+        mu.background,
         COUNT( mur.src_id = #{userId}  OR NULL) AS followSum,
         COUNT( mur.dest_id = #{userId}  OR NULL) AS fanSum
         FROM
@@ -22,7 +23,7 @@
     </select>
 
     <select id="getFriendBaseByIds" resultType="com.nsu.stu.meet.model.dto.user.FriendBaseDto">
-        SELECT user_id, nickname, avatar, intro
+        SELECT user_id, nickname, avatar, intro, background
         FROM mt_user
         WHERE
         <choose>

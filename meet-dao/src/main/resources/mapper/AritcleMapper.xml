@@ -19,7 +19,7 @@
         <result column="dislike_sum" property="dislikeSum" jdbcType="INTEGER" />
         <result column="star_sum" property="starSum" jdbcType="INTEGER" />
         <result column="comment_sum" property="commentSum" jdbcType="INTEGER" />
-        <association property="userBase" javaType="com.nsu.stu.meet.model.dto.user.UserBaseDto">
+        <association property="user" javaType="com.nsu.stu.meet.model.dto.user.UserBaseDto">
             <result property="avatar"  column="avatar" />
             <result property="userId"  column="user_id" />
             <result property="nickname"  column="nickname" />

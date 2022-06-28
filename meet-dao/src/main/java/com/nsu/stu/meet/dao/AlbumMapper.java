@@ -12,4 +12,6 @@ public interface AlbumMapper extends BaseMapper<Album> {
     List<AlbumDto> selectAlbumListByUserId (@Param("userId") Long userId, @Param("limits") List<Integer> limits);
 
     List<AlbumDto> selectAlbumListWithNoLimit (@Param("userId") Long userId);
+
+    AlbumDto selectAlbumById (@Param("albumId") Long albumId);
 }

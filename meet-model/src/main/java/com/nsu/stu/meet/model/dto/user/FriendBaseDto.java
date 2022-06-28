@@ -21,4 +21,6 @@ public class FriendBaseDto implements Serializable {
 
     private Boolean isFollow;
 
+    private String background;
+
 }

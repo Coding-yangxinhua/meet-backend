@@ -3,6 +3,7 @@ package com.nsu.stu.meet.common.enums;
 public enum ResultStatus {
     OK(200, "成功"),
     FORBIDDEN(403, "权限不足"),
+    NOT_SUPPORT(400, "无法访问"),
     SYS_ERROR(10000, "系统错误"),
     CHECK_ERROR(40000, "校验失败"),
     BIZ_ERROR(50000, "业务校验失败");

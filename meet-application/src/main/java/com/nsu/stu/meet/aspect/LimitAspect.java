@@ -1,9 +1,12 @@
 package com.nsu.stu.meet.aspect;
 
+import com.alibaba.fastjson.JSON;
 import com.nsu.stu.meet.annotation.Limit;
+import com.nsu.stu.meet.common.base.JwtInfo;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.constant.SystemConstants;
+import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.model.BaseModel;
 import com.nsu.stu.meet.model.CheckModel;
 import com.nsu.stu.meet.model.vo.LimitVo;
@@ -17,10 +20,12 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Aspect
 @Component
@@ -42,6 +47,11 @@ public class LimitAspect {
     @Autowired
     UserService userService;
 
+    @Autowired
+    StringRedisTemplate redisTemplate;
+
+
+
     /**
      * 在切点之前织入
      * @param joinPoint
@@ -50,32 +60,26 @@ public class LimitAspect {
     @Around("limit()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         String targetName = joinPoint.getTarget().getClass().getName();
-        Object obj = joinPoint.getArgs()[0];
-        Long queryId = null;
-        if (obj == null) {
-            return joinPoint.proceed();
-        }
-        if (obj.getClass().equals(Long.class)) {
-            queryId = (Long) obj;
-
-        } else {
-            queryId = ((CheckModel) obj).getQueryId();
-        }
-        LimitVo limitVo = null;
-        Class targetClass = Class.forName(targetName);
+        // 获得待查询id
+        Long queryId = getQueryId(joinPoint.getArgs()[0]);
+        // 自身userId
+        Long tokenUserId = JwtStorage.userId();
+        Class<?> targetClass = Class.forName(targetName);
         Method[] methods = targetClass.getMethods();
+        Class<?> clazz = null;
         boolean half = false;
         for (Method method :
                 methods) {
             Limit annotation = method.getAnnotation(Limit.class);
             if (annotation != null) {
-                Class<?> clazz = annotation.clazz();
+                clazz = annotation.clazz();
                 half = annotation.half();
-                CheckService checkService = (CheckService) applicationContext.getBean(clazz);
-                limitVo = checkService.getLimitVo(queryId);
+                break;
             }
         }
-
+        if (clazz == null) return joinPoint.proceed();
+        // 获得权限实体类
+        LimitVo limitVo = getLimitVo(clazz, queryId);
         // 实体类不存在
         if (limitVo == null) {
             return ResponseEntity.checkError(SystemConstants.UNKNOWN_ERROR);
@@ -83,10 +87,16 @@ public class LimitAspect {
         // 待查询用户及其所需权限
         Long queryUserId = limitVo.getUserId();
         Integer limitId = limitVo.getLimitId();
+        // 若查询用户不存在：阻止
         if (queryUserId == null || !userService.checkExists(queryUserId)) {
             return ResponseEntity.checkError(SystemConstants.INFO_NOT_EXISTS);
         }
-        Long tokenUserId = JwtStorage.userId();
+        // 若查询用户与登录用户id相等，放行
+        if (queryUserId.equals(tokenUserId)) {
+            JwtStorage.set(true);
+            return joinPoint.proceed();
+        }
+        JwtStorage.set(false);
         // 判断是否在黑名单内
         if (half) {
             List<Long> blockedUser = relationService.getBlockedUser(tokenUserId);
@@ -106,5 +116,35 @@ public class LimitAspect {
         }
         return ResponseEntity.checkError(SystemConstants.NO_RIGHTS_VISIT);
     }
+
+    /**
+     * 获得待查询id
+     * @param obj
+     * @return
+     */
+    private Long getQueryId (Object obj) {
+        Long queryId = null;
+        if (obj.getClass().equals(Long.class)) {
+            queryId = (Long) obj;
+
+        } else {
+            queryId = ((CheckModel) obj).getQueryId();
+        }
+        return queryId;
+    }
+    private LimitVo getLimitVo (Class<?> clazz, Long queryId) {
+        LimitVo limitVo = null;
+        CheckService checkService = (CheckService) applicationContext.getBean(clazz);
+        String key = OwnUtil.getRedisKey("LIMIT", clazz.getSimpleName(), queryId);
+        String limitVoString = redisTemplate.opsForValue().get(key);
+        if (limitVoString != null) {
+            limitVo = JSON.parseObject(limitVoString, LimitVo.class);
+        } else {
+            limitVo = checkService.getLimitVo(queryId);
+            redisTemplate.opsForValue().set(key, JSON.toJSONString(limitVo), 1, TimeUnit.HOURS);
+        }
+        return limitVo;
+    }
+
 
 }

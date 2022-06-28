@@ -13,7 +13,10 @@ public interface AlbumService extends CheckService{
 
     ResponseEntity<String> deleteAlbumBatch (List<Long> albumIdList);
 
+    ResponseEntity<AlbumDto> selectAlbumById (Long albumId);
+
     Album selectAlbumByIdAndUserId (Long albumId, Long userId);
+
 
     ResponseEntity<List<AlbumDto>> selectAlbumListSelf ();
 

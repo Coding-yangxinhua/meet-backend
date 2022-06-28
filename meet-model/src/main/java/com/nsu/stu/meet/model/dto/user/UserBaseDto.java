@@ -15,6 +15,8 @@ public class UserBaseDto {
 
     private RelationEnums relation;
 
+    private String background;
+
     private String intro;
 
     private Integer fanSum;

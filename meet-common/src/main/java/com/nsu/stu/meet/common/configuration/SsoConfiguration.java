@@ -2,7 +2,6 @@ package com.nsu.stu.meet.common.configuration;
 
 import com.nsu.stu.meet.common.filter.CorsFilter;
 import com.nsu.stu.meet.common.filter.SsoFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,18 +9,14 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * @author Xinhua X Yang
+ */
 @Configuration
 public class SsoConfiguration {
 
-    @Autowired
-    SsoFilter ssoFilter;
-
-    @Autowired
-    CorsFilter corsFilter;
-
-
     @Bean
-    public FilterRegistrationBean<SsoFilter> loginFilter() {
+    public FilterRegistrationBean<SsoFilter> loginFilter(SsoFilter ssoFilter) {
         FilterRegistrationBean<SsoFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(ssoFilter);
         registration.setUrlPatterns(new ArrayList<>(Collections.singletonList("/*")));
@@ -31,7 +26,7 @@ public class SsoConfiguration {
     }
 
     @Bean
-    public FilterRegistrationBean<CorsFilter> requestFilter() {
+    public FilterRegistrationBean<CorsFilter> requestFilter(CorsFilter corsFilter) {
         FilterRegistrationBean<CorsFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(corsFilter);
         registration.setUrlPatterns(new ArrayList<>(Collections.singletonList("/*")));

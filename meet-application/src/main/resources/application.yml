@@ -15,6 +15,7 @@ spring:
 
 mybatis-plus:
   global-config:
+    sql-parser-cache: true
     db-config:
       logic-delete-field: isDeleted
       logic-delete-value: 1

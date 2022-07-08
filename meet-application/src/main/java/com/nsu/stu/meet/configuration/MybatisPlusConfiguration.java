@@ -7,31 +7,30 @@ import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.google.common.collect.Lists;
+import com.nsu.stu.meet.annotation.LimitHandler;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
+/**
+ * @author Xinhua X Yang
+ */
 @Configuration
 public class MybatisPlusConfiguration {
-
-    /**
-     * mybatis-plus分页
-     * @return
-     */
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor() {
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
-        return interceptor;
-    }
 
     /**
      * mybatis-plus 自动完成insert和update时的值设置
      */
     @Bean
     public MetaObjectHandler mybatisPlusColumnSetterInterceptor() {
-        MetaObjectHandler metaObjectHandler = new MetaObjectHandler() {
+        return new MetaObjectHandler() {
             /**
              * 在insert前自动设置值
              */
@@ -52,7 +51,6 @@ public class MybatisPlusConfiguration {
             }
 
         };
-        return metaObjectHandler;
     }
 
     @Bean
@@ -64,5 +62,31 @@ public class MybatisPlusConfiguration {
             configuration.setDefaultEnumTypeHandler(MybatisEnumTypeHandler.class);
             properties.setConfiguration(configuration);
         };
+    }
+
+    /**
+     * mybatis-plus分页
+     * @return
+     */
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor(LimitHandler limitHandler) {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        // 添加数据权限插件
+        DataPermissionInterceptor dataPermissionInterceptor = new DataPermissionInterceptor();
+        // 添加自定义的数据权限处理器
+        dataPermissionInterceptor.setDataPermissionHandler(limitHandler);
+        List<InnerInterceptor> interceptors = Lists.newArrayList(interceptor.getInterceptors());
+        interceptors.clear();
+        PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor(DbType.MYSQL);
+        // 数据权限插件
+        interceptors.add(dataPermissionInterceptor);
+        // 分页插件
+        interceptors.add(paginationInnerInterceptor);
+        // 乐观锁插件
+        interceptors.add(new OptimisticLockerInnerInterceptor());
+
+        interceptor.setInterceptors(interceptors);
+
+        return interceptor;
     }
 }

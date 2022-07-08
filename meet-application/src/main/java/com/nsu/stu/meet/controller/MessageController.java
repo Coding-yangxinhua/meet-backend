@@ -6,19 +6,18 @@ import com.nsu.stu.meet.common.base.ResponseEntity;
 import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.model.Chat;
 import com.nsu.stu.meet.model.Message;
-import com.nsu.stu.meet.model.dto.ChatDto;
 import com.nsu.stu.meet.model.dto.MessageDto;
 import com.nsu.stu.meet.service.ChatService;
 import com.nsu.stu.meet.service.MessageService;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * @author Xinhua X Yang
+ */
 @RestController
 @RequestMapping("chat/message")
 public class MessageController {
@@ -32,20 +31,20 @@ public class MessageController {
     @Autowired
     public ChatService chatService;
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET, params = {"destId", "page", "size"})
+    @GetMapping(value = "/list", params = {"destId", "page", "size"})
     public ResponseEntity<IPage<MessageDto>> list(Long destId, int page, int size) {
         Long srcId = JwtStorage.userId();
         return messageService.list(srcId, destId, page, size);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/pushToAll", method = RequestMethod.POST)
+    @PostMapping(value = "/pushToAll")
     public void pushToAll( @RequestBody Message msg) {
         template.convertAndSend("/topic/all", msg);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/user", method = RequestMethod.POST)
+    @PostMapping(value = "/user")
     public ResponseEntity<MessageDto> pushToOne( @RequestBody MessageDto messageDto) {
         Long srcId = JwtStorage.userId();
         Long destId = messageDto.getDestId();

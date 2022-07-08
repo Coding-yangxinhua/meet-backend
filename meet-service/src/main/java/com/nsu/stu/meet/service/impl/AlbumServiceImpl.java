@@ -3,33 +3,24 @@ package com.nsu.stu.meet.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nsu.stu.meet.common.base.JwtStorage;
 import com.nsu.stu.meet.common.base.ResponseEntity;
-import com.nsu.stu.meet.common.util.CosUtil;
-import com.nsu.stu.meet.common.util.OwnUtil;
 import com.nsu.stu.meet.dao.AlbumMapper;
 import com.nsu.stu.meet.model.Album;
-import com.nsu.stu.meet.model.Article;
-import com.nsu.stu.meet.model.RelationLimit;
 import com.nsu.stu.meet.model.dto.AlbumDto;
 import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.AlbumService;
-import com.nsu.stu.meet.service.RelationLimitService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+/**
+ * @author Xinhua X Yang
+ */
 @Service
 public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements AlbumService {
-    @Autowired
-    CosUtil cosUtil;
-
-    @Autowired
-    RelationLimitService relationLimitService;
 
     public ResponseEntity<String> createAlbum (AlbumDto albumDto)  {
         Long userId = JwtStorage.userId();
@@ -75,17 +66,9 @@ public class AlbumServiceImpl extends ServiceImpl<AlbumMapper, Album> implements
     }
 
     @Override
-    public ResponseEntity<List<AlbumDto>> selectAlbumListSelf() {
-        Long userId = JwtStorage.userId();
-        return ResponseEntity.ok(baseMapper.selectAlbumListWithNoLimit(userId));
-    }
-
-    @Override
-    public ResponseEntity<List<AlbumDto>> selectAlbumListOther(Long userId) {
-        Long tokenUserId = JwtStorage.userId();
-        List<Integer> userRelationLimit = relationLimitService.getUserRelationLimit(tokenUserId, userId);
-        List<AlbumDto> albumDtos = baseMapper.selectAlbumListByUserId(userId, userRelationLimit);
-        return ResponseEntity.ok(albumDtos);
+    public ResponseEntity<List<AlbumDto>> selectAlbumListById(Long userId) {
+        List<AlbumDto> albumDtoList = baseMapper.selectAlbumListByUserId(userId);
+        return ResponseEntity.ok(albumDtoList);
     }
 
     @Override

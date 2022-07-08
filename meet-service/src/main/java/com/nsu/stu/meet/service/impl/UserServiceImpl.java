@@ -16,7 +16,6 @@ import com.nsu.stu.meet.model.User;
 import com.nsu.stu.meet.model.dto.user.FriendBaseDto;
 import com.nsu.stu.meet.model.dto.user.UserBaseDto;
 import com.nsu.stu.meet.model.dto.user.UserDto;
-import com.nsu.stu.meet.model.enums.RelationEnums;
 import com.nsu.stu.meet.model.vo.LimitVo;
 import com.nsu.stu.meet.service.SmsService;
 import com.nsu.stu.meet.service.UserRelationService;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -52,7 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    private final static String USER_KEY = "user";
+    private static final String USER_KEY = "user";
 
 
 
@@ -107,7 +105,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 存入数据库
         Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
-        if (isCodeRight) {
+        if (Boolean.TRUE.equals(isCodeRight)) {
             // 设置默认用户名
             userDto.setNickname("用户" + RandomUtil.randomNumbers(11));
             // 屏蔽基础信息
@@ -135,7 +133,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 对比验证码是否正确
         Boolean isCodeRight = smsService.checkCode(userDto.getMobile(), code, type);
-        if (isCodeRight) {
+        if (Boolean.TRUE.equals(isCodeRight)) {
             String token = SsoUtil.login(user.getUserId());
             setTokenToCookies (token, response);
             return ResponseEntity.ok(SystemConstants.LOGIN_SUCCESS, OwnUtil.entity2Dto(user, UserBaseDto.class));
@@ -186,7 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 查询验证码是否正确
         Boolean isCodeRight  = smsService.checkCode(String.valueOf(userId), code, SmsEnums.UPDATE.type());
-        if (isCodeRight) {
+        if (Boolean.TRUE.equals(isCodeRight)) {
             LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(User::getUserId, user);
             User newUser = new User();
@@ -247,6 +245,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public ResponseEntity<User> getInfo(Long queryUserId) {
         User user = baseMapper.selectById(queryUserId);
+        if (user == null) {
+            user = new User();
+        }
         user.setPassword(null);
         return ResponseEntity.ok(user);
     }
@@ -289,8 +290,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 查询自己关注列表
         Set<Long> selfFollowIds = new HashSet<>(relationService.getUserFollowIds(selfId));
         Set<Long> selFanIds = new HashSet<>(relationService.getFollowedUserIds(selfId));
-        // 查询待查询用户粉丝列表
-        List<Long> queryFollowIds = relationService.getUserFollowIds(userId);
 
         UserBaseDto userBaseDto = baseMapper.selectBaseFromUser(userId);
 

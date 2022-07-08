@@ -40,17 +40,17 @@
         <bind name="follow" value="@com.nsu.stu.meet.model.enums.LimitEnums@FOLLOW.value"/>
         <bind name="private" value="@com.nsu.stu.meet.model.enums.LimitEnums@PRIVATE.value"/>
         SELECT
-            ma.* ,
+            ma.*,
             mu.avatar,
             mu.user_id,
             mu.nickname,
             mur.status relation,
             ma2.content parent_content,
-            count( DISTINCT mas.article_status_id, mas.like_status = 1  OR NULL ) AS like_sum,
-            count( DISTINCT mas.article_status_id, mas.dislike_status = 1 OR NULL ) AS dislike_sum,
-            count( DISTINCT mas.article_status_id, mas.star_status = 1 OR NULL ) AS star_sum,
-            count( DISTINCT mas.article_status_id, mas.repost_status = 1 OR NULL ) AS repost_sum,
-            count( distinct mc.comment_id ) AS comment_sum,
+            count( DISTINCT mas.article_status_id, if(mas.like_status = 1, 1, NULL ))  AS like_sum,
+            count( DISTINCT mas.article_status_id, if(mas.dislike_status = 1, 1, NULL )) AS dislike_sum,
+            count( DISTINCT mas.article_status_id, if(mas.star_status = 1, 1, NULL )) AS star_sum,
+            count( DISTINCT mas.article_status_id, if(mas.repost_status = 1, 1, NULL )) AS repost_sum,
+            count( DISTINCT mc.comment_id ) AS comment_sum,
             mas2.like_status, mas2.dislike_status, mas2.repost_status, mas2.star_status
         FROM
             mt_article ma
@@ -65,10 +65,6 @@
         <include refid="selectBase" />
         WHERE
         ma.is_deleted = ${NOT_DELETED}
-        
-        <if test="articleId != null">
-            AND ma.article_id <![CDATA[ < ]]> #{articleId}
-        </if>
         <choose>
             <when test="queryIdList.size > 0">
                 AND ma.user_id IN
@@ -81,15 +77,9 @@
                 AND 1 = 0
             </otherwise>
         </choose>
-        <choose>
-            <when test="blockList.size > 0">
-                AND ma.user_id NOT IN
-                <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                    #{blockId}
-                </foreach>
-            </when>
-        </choose>
-
+        <if test="articleId != null">
+            AND ma.article_id <![CDATA[ < ]]> #{articleId}
+        </if>
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
@@ -103,30 +93,11 @@
         <if test="articleId != null">
             AND ma.article_id <![CDATA[ < ]]> #{articleId}
         </if>
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                    #{blockId}
-            </foreach>
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-                ma.limit_id = #{follow} AND ma.user_id IN
-                <foreach collection="followList" item="followId" open="(" close=")" separator=",">
-                    #{followId}
-                </foreach>
-                )
-        </if>
-            OR ma.user_id = #{userId}
-        )
-
-        GROUP BY mas.article_id, ma.article_id
+<!--        GROUP BY mas.article_id, ma.article_id-->
+        GROUP BY ma.article_id
         ORDER BY
         ma.gmt_create DESC
-        LIMIT #{start}, #{end}
+<!--        LIMIT #{start}, #{end}-->
     </select>
     <select id="selectArticleListHot" resultMap="articleMap">
         <include refid="selectBase" />
@@ -135,24 +106,6 @@
         <if test="articleId != null">
             AND ma.article_id <![CDATA[ < ]]> #{articleId}
         </if>
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                #{blockId}
-            </foreach>
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-            ma.limit_id = #{follow} AND ma.user_id IN
-            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
-            </foreach>
-            )
-        </if>
-        OR (ma.user_id = #{userId})
-        )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         like_sum DESC
@@ -167,26 +120,6 @@
         <if test="articleId != null">
             AND ma.article_id > #{articleId}
         </if>
-        <choose>
-            <when test="queryIdList.size > 0">
-                AND ma.user_id IN
-                <foreach collection="queryIdList" item="id" open="(" close=")" separator=",">
-                    #{id}
-                </foreach>
-            </when>
-            <otherwise>
-                AND 1 = 0
-            </otherwise>
-        </choose>
-        <choose>
-            <when test="blockList.size > 0">
-                AND ma.user_id NOT IN
-                <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                    #{blockId}
-                </foreach>
-            </when>
-        </choose>
-
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
@@ -200,25 +133,6 @@
         <if test="articleId != null">
             AND ma.article_id > #{articleId}
         </if>
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                #{blockId}
-            </foreach>
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-            ma.limit_id = #{follow} AND ma.user_id IN
-            <foreach collection="followList" item="followId" open="(" close=")" separator=",">
-                #{followId}
-            </foreach>
-            )
-        </if>
-        OR (ma.user_id = #{userId})
-        )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
@@ -231,24 +145,6 @@
         <if test="articleId != null">
             AND ma.article_id > #{articleId}
         </if>
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                #{blockId}
-            </foreach>
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-            ma.limit_id = #{follow} AND ma.user_id IN
-            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
-            </foreach>
-            )
-        </if>
-        OR (ma.user_id = #{userId})
-        )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         like_sum DESC
@@ -262,25 +158,6 @@
         <if test="articleId != null">
             AND ma.article_id <![CDATA[ < ]]> #{articleId}
         </if>
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                #{blockId}
-            </foreach>
-
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-            ma.limit_id = #{follow} AND ma.user_id IN
-            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
-            </foreach>
-            )
-        </if>
-        OR #{queryId} = #{userId}
-        )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
@@ -294,25 +171,6 @@
         <if test="articleId != null">
             AND ma.article_id > #{articleId}
         </if>
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                #{blockId}
-            </foreach>
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-            ma.limit_id = #{follow} AND ma.user_id IN
-            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
-            </foreach>
-            )
-
-        </if>
-        OR (ma.user_id = #{userId})
-        )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         ma.gmt_create DESC
@@ -323,25 +181,6 @@
         INNER JOIN mt_article_history mah ON mah.user_id = #{userId} AND mah.article_id = ma.article_id
         WHERE
         ma.is_deleted = ${NOT_DELETED}
-        <if test="blockList.size > 0">
-            AND ma.user_id NOT IN
-            <foreach collection="blockList" item="blockId" open="(" close=")" separator=",">
-                #{blockId}
-            </foreach>
-        </if>
-        AND (
-        ma.limit_id = #{public}
-        
-        <if test="followList.size > 0">
-            OR (
-            ma.limit_id = #{follow} AND ma.user_id IN
-            <foreach collection="followList" item="followId" open="(" close=")" separator=",">#{followId}
-            </foreach>
-            )
-
-        </if>
-        OR (ma.user_id = #{userId})
-        )
         GROUP BY mas.article_id, ma.article_id
         ORDER BY
         mah.gmt_modified DESC

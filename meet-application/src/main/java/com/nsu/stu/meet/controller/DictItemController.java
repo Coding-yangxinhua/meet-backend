@@ -8,13 +8,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * @author Xinhua X Yang
+ */
 @RestController
 @RequestMapping("dictItem")
 public class DictItemController {
     @Autowired
     private DictItemService dictItemService;
 
-    @RequestMapping(value = "/getItemsByType", method = RequestMethod.GET, params = {"type"})
+    @GetMapping(value = "/getItemsByType", params = {"type"})
     public ResponseEntity<List<DictItem>> getItemsByType(Integer type) {
         return ResponseEntity.ok(dictItemService.getDictItemsByType(type));
     }

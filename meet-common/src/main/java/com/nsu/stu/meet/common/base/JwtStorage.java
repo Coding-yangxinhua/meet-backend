@@ -1,18 +1,20 @@
 package com.nsu.stu.meet.common.base;
 
-import com.nsu.stu.meet.model.vo.LimitVo;
 import lombok.experimental.UtilityClass;
 
 
+/**
+ * @author Xinhua X Yang
+ */
 @UtilityClass
 public class JwtStorage {
 
-    public static ThreadLocal<JwtInfo> jwtInfo = new InheritableThreadLocal<>();
+    public static final ThreadLocal<JwtInfo> jwtInfo = new InheritableThreadLocal<>();
 
 
     public void set(Long userId, String userName) {
-        JwtInfo jwtInfo = new JwtInfo(userId, userName);
-        set(jwtInfo);
+        JwtInfo jwtInfoParam = new JwtInfo(userId, userName);
+        set(jwtInfoParam);
     }
 
     public void set(boolean isSelf) {

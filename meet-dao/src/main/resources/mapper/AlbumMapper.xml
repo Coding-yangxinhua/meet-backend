@@ -17,17 +17,6 @@
         WHERE
             a.user_id = #{userId}
             AND a.is_deleted = ${NOT_DELETED}
-            <choose>
-                <when test="limits.size > 0">
-                    AND a.limit_id IN
-                    <foreach collection="limits" item="limit" open="(" close=")" separator=",">
-                        #{limit}
-                    </foreach>
-                </when>
-                <otherwise>
-                    AND 1 = 0
-                </otherwise>
-            </choose>
         GROUP BY a.album_id
     </select>
 
@@ -45,18 +34,4 @@
         AND a.is_deleted = ${NOT_DELETED}
     </select>
 
-    <select id="selectAlbumListWithNoLimit" resultType="com.nsu.stu.meet.model.dto.AlbumDto">
-        SELECT
-            a.*,
-            COUNT(ap.album_id) as total
-        FROM
-            mt_album a
-                Left JOIN
-            mt_album_photo ap
-            ON ap.album_id = a.album_id
-        WHERE
-            a.user_id = #{userId}
-          AND a.is_deleted = ${NOT_DELETED}
-        GROUP BY a.album_id
-    </select>
 </mapper>
